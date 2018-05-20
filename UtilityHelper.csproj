@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ApplicationIcon>supporticon.ico</ApplicationIcon>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Declan Taylor</Authors>
+    <Company />
+    <Product />
+    <Description>Personal utility class</Description>
+    <NeutralLanguage />
+    <PackageTags>utility</PackageTags>
+    <PackageId>UtilityHelper_DeclanTaylor</PackageId>
+  </PropertyGroup>
+
+</Project>
