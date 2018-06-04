@@ -99,116 +99,27 @@ namespace UtilityHelper
             );
         }
 
-        // return 
-        //public static void AddFiles<T>(ObservableCollection<T> coupons, string filePath) where T:ITimeStamp,new()
-        //{
-
-
-        //    DirectoryInfo fileDirectory = new DirectoryInfo(filePath);
-        //    FileInfo[] Files = null;
-        //    try
-        //    {
-        //        Files = fileDirectory.GetFiles("*.xml");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show(ex.Message);
-        //        return;
-        //    }
-
-        //    foreach (FileInfo file in Files)
-        //    {
-        //        App.Current.Dispatcher.Invoke(() =>
-        //        {
-
-        //            //XElement xelement = XElement.Load();
-
-        //            //var xx = xelement.FirstNode;
-        //            coupons.Add(new T { TimeStamp=GetDateFromString(file.Name) });
-        //        });
-
-        //        //AddStatusUpdate("Local Stem File Located. Empty Coupon created.", file.Name);
-        //    }
-
-        //}
 
 
 
-
-        //        public static Dictionary<MakeFileObjects(ICollection<string> coupons, string filePath)  
-        //        {
-
-
-        //            DirectoryInfo fileDirectory = new DirectoryInfo(filePath);
-        //FileInfo[] Files = null;
-        //            try
-        //            {
-        //                Files = fileDirectory.GetFiles("*.xml");
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                MessageBox.Show(ex.Message);
-        //                return;
-        //            }
-
-        //            foreach (FileInfo file in Files)
-        //            {
-        //                App.Current.Dispatcher.Invoke(() =>
-        //                {
-
-        //                    //XElement xelement = XElement.Load();
-
-        //                    //var xx = xelement.FirstNode;
-        //                    coupons.Add(GetDateFromTimeStamp(file.Name.Replace('_','-')).ToString() );
-        //                });
-
-        //                //AddStatusUpdate("Local Stem File Located. Empty Coupon created.", file.Name);
-        //            }
-
-        //        }
-
-        //// extracts, parses returns first of any dates in the input text:
-        // public static DateTime GetDateFromString(string inputText)
-        // {
-        //     var regex = new System.Text.RegularExpressions.Regex(@"\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}");
-        //     foreach (System.Text.RegularExpressions.Match m in regex.Matches(inputText))
-        //     {
-        //         DateTime dt;
-        //         if (DateTime.TryParse(m.Value, out dt))
-        //             return dt;
-        //     }
-        //     return default(DateTime);
-        // }
-
-        // extracts, parses returns first of any dates in the input text:
-        public static DateTime GetDate(string inputText, string format = "yyyy-MM-dd'T'HH-mm-ss")
+        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
-            var regex = new System.Text.RegularExpressions.Regex(@"\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}");
-            foreach (System.Text.RegularExpressions.Match m in regex.Matches(inputText))
-            {
-                DateTime dt;
-                if (DateTime.TryParseExact(m.Value,
-                                      format,
-                                      CultureInfo.InvariantCulture,
-                                      DateTimeStyles.AssumeUniversal |
-                                      DateTimeStyles.AdjustToUniversal, out dt))
-
-                    return dt;
-            }
-            return default(DateTime);
+            // Unix timestamp is seconds past epoch
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime;
         }
 
 
 
 
-        //public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
-        //{
-        //    // Unix timestamp is seconds past epoch
-        //    System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-        //    dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-        //    return dtDateTime;
-        //}
+        public static DateTime Scale(this DateTime dt, double number)
+        {
+            return new DateTime((long)(dt.Ticks * number));
+        }
 
+
+   
     }
 
 }

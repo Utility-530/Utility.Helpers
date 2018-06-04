@@ -52,8 +52,13 @@ namespace UtilityHelper
         }
 
 
-
+        public static bool NextBoolean(this Random source)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            return source.NextDouble() > 0.5;
+        }
 
 
     }
+
 }

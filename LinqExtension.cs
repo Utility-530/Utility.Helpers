@@ -9,6 +9,7 @@ namespace UtilityHelper
 {
     public static class LinqExtension
     {
+        // zip multiple collections
         public static IEnumerable<TResult> Zip<TResult>(Func<object[], TResult> resultSelector,
 params System.Collections.IEnumerable[] itemCollections)
         {
@@ -34,6 +35,17 @@ params System.Collections.IEnumerable[] itemCollections)
 
         }
 
+
+        public static void ForEach<T>(this IEnumerable<T> sequence, Action<T, int> action)
+        {
+            // argument null checking omitted
+            int i = 0;
+            foreach (T item in sequence)
+            {
+                action(item, i);
+                i++;
+            }
+        }
 
 
         public static void RemoveLast<T>(this ICollection<T> collection, int n)
@@ -68,28 +80,43 @@ params System.Collections.IEnumerable[] itemCollections)
 
 
 
-        public static IEnumerable<double> SelectDifferences(this double[] sequence)
+        //public static IEnumerable<double> SelectDifferences(this double[] sequence)
+        //{
+        //    for (int i = 0; i < sequence.Length - 1; i++)
+        //    {
+        //        yield return sequence[i + 1] - sequence[i];
+
+        //    }
+        //}
+        //public static IEnumerable<double> SelectDifferences(this List<double> sequence)
+        //{
+        //    for (int i = 0; i < sequence.Count() - 1; i++)
+        //    {
+        //        yield return sequence[i + 1] - sequence[i];
+
+        //    }
+        //}
+
+
+        public static IEnumerable<double> SelectDifferences(this IEnumerable<double> sequence)
         {
-            for (int i = 0; i < sequence.Length - 1; i++)
+            using (var e = sequence.GetEnumerator())
             {
-                yield return sequence[i + 1] - sequence[i];
+                e.MoveNext();
+                double last = e.Current;
+                while (e.MoveNext())
+                    yield return e.Current - last;
 
             }
         }
-        public static IEnumerable<double> SelectDifferences(this List<double> sequence)
-        {
-            for (int i = 0; i < sequence.Count() - 1; i++)
-            {
-                yield return sequence[i + 1] - sequence[i];
 
-            }
-        }
+
 
 
         public static void AddOrReplaceBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TSource replacement)
         {
 
-            RemoveBy(source,keySelector, keySelector(replacement));
+            RemoveBy(source, keySelector, keySelector(replacement));
             source.Add(replacement);
 
         }
@@ -109,7 +136,7 @@ params System.Collections.IEnumerable[] itemCollections)
 
             if (!source.IsEmpty())
                 foreach (TSource element in source.ToList())
-                    if (key?.Equals(keySelector(element))?? false)
+                    if (key?.Equals(keySelector(element)) ?? false)
                     {
                         action(source, element);
                     }
@@ -198,6 +225,9 @@ params System.Collections.IEnumerable[] itemCollections)
                     return extrema;
                 }
             }
+
+
+
         }
 
 
@@ -209,18 +239,56 @@ params System.Collections.IEnumerable[] itemCollections)
 
 
 
-        public static double WeightedAverage<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight,double control=0)
+        public static double WeightedAverage<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight, double control = 0)
         {
-            double weightedValueSum = records.Sum(x => (value(x)-control) * weight(x));
+            double weightedValueSum = records.Sum(x => (value(x) - control) * weight(x));
             double weightSum = records.Sum(x => weight(x));
 
             if (weightSum != 0)
                 return weightedValueSum / weightSum;
             else
-                throw new DivideByZeroException("Your message here");
+                return 0;// throw new DivideByZeroException("No weights are greater than 0");
         }
 
 
+        public static IEnumerable<double> RunningWeightedAverage<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight)
+        {
+            var runningweightedvaluesum = 0d;
+            var runningweightsum = 0d;
+            foreach (var x in records)
+            {
+                runningweightedvaluesum += value(x) * weight(x);
+                runningweightsum += weight(x);
+                if (runningweightedvaluesum != 0)
+                    yield return runningweightedvaluesum / runningweightsum;
+                else
+                    yield return 0;
+            }
+
+        }
+        // equivalent to running-profit if records = trades (value = purchase-price, weight = quantity) and control = actual-price 
+        public static IEnumerable<double> RunningWeightedDifference<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight, IEnumerable<double> control)
+        {
+            var runningweightedvaluesum = 0d;
+            var runningweightsum = 0d;
+
+            using (var x = records.GetEnumerator())
+            using (var y = control.GetEnumerator())
+            {
+                while (x.MoveNext() && y.MoveNext())
+                {
+                    runningweightedvaluesum += value(x.Current) * weight(x.Current);
+                    runningweightsum += weight(x.Current);
+                    if (runningweightedvaluesum != 0)
+                        yield return (runningweightedvaluesum - y.Current) / runningweightsum;
+                    else
+                        yield return 0;
+                }
+            }
+        }
+
+
+        //moves the window in which weighted average values are taken
         public static List<double> MovingWeightedAverage<T>(this IEnumerable<T> series, int period, Func<T, double> value, Func<T, double> weight)
         {
             return series.Skip(period - 1).Aggregate(
@@ -247,7 +315,7 @@ params System.Collections.IEnumerable[] itemCollections)
         {
             return new SortedList<DateTime, double>(series.Skip(period - 1).Scan(new SortedList<DateTime, double>(),
 
-                 (list, item) =>   { list.Add(item.Key, item.Value);  return list;  })
+                 (list, item) => { list.Add(item.Key, item.Value); return list; })
                 .Select(_ => new KeyValuePair<DateTime, double>(_.Last().Key, _.Select(__ => __.Value).Average()))
                 .ToDictionary(_ => _.Key, _ => _.Value));
         }
@@ -278,20 +346,20 @@ params System.Collections.IEnumerable[] itemCollections)
 
 
 
-            public static IEnumerable<TResult> TakeIfNotNull<TResult>(this IEnumerable<TResult> source, int? count)
-            {
-                return !count.HasValue ? source : source.Take(count.Value);
-            }
+        public static IEnumerable<TResult> TakeIfNotNull<TResult>(this IEnumerable<TResult> source, int? count)
+        {
+            return !count.HasValue ? source : source.Take(count.Value);
+        }
 
 
-            public static IEnumerable<TResult> TakeAllIfNull<TResult>(this IEnumerable<TResult> source, int? count)
-            {
+        public static IEnumerable<TResult> TakeAllIfNull<TResult>(this IEnumerable<TResult> source, int? count)
+        {
 
-                if (count == null)
-                    return source;
-                else
-                    return source.Take(count.Value);
-            }
+            if (count == null)
+                return source;
+            else
+                return source.Take(count.Value);
+        }
 
 
 

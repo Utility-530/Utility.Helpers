@@ -10,6 +10,13 @@ namespace UtilityHelper
 
     public static class EnumHelpers
     {
+        public static T ToEnum<T>(int i)
+        {
+
+            return (T)Enum.ToObject(typeof(T), i);
+
+        }
+
 
         public static T GetValueFromDescription<T>(string description)
         {

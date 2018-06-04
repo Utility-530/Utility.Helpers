@@ -25,7 +25,6 @@ namespace UtilityHelper
                 {
                     lst.Add(new T());
 
-
                 }
             }
 
@@ -45,26 +44,19 @@ namespace UtilityHelper
 
 
 
-
-
-    }
-
-
-    public static class EnumerableExtension
-    {
-        public static void ForEach<T>(this IEnumerable<T> sequence, Action<T, int> action)
+        public static T SingleOrAdd<T>(this ICollection<T> query, T x) where T : new()
         {
-            // argument null checking omitted
-            int i = 0;
-            foreach (T item in sequence)
-            {
-                action(item, i);
-                i++;
-            }
+            var xd = query.SingleOrDefault(null);
+            if (xd == null) query.Add(x);
+
+            return xd;
+
         }
 
 
+
     }
+
 
 
 
