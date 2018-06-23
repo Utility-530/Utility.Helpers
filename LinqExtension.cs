@@ -9,44 +9,9 @@ namespace UtilityHelper
 {
     public static class LinqExtension
     {
-        // zip multiple collections
-        public static IEnumerable<TResult> Zip<TResult>(Func<object[], TResult> resultSelector,
-params System.Collections.IEnumerable[] itemCollections)
-        {
-            System.Collections.IEnumerator[] enumerators = itemCollections.Select(i => i.GetEnumerator()).ToArray();
-
-            Func<bool> MoveNext = () =>
-            {
-                for (int i = 0; i < enumerators.Length; i++)
-                {
-                    if (!enumerators[i].MoveNext())
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            };
-
-            while (MoveNext())
-            {
-                yield return resultSelector(enumerators.Select(e => e.Current).ToArray());
-            }
 
 
-        }
-
-
-        public static void ForEach<T>(this IEnumerable<T> sequence, Action<T, int> action)
-        {
-            // argument null checking omitted
-            int i = 0;
-            foreach (T item in sequence)
-            {
-                action(item, i);
-                i++;
-            }
-        }
-
+ 
 
         public static void RemoveLast<T>(this ICollection<T> collection, int n)
         {
@@ -65,48 +30,6 @@ params System.Collections.IEnumerable[] itemCollections)
             foreach (var y in x)
             {
                 collection.Remove(y);
-            }
-        }
-
-
-        public static IEnumerable<U> Map<T, U>(this IEnumerable<T> s, Func<T, U> f)
-        {
-            foreach (var item in s)
-                yield return f(item);
-        }
-
-
-
-
-
-
-        //public static IEnumerable<double> SelectDifferences(this double[] sequence)
-        //{
-        //    for (int i = 0; i < sequence.Length - 1; i++)
-        //    {
-        //        yield return sequence[i + 1] - sequence[i];
-
-        //    }
-        //}
-        //public static IEnumerable<double> SelectDifferences(this List<double> sequence)
-        //{
-        //    for (int i = 0; i < sequence.Count() - 1; i++)
-        //    {
-        //        yield return sequence[i + 1] - sequence[i];
-
-        //    }
-        //}
-
-
-        public static IEnumerable<double> SelectDifferences(this IEnumerable<double> sequence)
-        {
-            using (var e = sequence.GetEnumerator())
-            {
-                e.MoveNext();
-                double last = e.Current;
-                while (e.MoveNext())
-                    yield return e.Current - last;
-
             }
         }
 
@@ -144,6 +67,13 @@ params System.Collections.IEnumerable[] itemCollections)
         }
 
 
+        public static TSource Pernultimate<TSource>(this IEnumerable<TSource> source)
+        {
+            //from http://stackoverflow.com/questions/8724179/linq-how-to-get-second-last
+            return source.Reverse().Skip(1).Take(1).FirstOrDefault();
+        }
+
+
 
         public static Boolean IsEmpty<T>(this IEnumerable<T> source)
         {
@@ -154,14 +84,81 @@ params System.Collections.IEnumerable[] itemCollections)
 
 
 
-        //public static Boolean IsEmpty(this System.Collections.IList source)
+
+        public static IEnumerable<T> OrEmptyIfNull<T>(this IEnumerable<T> source)
+        {
+            return source ?? Enumerable.Empty<T>();
+        }
+
+
+        //public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int n)
         //{
+        //    int count = source.Count();
+
         //    if (source == null)
-        //        return true; // or throw an exception
-        //    return source.Count == 0;
+        //        throw new ArgumentNullException("collection");
+        //    if (n < 0)
+        //        throw new ArgumentOutOfRangeException("n", "n must be 0 or greater");
+
+
+        //    int i = 0;
+        //    foreach (T result in source)
+        //    {
+        //        if (++i == count - n) //this is the last item
+        //            yield return result;
+        //    }
         //}
 
 
+        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int n)
+        {
+            return source.Skip(Math.Max(0, source.Count() - n));
+        }
+
+
+        public static IEnumerable<double> SelectDifferences(this IEnumerable<double> sequence)
+        {
+            using (var e = sequence.GetEnumerator())
+            {
+                e.MoveNext();
+                double last = e.Current;
+                while (e.MoveNext())
+                    yield return e.Current - last;
+
+            }
+        }
+
+
+
+
+
+
+
+        // zip multiple collections
+        public static IEnumerable<TResult> Zip<TResult>(Func<object[], TResult> resultSelector,
+params System.Collections.IEnumerable[] itemCollections)
+        {
+            System.Collections.IEnumerator[] enumerators = itemCollections.Select(i => i.GetEnumerator()).ToArray();
+
+            Func<bool> MoveNext = () =>
+            {
+                for (int i = 0; i < enumerators.Length; i++)
+                {
+                    if (!enumerators[i].MoveNext())
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            while (MoveNext())
+            {
+                yield return resultSelector(enumerators.Select(e => e.Current).ToArray());
+            }
+
+
+        }
 
 
         public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source,
@@ -182,6 +179,23 @@ params System.Collections.IEnumerable[] itemCollections)
             return ExtremaBy(source, selector, (x, y) => comparer.Compare(x, y));
         }
 
+        public static IEnumerable<TSource> MinBy<TSource, TKey>(this IEnumerable<TSource> source,
+  Func<TSource, TKey> selector)
+        {
+            return source.MinBy(selector, null);
+
+        }
+
+        // From MoreLinq
+        public static IEnumerable<TSource> MinBy<TSource, TKey>(this IEnumerable<TSource> source,
+       Func<TSource, TKey> selector, IComparer<TKey> comparer)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+            comparer = comparer ?? Comparer<TKey>.Default;
+            return ExtremaBy(source, selector, (x, y) => -Math.Sign(comparer.Compare(x, y)));
+        }
 
 
         // > In mathematical analysis, the maxima and minima (the respective
@@ -311,20 +325,10 @@ params System.Collections.IEnumerable[] itemCollections)
 
 
 
-        public static SortedList<DateTime, double> MovingAverage(this SortedList<DateTime, double> series, int period)
-        {
-            return new SortedList<DateTime, double>(series.Skip(period - 1).Scan(new SortedList<DateTime, double>(),
-
-                 (list, item) => { list.Add(item.Key, item.Value); return list; })
-                .Select(_ => new KeyValuePair<DateTime, double>(_.Last().Key, _.Select(__ => __.Value).Average()))
-                .ToDictionary(_ => _.Key, _ => _.Value));
-        }
 
 
 
-
-
-        public static List<double> MovingAverage(this List<double> series, int period)
+        public static List<double> MovingAverage(this IEnumerable<double> series, int period)
         {
             return series.Skip(period - 1).Aggregate(
        new

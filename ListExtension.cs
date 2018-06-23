@@ -55,6 +55,18 @@ namespace UtilityHelper
 
 
 
+        public static SortedList<DateTime, double> MovingAverage(this SortedList<DateTime, double> series, int period)
+        {
+            return new SortedList<DateTime, double>(series.Skip(period - 1).Scan(new SortedList<DateTime, double>(),
+
+                 (list, item) => { list.Add(item.Key, item.Value); return list; })
+                .Select(_ => new KeyValuePair<DateTime, double>(_.Last().Key, _.Select(__ => __.Value).Average()))
+                .ToDictionary(_ => _.Key, _ => _.Value));
+        }
+
+
+
+
     }
 
 

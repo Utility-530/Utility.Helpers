@@ -8,12 +8,7 @@ namespace UtilityHelper
 {
     public static class IEnumerableExtension
     {
-        public static IEnumerable<T> OrEmptyIfNull<T>(this IEnumerable<T> source)
-        {
-            return source ?? Enumerable.Empty<T>();
-        }
-
-
+     
 
 
         public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
@@ -25,32 +20,29 @@ namespace UtilityHelper
         }
 
 
-
-        public static TSource Pernultimate<TSource>(this IEnumerable<TSource> source)
+        public static void ForEach<T>(this IEnumerable<T> sequence, Action<T, int> action)
         {
-            //from http://stackoverflow.com/questions/8724179/linq-how-to-get-second-last
-            return source.Reverse().Skip(1).Take(1).FirstOrDefault();
-        }
-
-
-
-        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int n)
-        {
-            int count = source.Count();
-
-            if (source == null)
-                throw new ArgumentNullException("collection");
-            if (n < 0)
-                throw new ArgumentOutOfRangeException("n", "n must be 0 or greater");
-
-       
+            // argument null checking omitted
             int i = 0;
-            foreach (T result in source)
+            foreach (T item in sequence)
             {
-                if (++i == count-n) //this is the last item
-                    yield return result;
+                action(item, i);
+                i++;
             }
         }
+
+
+
+
+
+
+        public static IEnumerable<U> Map<T, U>(this IEnumerable<T> s, Func<T, U> f)
+        {
+            foreach (var item in s)
+                yield return f(item);
+        }
+
+
 
 
 

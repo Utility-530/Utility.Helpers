@@ -7,12 +7,15 @@
     <Authors>Declan Taylor</Authors>
     <Company />
     <Product />
-    <Description>Personal utility class library</Description>
+    <Description>Personal utility class library 
+inlcudes Combinatorics,CSV,DataTable,DateTime, Dictionary,Directory,Download,Enum,Linq,Reflection,String,TupleList
+related methods/types
+</Description>
     <NeutralLanguage />
     <PackageTags>utility</PackageTags>
     <PackageId>dt_UtilityHelper</PackageId>
     <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>1.0.0</Version>
+    <Version>1.1.1</Version>
   </PropertyGroup>
 
 </Project>

@@ -54,6 +54,7 @@ namespace UtilityHelper
     {
 
 
+
         //Stack Overflow nawfal Oct 9 '13 at 7:44
         public static MethodInfo GetGenericMethod(this Type type, string name, Type[] parameterTypes)
         {
@@ -82,19 +83,29 @@ namespace UtilityHelper
         }
 
 
-        public static IEnumerable<KeyValuePair<string, Func<T>>> LoadMethods<T>(Type t, params object[] parameters)
+        public static IEnumerable<KeyValuePair<string, Func<T>>> LoadMethods<T>(this Type t, params object[] parameters)
         {
             return Assembly.GetAssembly(t)
-                 .GetType(t.FullName)
-                   .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                      // filter by return type
-                      .Where(a => a.ReturnParameter.Name == typeof(T).Name)
-                       .Select(_ => new KeyValuePair<string, Func<T>>(_.Name, () => (T)_.Invoke(null, parameters)));
+                  .GetType(t.FullName)
+                    .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                       // filter by return type
+                       .Where(a => a.ReturnType.Name == typeof(T).Name)
+                        .Select(_ => new KeyValuePair<string, Func<T>>(_.Name, () => (T)_.Invoke(null, parameters)));
 
         }
 
 
+        public static IEnumerable<KeyValuePair<string, Action>> ToActions<T>(this IEnumerable<KeyValuePair<string, Func<T>>> kvps, Action<T> tr)
+        {
+            foreach (var m in kvps)
+            {
+                yield return new KeyValuePair<string, Action>(
+                      m.Key,
+                    () => tr(m.Value())
 
+                );
+            }
+        }
 
         public static Func<T, R> GetInstanceMethod<T, R>(MethodInfo method)
         {

@@ -119,7 +119,74 @@ namespace UtilityHelper
         }
 
 
-   
+        public static IEnumerable<TimeSpan> SelectDifferences(this IEnumerable<DateTime> sequence)
+        {
+            using (var e = sequence.GetEnumerator())
+            {
+                e.MoveNext();
+                DateTime last = e.Current;
+                while (e.MoveNext())
+                {
+                    yield return e.Current - last;
+                    last = e.Current;
+                }
+
+            }
+        }
+
+        //https://stackoverflow.com/questions/8847679/find-average-of-collection-of-timespans
+        //answered Jan 13 '12 at 8:23  vc 74
+        public static TimeSpan Average(this IEnumerable<TimeSpan> sourceList)
+        {
+            double doubleAverageTicks = sourceList.Average(timeSpan => timeSpan.Ticks);
+            return new TimeSpan(Convert.ToInt64(doubleAverageTicks));
+        }
+
+
+        // Reschedules timeseries so that the average time increments corresponds to 1 second and the start time is now
+        public static IEnumerable<KeyValuePair<DateTime, double>> Reschedule(this IEnumerable<KeyValuePair<DateTime, double>> _)
+        {
+            var avdiff = _.Select(ac => ac.Key).ToList().SelectDifferences().Average();
+            var scalefactor = ((double)TimeSpan.TicksPerSecond) / ((double)avdiff.Ticks);
+            var x = _.Select(s => new KeyValuePair<DateTime, double>(s.Key.Scale(scalefactor), s.Value));
+            var y = x.Min(ad => ad.Key);
+            var z = DateTime.Now - y;
+            return x.Select(dd => new KeyValuePair<DateTime, double>(dd.Key + z, dd.Value));
+
+        }
+
+
+
+
+        public static string MonthName(this DateTime date)
+        {
+            return CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(date.Month);
+        }
+
+        public static DateTime Period(this DateTime date, int periodInDays)
+        {
+            var startDate = new DateTime();
+            var myDate = new DateTime(date.Year, date.Month, date.Day);
+            var diff = myDate - startDate;
+            return myDate.AddDays(-(diff.TotalDays % periodInDays));
+        }
+
+        public static DateTime? ToDMY(this DateTime? dateTimeNullable)
+        {
+            if (dateTimeNullable == null)
+                return null;
+
+            var date = (DateTime)dateTimeNullable;
+            date = new DateTime(date.Year, date.Month, date.Day);
+            return date;
+        }
+
+        public static DateTime ToDMY(this DateTime dateTime)
+        {
+            var date = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day);
+            return date;
+        }
+
     }
 
 }
