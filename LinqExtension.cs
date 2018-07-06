@@ -245,14 +245,7 @@ params System.Collections.IEnumerable[] itemCollections)
         }
 
 
-
-
-
-        //.Aggregate((total, nextCode) => total ^ nextCode);
-
-
-
-
+        
         public static double WeightedAverage<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight, double control = 0)
         {
             double weightedValueSum = records.Sum(x => (value(x) - control) * weight(x));
@@ -263,6 +256,7 @@ params System.Collections.IEnumerable[] itemCollections)
             else
                 return 0;// throw new DivideByZeroException("No weights are greater than 0");
         }
+
 
 
         public static IEnumerable<double> RunningWeightedAverage<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight)
@@ -393,8 +387,27 @@ params System.Collections.IEnumerable[] itemCollections)
 
 
 
+        public static IEnumerable<IGrouping<object, T>> Pivot<T>(this IEnumerable<T> dtable, string RowField, string DataField, string columnField)
+        {
+
+            var rprop = typeof(T).GetProperty(RowField);
+            var cprop = typeof(T).GetProperty(columnField);
+
+     
+            var query = dtable
+                   .GroupBy(r => rprop.GetValue(r, null))
+                   .GroupBy(c => cprop.GetValue(c, null))
+                   .Select(_ => _.First());
+
+
+
+            return query;
+
+
+        }
+
     }
 
-
+  
 
 }

@@ -41,10 +41,10 @@ namespace UtilityHelper
         /// <param name="dic">The dictionary to call this method on.</param>
         /// <param name="key">The key to look up.</param>
         /// <returns>The key value. null if this key is not in the dictionary.</returns>
-        public static TValue GetValueOrNew<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue value) 
+        public static TValue GetValueOrNew<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue value)
         {
             TValue result;
-            var x = dic.TryGetValue(key, out result) ? result :value;
+            var x = dic.TryGetValue(key, out result) ? result : value;
 
             dic[key] = x;
 
@@ -99,6 +99,9 @@ namespace UtilityHelper
             return rd;
         }
 
+
+
+     
     }
 
 

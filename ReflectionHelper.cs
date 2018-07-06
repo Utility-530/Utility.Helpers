@@ -11,38 +11,170 @@ namespace UtilityHelper
 {
     public static class PropertyHelper
     {
-
-        public static Object GetPropValue(this Object obj, String name)
-        {
-            foreach (String part in name.Split('.'))
-            {
-                if (obj == null) { return null; }
-
-                Type type = obj.GetType();
-                PropertyInfo info = type.GetProperty(part);
-                if (info == null) { return null; }
-
-                obj = info.GetValue(obj, null);
-            }
-            return obj;
-        }
-
         public static T GetPropValue<T>(this Object obj, String name)
         {
-            Object retval = GetPropValue(obj, name);
-            if (retval == null) { return default(T); }
+            Type type = obj.GetType();
+            PropertyInfo info = type.GetProperty(name);
+            if (info == null) return default(T);
+            object retval = info.GetValue(obj, null);
 
-            // throws InvalidCastException if types are incompatible
-            return (T)retval;
+            if (retval == null)
+                return default(T);
+            else
+                // throws InvalidCastException if types are incompatable
+                return (T)retval;
+        }
+
+
+        //public static Object GetPropValue(this Object obj, String name)
+        //{
+        //    if (obj == null)  return null; 
+
+        //    foreach (String part in name.Split('.'))
+        //    {
+        //        Type type = obj.GetType();
+        //        PropertyInfo info = type.GetProperty(part);
+        //        if (info == null)  return null; 
+
+        //        obj = info.GetValue(obj, null);
+        //    }
+        //    return obj;
+        //}
+
+
+        public static void SetValue(object inputObject, string propertyName, object propertyVal, bool ignoreCase = true)
+        {
+            System.Reflection.PropertyInfo propertyInfo = null;
+            //get the property information based on the 
+            if (ignoreCase)
+                propertyInfo = inputObject.GetType().GetProperty(propertyName, BindingFlags.SetProperty |
+                       BindingFlags.IgnoreCase |
+                       BindingFlags.Public |
+                       BindingFlags.Instance);
+            else
+                propertyInfo = inputObject.GetType().GetProperty(propertyName);
+
+            //Convert.ChangeType does not handle conversion to nullable types
+            //if the property type is nullable, we need to get the underlying type of the property
+            var targetType = IsNullableType(propertyInfo.PropertyType) ? Nullable.GetUnderlyingType(propertyInfo.PropertyType) : propertyInfo.PropertyType;
+
+            //Returns an System.Object with the specified System.Type and whose value is
+            //equivalent to the specified object.
+            propertyVal = Convert.ChangeType(propertyVal, targetType);
+
+            //Set the value of the property
+            propertyInfo.SetValue(inputObject, propertyVal, null);
+
+        }
+
+
+        private static bool IsNullableType(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
         }
 
 
 
+        public static T ToObject<T>(this Dictionary<string, object> dict)
+        {
+            Type type = typeof(T);
+            var obj = Activator.CreateInstance(type);
+
+            foreach (var kv in dict)
+            {
+                //  type.GetProperty(kv.Key).SetValue(obj, kv.Value);
+
+                if (kv.Value != null)
+
+                    PropertyHelper.SetValue(obj, kv.Key, kv.Value);
+
+
+            }
+            return (T)obj;
+        }
 
 
 
+        public static T ToObject<T>(this Dictionary<string, string> dict, Dictionary<string, Type> propertytypes = null)
+        {
+            Type type = typeof(T);
+            var obj = Activator.CreateInstance(type);
+
+            propertytypes = propertytypes ?? type.GetProperties().ToDictionary(_ => _.Name, _ => _.PropertyType);
 
 
+            foreach (var kv in dict)
+            {
+                //  type.GetProperty(kv.Key).SetValue(obj, kv.Value);
+
+                if (kv.Value != null)
+
+                    PropertyHelper.SetValue(obj, kv.Key, Convert.ChangeType(kv.Value, propertytypes[kv.Key]));
+            }
+            return (T)obj;
+        }
+
+
+
+        public static IEnumerable<T> ToObjects<T>(this IEnumerable<Dictionary<string, string>> dicts)
+        {
+
+            Dictionary<string, Type> propertytypes = typeof(T).GetProperties().ToDictionary(_ => _.Name, _ => _.PropertyType);
+
+            foreach (var dict in dicts)
+                yield return dict.ToObject<T>(propertytypes);
+
+        }
+
+
+
+        public static double[] ObjectToDoubleArray(object myobject, params string[] excludeProperties)
+        {
+            return
+         myobject.GetType()
+             .GetProperties()
+             .Where(p => (!excludeProperties.Contains(p.Name) &&
+                p.PropertyType.IsNumerical()))
+            .Select(p => Convert.ToDouble(p.GetValue(myobject))).ToArray();
+        }
+
+        public static double[][] ObjectsToDoubleArray(IEnumerable<object> objects, params string[] excludeProperties)
+        {
+            var props = objects.GetType()
+        .GetProperties()
+        .Where(p => (!excludeProperties.Contains(p.Name)))
+         .Where(p => p.PropertyType.IsNumerical());
+
+            return objects.Select(_ => props.Select(p => Convert.ToDouble(p.GetValue(objects))).ToArray()).ToArray();
+        }
+
+
+
+        public static bool IsNumericType(this object o)
+        {
+            return o.GetType().IsNumerical();
+        }
+
+        public static bool IsNumerical(this Type t)
+        {
+            switch (Type.GetTypeCode(t))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 
 

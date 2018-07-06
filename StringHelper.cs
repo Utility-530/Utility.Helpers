@@ -12,6 +12,14 @@ namespace UtilityHelper
     {
 
 
+
+        public static int ToNumber(this string str)
+        {
+            return  Encoding.ASCII.GetBytes(str).Select(_=>(int)_).Sum();
+
+        }
+
+
         public static bool IsDigitsOnly(this string str)
         {
             foreach (char c in str)

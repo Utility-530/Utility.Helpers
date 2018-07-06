@@ -16,13 +16,26 @@ namespace UtilityHelper
     public static class CsvHelper
     {
 
-
-
-        public static void WriteToCsv(string csvstring, string path )
+        public static int GetLineCount(string filename)
         {
-            
+            var text = File.OpenText(filename);
+            int i = 0;
+            string line = null;
+            while ((line = text.ReadLine()) != null)
+            {
+                i++;
+            }
+            text.Dispose();
+            return i;
+
+
+        }
+
+        public static void WriteToCsv(string csvstring, string path)
+        {
+
             if (File.Exists(path))
-                File.AppendAllText(path, new System.Text.RegularExpressions.Regex(".*\n").Replace(csvstring,"",1));
+                File.AppendAllText(path, new System.Text.RegularExpressions.Regex(".*\n").Replace(csvstring, "", 1));
             else
                 File.WriteAllText(path, csvstring);
 
@@ -30,7 +43,7 @@ namespace UtilityHelper
 
         }
 
-        public static IEnumerable<string> GetFileLines(string filename, int skipfirst=0)
+        public static IEnumerable<string[]> GetFileLines(string filename, int skipfirst = 0)
         {
             using (var stream = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -41,7 +54,7 @@ namespace UtilityHelper
                     while ((line = reader.ReadLine()) != null)
                     {
                         if (i > skipfirst - 1)
-                            yield return line;
+                            yield return line.Split();
                         else
                             i++;
                     }
@@ -50,6 +63,18 @@ namespace UtilityHelper
         }
 
 
+
+        public static IEnumerable<T> ReadFromCsv<T>(string filename)
+        {
+
+            var x = GetFileLines(filename, 0);
+            var y = x.First();
+
+            var z = x.Skip(1).Select(_ => _.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));
+
+            return z.ToObjects<T>();
+
+        }
 
 
 
