@@ -1,124 +1,99 @@
-﻿using System;
+﻿
+
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
-
-
-
-    public class DateRange
+    //https://gist.github.com/crmorgan/5de0359b31555a80d9d8
+    //crmorgan/DateRange.cs
+    /// <summary>
+    ///     Represents a range of dates.
+    /// </summary>
+    public struct DateRange
     {
-        public DateTime StartDate { get; set; }
-        public DateTime? EndDate { get; set; } // If null then it lasts forever
-
-    }
-
-   
-    public static class DateRangeHelper
-    {
-
-        public static bool HasOverLapWith(this IEnumerable<DateRange> membershipList, DateRange newItem)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DateRange" /> structure to the specified start and end date.
+        /// </summary>
+        /// <param name="startDate">A string that contains that first date in the date range.</param>
+        /// <param name="endDate">A string that contains the last date in the date range.</param>
+        /// <exception cref="System.ArgumentNullException">
+        ///		endDate or startDate are <c>null</c>.
+        /// </exception>
+        /// <exception cref="System.FormatException">
+        ///     endDate or startDate do not contain a vaild string representation of a date and time.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        ///		endDate is not greater than or equal to startDate
+        /// </exception>
+        public DateRange(string startDate, string endDate) : this()
         {
-            return membershipList.Any(m => m.HasOverLapWith(newItem));
-            //return !membershipList.All(m => m.IsFullyAfter(newItem) || newItem.IsFullyAfter(m)); 
-            //return membershipList.Any(m => m.HasPartialOverLapWith(newItem) || newItem.HasFullOverLapWith(newItem));
+            if (string.IsNullOrWhiteSpace(startDate))
+            {
+                throw new ArgumentNullException("startDate");
+            }
 
+            if (string.IsNullOrWhiteSpace(endDate))
+            {
+                throw new ArgumentNullException("endDate");
+            }
+
+            Start = DateTime.Parse(startDate);
+            End = DateTime.Parse(endDate);
+
+            if (End < Start)
+            {
+                throw new ArgumentException("endDate must be greater than or equal to startDate");
+            }
         }
 
-
-        public static DateRange GetoverLapWith(this DateRange one, DateRange other)
+        public DateRange(DateTime startDate, DateTime endDate) : this()
         {
+       
 
-            if (one.HasPartialOverLapWith(other))
-                if (one.DoesStartBeforeStartOf(other))
-                    return new DateRange { StartDate = other.StartDate, EndDate = one.EndDate };
-                else
-                    return new DateRange { StartDate = one.StartDate, EndDate = other.EndDate };
-            else if (one.HasFullOverLapWith(other))
-                if (one.DoesStartBeforeStartOf(other))
-                    return new DateRange { StartDate = other.StartDate, EndDate = other.EndDate };
-                else
-                    return new DateRange { StartDate =one.StartDate, EndDate = one.EndDate };
-            else
-               return null;
+            Start = startDate;
+            End = endDate;
+
+            if (End < Start)
+            {
+                throw new ArgumentException("endDate must be greater than or equal to startDate");
+            }
+        }
+        /// <summary>
+        ///     Gets the start date component of the date range.
+        /// </summary>
+        public DateTime Start { get; private set; }
 
 
+        /// <summary>
+        ///     Gets the end date component of the date range.
+        /// </summary>
+        public DateTime End { get; private set; }
+
+        /// <summary>
+        ///     Gets a collection of the dates in the date range.
+        /// </summary>
+        public IList<DateTime> Dates
+        {
+            get
+            {
+                var startDate = Start;
+
+                return Enumerable.Range(0, Days)
+                    .Select(offset => startDate.AddDays(offset))
+                    .ToList();
+            }
         }
 
-
-        public static bool HasOverLapWith(this DateRange one, DateRange other)
+        /// <summary>
+        ///     Gets the number of whole days in the date range.
+        /// </summary>
+        public int Days
         {
-            return !one.IsFullyAfter(other) && !other.IsFullyAfter(other);
-        
+            get { return (End - Start).Days + 1; }
         }
-
-
-
-        public static bool HasPartialOverLapWith(this DateRange one, DateRange other)
-        {
-            return
-
-            (one.DoesStartBeforeStartOf(other) && one.DoesEndBeforeEndOf(other) && other.DoesStartBeforeEndOf(one))
-            ||
-            (other.DoesStartBeforeStartOf(one) && other.DoesEndBeforeEndOf(one) && one.DoesStartBeforeEndOf(other));
-
-
-        }
-
-
-
-        public static bool HasFullOverLapWith(this DateRange one, DateRange other)
-        {
-            return (one.IsFullyWithin(other) || other.IsFullyWithin(one));
-
-
-
-        }
-
-        public static bool IsFullyWithin(this DateRange one, DateRange other)
-        {
-            return (other.DoesStartBeforeStartOf(one) && one.DoesEndBeforeStartOf(other));
-
-        }
-
-
-        private static bool IsFullyAfter(this DateRange one, DateRange other)
-        {
-            return one.StartDate > other.GetNullSafeEndDate();
-        }
-
-        private static bool DoesStartBeforeStartOf(this DateRange one, DateRange other)
-        {
-            return one.StartDate <= other.StartDate;
-        }
-
-
-        private static bool DoesStartBeforeEndOf(this DateRange one, DateRange other)
-        {
-            return one.StartDate < other.GetNullSafeEndDate();
-        }
-
-
-        private static bool DoesEndBeforeEndOf(this DateRange one, DateRange other)
-        {
-            return one.GetNullSafeEndDate() <= other.GetNullSafeEndDate();
-        }
-
-        private static bool DoesEndBeforeStartOf(this DateRange one, DateRange other)
-        {
-            return one.GetNullSafeEndDate() < other.StartDate;
-        }
-
-
-        public static DateTime GetNullSafeEndDate(this DateRange one)
-
-        { return one.EndDate ?? DateTime.MaxValue; }
-
-
-
     }
 }
+
+

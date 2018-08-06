@@ -5,6 +5,9 @@ using System.Text;
 
 namespace UtilityHelper
 {
+
+    // methods that utilise the metaphone algorithm
+
     public static class StringSimilarity
     {
         public static string[] SimilarWords(this string str, string otherStr, bool caseSensitive = false, string splitBy = " ", int minWordLength = 2, bool includeMistyped = true)
@@ -63,5 +66,8 @@ namespace UtilityHelper
         {
             return str.SimilarWords(otherStrings, false, " ", 2).Any();
         }
+
+
+
     }
 }

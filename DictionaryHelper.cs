@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
-
+using System.Dynamic;
 
 namespace UtilityHelper
 {
@@ -101,7 +101,38 @@ namespace UtilityHelper
 
 
 
-     
+        public static Dictionary<T,R> ToDictionary<T,R>(this IEnumerable<KeyValuePair<T,R>> kvps)
+        {
+            return kvps.ToDictionary(_ => _.Key, _ => _.Value);
+        }
+
+        public static Dictionary<T, R> ToDictionary<T, R>(this IEnumerable<Tuple<T, R>> kvps)
+        {
+            return kvps.ToDictionary(_ => _.Item1, _ => _.Item2);
+        }
+
+
+        public static IEnumerable<dynamic> ToDynamics<T>(this IList<Dictionary<string, T>> dics)
+        {
+            return dics.Select(_ =>
+            {
+                return _.ToDynamic();
+
+            });
+
+        }
+
+        public static dynamic ToDynamic<T>(this Dictionary<string, T> dict)
+        {
+            IDictionary<string, object> eo = new System.Dynamic.ExpandoObject() as IDictionary<string, object>;
+            foreach (KeyValuePair<string, T> kvp in dict)
+            {
+                eo.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+            }
+            return eo;
+        }
+
+
     }
 
 

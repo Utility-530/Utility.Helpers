@@ -187,6 +187,32 @@ namespace UtilityHelper
             return date;
         }
 
+        public static int GetTwoLetterYear(int fourLetterYear)
+        {
+            return Convert.ToInt32(fourLetterYear.ToString().Substring(2, 2));
+        }
+
+
+        public static bool IsYear(string syear, int min = 0, int max = 10000)
+        {
+            if (!int.TryParse(syear, out int year)) return false;
+            return (year > min & year < max);
+        }
+
+        /// <summary>
+        /// Get range of dates between the startdate and enddate
+        /// </summary>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <returns></returns>
+        public static IEnumerable<DateTime> Range(this DateTime startDate, DateTime endDate)
+        {
+            return Enumerable.Range(0, (int)(endDate - startDate).TotalDays + 1).Select(i => startDate.AddDays(i));
+        }
+
+
+
+   
     }
 
 }

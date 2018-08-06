@@ -9,7 +9,7 @@ using System.Reflection;
 namespace UtilityHelper
 {
 
-    public static class ObjectToDictionaryHelper
+    public static class ObjectToDictionaryMapper
     {
         public static IDictionary<string, object> ToDictionary(this object source)
         {

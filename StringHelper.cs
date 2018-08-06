@@ -10,7 +10,48 @@ namespace UtilityHelper
 {
     public static class StringHelper
     {
+ 
 
+
+
+        public static string RemoveLineEndings(this string value)
+        {
+            if (String.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+            string lineSeparator = ((char)0x2028).ToString();
+            string paragraphSeparator = ((char)0x2029).ToString();
+
+            return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("\t", String.Empty);
+        }
+
+
+        public static String ReduceWhitespace(this String value)
+        {
+            var newString = new StringBuilder();
+            bool previousIsWhitespace = false;
+            for (int i = 0; i < value.Length; i++)
+            {
+                if (Char.IsWhiteSpace(value[i]))
+                {
+                    if (previousIsWhitespace)
+                    {
+                        continue;
+                    }
+
+                    previousIsWhitespace = true;
+                }
+                else
+                {
+                    previousIsWhitespace = false;
+                }
+
+                newString.Append(value[i]);
+            }
+
+            return newString.ToString();
+        }
 
 
         public static int ToNumber(this string str)
@@ -138,7 +179,14 @@ namespace UtilityHelper
             var m = new Metaphone();
             return m.Encode(str) == m.Encode(otherStr);
         }
+        
 
+        public static void SetPropertyByType<T>(object obj, T value)
+        {
+            var properties = obj.GetType().GetProperties();
+            var prop = properties.SingleOrDefault(_ => _.PropertyType == typeof(T));
+            prop.SetValue(obj, value, null);
+        }
         public static bool IsSimilarToAny(this string str, params string[] strings)
         {
             return strings.Any(s => s.IsSimilarTo(str));

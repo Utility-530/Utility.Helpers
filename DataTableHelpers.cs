@@ -30,6 +30,31 @@ namespace UtilityHelper
         //}
 
 
+        //https://stackoverflow.com/questions/15293653/coverting-list-of-dictionary-to-datatable
+       // answered Mar 8 '13 at 14:57 John Kraft
+        public static DataTable ToDataTableAsDictionary<T>(this IList<Dictionary<string, T>> list)
+        {
+            DataTable result = new DataTable();
+            if (list.Count == 0)
+                return result;
+
+            var columnNames = list.SelectMany(dict => dict.Keys).Distinct();
+            result.Columns.AddRange(columnNames.Select(c => new DataColumn(c)).ToArray());
+            foreach (Dictionary<string, T> item in list)
+            {
+                var row = result.NewRow();
+                foreach (var key in item.Keys)
+                {
+                    row[key] = item[key];
+                }
+
+                result.Rows.Add(row);
+            }
+
+            return result;
+        }
+
+
         public static DataTable ToDataTable<T>(this IEnumerable<T> data)
         {
             PropertyDescriptorCollection properties =

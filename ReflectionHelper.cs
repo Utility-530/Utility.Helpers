@@ -24,6 +24,34 @@ namespace UtilityHelper
                 // throws InvalidCastException if types are incompatable
                 return (T)retval;
         }
+        public static T GetPropValue<T, R>(R obj, String name)
+        {
+
+            PropertyInfo info = typeof(R).GetProperty(name);
+            if (info == null) return default(T);
+            object retval = info.GetValue(obj, null);
+
+            if (retval == null)
+                return default(T);
+            else
+                // throws InvalidCastException if types are incompatable
+                return (T)retval;
+        }
+
+        public static bool SetPropertyByType<T>(object obj, T value)
+        {
+            var properties = obj.GetType().GetProperties();
+            var prop = properties.SingleOrDefault(_ => _.PropertyType ==typeof(T));
+            if (prop != null)
+            {
+                prop.SetValue(obj, value, null);
+                return true;
+            }
+
+            return false;
+
+        }
+
 
 
         //public static Object GetPropValue(this Object obj, String name)
@@ -40,6 +68,7 @@ namespace UtilityHelper
         //    }
         //    return obj;
         //}
+
 
 
         public static void SetValue(object inputObject, string propertyName, object propertyVal, bool ignoreCase = true)

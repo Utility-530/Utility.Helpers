@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace UtilityHelper
 {
     public static class IEnumerableExtension
     {
-     
+
 
 
         public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
@@ -33,7 +34,37 @@ namespace UtilityHelper
 
 
 
+        public static void DynamicUsing(object resource, Action action)
+        {
+            try
+            {
+                action();
+            }
+            finally
+            {
+                IDisposable d = resource as IDisposable;
+                if (d != null)
+                    d.Dispose();
+            }
+        }
 
+
+        public static int Count(this IEnumerable source)
+        {
+            var col = source as ICollection;
+            if (col != null)
+                return col.Count;
+
+            int c = 0;
+            var e = source.GetEnumerator();
+            DynamicUsing(e, () =>
+            {
+                while (e.MoveNext())
+                    c++;
+            });
+
+            return c;
+        }
 
 
         public static IEnumerable<U> Map<T, U>(this IEnumerable<T> s, Func<T, U> f)

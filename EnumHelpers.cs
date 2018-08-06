@@ -73,54 +73,44 @@ namespace UtilityHelper
             return (attributes.Length > 0) ? (T)attributes[0] : null;
         }
 
-        public static List<KeyValuePair<string, int>> GetAllValuesAndDescriptions<T>()
-        {
-            Type enumType = typeof(T);
-
-            if (enumType.BaseType != typeof(Enum))
-                throw new ArgumentException("T is not System.Enum");
-
-            List<KeyValuePair<string, int>> enumValList = new List<KeyValuePair<string, int>>();
-
-            foreach (var e in Enum.GetValues(typeof(T)))
-            {
-                var fi = e.GetType().GetField(e.ToString());
-                var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-                enumValList.Add(new KeyValuePair<string, int>((attributes.Length > 0) ? attributes[0].Description : e.ToString(), (int)e));
-            }
-
-            return enumValList;
-        }
 
 
-
-        public static List<string> GetAllDescriptions<T>()
-        {
-            Type enumType = typeof(T);
-
-            if (enumType.BaseType != typeof(Enum))
-                throw new ArgumentException("T is not System.Enum");
-
-            List<string> enumValList = new List<string>();
-
-            foreach (var e in Enum.GetValues(typeof(T)))
-            
-                enumValList.Add(GetDescription((Enum)e));
-                //var fi = e.GetType().GetField(e.ToString());
-                //var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-                //enumValList.Add((attributes.Length > 0) ? attributes[0].Description : e.ToString());
-            
-
-            return enumValList;
-        }
 
         public static string GetDescription(this Enum e)
         {
 
             var fi = e.GetType().GetField(e.ToString());
             var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-           return ((attributes.Length > 0) ? attributes[0].Description : e.ToString());
+            return ((attributes.Length > 0) ? attributes[0].Description : e.ToString());
+
+        }
+
+
+
+
+        public static IEnumerable<KeyValuePair<string, int>> GetAllValuesAndDescriptions(Type enumType)
+        {
+            if (enumType.BaseType != typeof(Enum))
+                throw new ArgumentException("T is not System.Enum");
+
+            List<KeyValuePair<string, int>> enumValList = new List<KeyValuePair<string, int>>();
+
+            foreach (var e in Enum.GetValues(enumType))
+               yield return new KeyValuePair<string, int>(GetDescription((Enum)e), (int)e);
+           
+
+        }
+
+
+
+        public static IEnumerable<string> GetAllDescriptions(Type enumType)
+        {
+            if (enumType.BaseType != typeof(Enum))
+                throw new ArgumentException("T is not System.Enum");
+            
+            foreach (var e in Enum.GetValues( enumType))
+                yield return GetDescription((Enum)e);
+           
 
         }
 

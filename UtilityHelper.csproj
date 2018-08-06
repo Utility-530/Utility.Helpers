@@ -15,7 +15,7 @@ related methods/types
     <PackageTags>utility</PackageTags>
     <PackageId>dt_UtilityHelper</PackageId>
     <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>1.2.0</Version>
+    <Version>1.2.2-alpha</Version>
   </PropertyGroup>
 
 </Project>

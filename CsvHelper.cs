@@ -12,6 +12,7 @@ namespace UtilityHelper
     //using Microsoft.VisualBasic.FileIO;
     using System.Data;
     using System.IO;
+    using System.Reflection;
 
     public static class CsvHelper
     {
@@ -78,7 +79,7 @@ namespace UtilityHelper
 
 
 
-        public static string CreateCSVTextFile<T>(this IEnumerable<T> data)
+        public static string ToCSVString<T>(this IEnumerable<T> data)
         {
             var properties = typeof(T).GetProperties();
             var result = new StringBuilder();
@@ -91,33 +92,24 @@ namespace UtilityHelper
 
             foreach (var row in data)
             {
-                var values = properties.Select(p => p.GetValue(row, null))
-                                       .Select(v => StringToCSVCell(Convert.ToString(v)));
-                var line = string.Join(",", values);
-
-                result.AppendLine(line);
+                result.AppendLine(ToCommaDelimitedRow(row, properties));
             }
 
             return result.ToString();
         }
 
 
-
-
-        public static string CreateCSVTextFile<T>(T obj)
+        public static string ToCommaDelimitedRow<T>(T obj, PropertyInfo[] properties = null)
         {
-            var properties = typeof(T).GetProperties();
-            var result = new StringBuilder();
-
+            properties = properties ?? typeof(T).GetProperties();
 
             var values = properties.Select(p => p.GetValue(obj, null))
                                    .Select(v => StringToCSVCell(Convert.ToString(v)));
-            var line = string.Join(",", values);
-            result.AppendLine(line);
+            return string.Join(",", values);
 
-
-            return result.ToString();
         }
+
+        
         private static string StringToCSVCell(string str)
         {
             bool mustQuote = (str.Contains(",") || str.Contains("\"") || str.Contains("\r") || str.Contains("\n"));
@@ -139,6 +131,133 @@ namespace UtilityHelper
         }
 
 
+        public static void CombineCsvFiles(string sourceFolder, string destinationFile, string searchPattern = "*.csv", bool isMismatched = false)
+        {
+            // Specify wildcard search to match CSV files that will be combined
+            string[] filePaths = Directory.GetFiles(sourceFolder, searchPattern);
+            if (isMismatched)
+                CombineMisMatchedCsvFiles(filePaths, destinationFile);
+            else
+                CombineCsvFiles(filePaths, destinationFile);
+
+        }
+
+
+
+        public static void CombineCsvFiles(string[] filePaths, string destinationFile)
+        {
+            StreamWriter fileDest = new StreamWriter(destinationFile, true);
+
+            int i;
+            for (i = 0; i < filePaths.Length; i++)
+            {
+                string file = filePaths[i];
+
+                string[] lines = File.ReadAllLines(file);
+
+                if (i > 0)
+                {
+                    lines = lines.Skip(1).ToArray(); // Skip header row for all but first file
+                }
+
+                foreach (string line in lines)
+                {
+                    fileDest.WriteLine(line);
+                }
+            }
+
+            fileDest.Close();
+        }
+
+        public static void CombineMisMatchedCsvFiles(string[] filePaths, string destinationFile, char splitter = ',', bool Union = true)
+        {
+
+            HashSet<string> combinedheaders = new HashSet<string>();
+            int i;
+            // aggregate headers
+            for (i = 0; i < filePaths.Length; i++)
+            {
+                string file = filePaths[i];
+
+                //if (Union)
+                combinedheaders.UnionWith(File.ReadLines(file).First().Split(splitter));
+                //else
+                //combinedheaders.Intersect(File.ReadLines(file).First().Split(splitter));
+            }
+
+            if (combinedheaders.Contains("")) combinedheaders.Remove("");
+            var hdict = combinedheaders.ToDictionary(y => y, y => new List<object>());
+
+
+
+            string[] combinedHeadersArray = combinedheaders.ToArray();
+            for (i = 0; i < filePaths.Length; i++)
+            {
+                var fileheaders = File.ReadLines(filePaths[i]).First().Split(splitter).Where(x => x != "").ToArray();
+                var notfiledheaders = combinedheaders.Except(fileheaders);
+
+                var fi = new FileInfo(filePaths[i]);
+                if (fi.Length == 0)
+                    throw new Exception($"File {fi.Name} is empty");
+
+                File.ReadLines(filePaths[i]).Skip(1).Select(line => line.Split(splitter)).ForEach(spline =>
+                {
+                    for (int j = 0; j < fileheaders.Length; j++)
+                    {
+                        hdict[fileheaders[j]].Add(spline[j]);
+                    }
+                    foreach (string header in notfiledheaders)
+                    {
+                        hdict[header].Add(null);
+                    }
+
+                });
+            }
+
+            DataTable dt = hdict.ToDataTable();
+
+            dt.SaveToCSV(destinationFile);
+        }
+
+
+
+
+        public static Dictionary<string, string> SplitCsvFilesByField(string filePath, string header, char splitter = ',')
+        {
+
+            var firstLine = File.ReadLines(filePath).First();
+            int headerindex = Array.IndexOf(firstLine.Split(splitter), header);
+
+            var fileheaders = File.ReadLines(filePath).First().Split(splitter).Where(x => x != "").ToArray();
+
+            Dictionary<string, StringBuilder> dictbuilder = new Dictionary<string, StringBuilder>();
+
+            StringBuilder builder = new StringBuilder();
+
+
+            File.ReadLines(filePath).Skip(1).ForEach(line =>
+            {
+                var key = line.Split(splitter).ElementAt(headerindex);
+
+                dictbuilder.TryGetValue(key, out StringBuilder value);
+                if (value == null)
+                {
+                    value = new StringBuilder();
+                    value.AppendLine(firstLine);
+                }
+
+                value.AppendLine(line);
+
+                dictbuilder[key] = value;
+
+            });
+
+
+
+            return dictbuilder.ToDictionary(_ => _.Key, _ => _.Value.ToString());
+
+
+        }
 
 
         //https://github.com/22222/CsvTextFieldParser
