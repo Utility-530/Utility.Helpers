@@ -10,8 +10,11 @@ namespace UtilityHelper
     public static class LinqExtension
     {
 
+        public static T FindLast<T>(IEnumerable<T> items, Func<T, DateTime> f, DateTime dt)
+        {
+            return items.Where(pss => f(pss) < dt).MaxBy(ps => f(ps)).First();
+        }
 
- 
 
         public static void RemoveLast<T>(this ICollection<T> collection, int n)
         {

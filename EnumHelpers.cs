@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace UtilityHelper
 {
 
-    public static class EnumHelpers
+    public static class EnumHelper
     {
 
         // answered Sep 28 '10 at 20:23 Dirk Vollmar
@@ -29,7 +29,7 @@ namespace UtilityHelper
         }
 
 
-        public static T GetValueFromDescription<T>(string description)
+        public static T GetValueFromDescription<T>(string description, StringComparison stringcomparison)
         {
             var type = typeof(T);
             if (!type.IsEnum) throw new InvalidOperationException();
@@ -39,12 +39,13 @@ namespace UtilityHelper
                     typeof(DescriptionAttribute)) as DescriptionAttribute;
                 if (attribute != null)
                 {
-                    if (attribute.Description == description)
+                    
+                    if (attribute.Description.Equals(description,stringcomparison))
                         return (T)field.GetValue(null);
                 }
                 else
                 {
-                    if (field.Name == description)
+                    if (attribute.Description.Equals(field.Name, stringcomparison))
                         return (T)field.GetValue(null);
                 }
             }

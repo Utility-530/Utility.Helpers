@@ -10,7 +10,26 @@ namespace UtilityHelper
 {
     public static class StringHelper
     {
- 
+
+
+
+        //https://stackoverflow.com/questions/3947126/case-insensitive-list-search
+        //Adam Sills
+        public static bool Contains(this IEnumerable<string> source, string keyword, StringComparison comp)
+        {
+            return source.Any(s => s.Equals(keyword, StringComparison.OrdinalIgnoreCase));
+
+        }
+
+
+        // JaredPar
+        //https://stackoverflow.com/questions/444798/case-insensitive-containsstring
+        //string title = "STRING";
+        //bool contains = title.Contains("string", StringComparison.OrdinalIgnoreCase);
+        public static bool Contains(this string source, string toCheck, StringComparison comp)
+        {
+            return source?.IndexOf(toCheck, comp) >= 0;
+        }
 
 
 
@@ -56,7 +75,7 @@ namespace UtilityHelper
 
         public static int ToNumber(this string str)
         {
-            return  Encoding.ASCII.GetBytes(str).Select(_=>(int)_).Sum();
+            return Encoding.ASCII.GetBytes(str).Select(_ => (int)_).Sum();
 
         }
 
@@ -85,10 +104,6 @@ namespace UtilityHelper
         }
 
 
-        public static bool Contains(this string source, string toCheck, StringComparison comp)
-        {
-            return source.IndexOf(toCheck, comp) >= 0;
-        }
 
         public static bool Parse(string s, string format, out DateTime dt)
         {
@@ -130,7 +145,7 @@ namespace UtilityHelper
 
 
 
-           public static bool HasValueBetween(this string str, string start, string end)
+        public static bool HasValueBetween(this string str, string start, string end)
         {
             return !string.IsNullOrEmpty(str) && !string.IsNullOrEmpty(start) && !string.IsNullOrEmpty(end) &&
                    str.Contains(start) &&
@@ -179,7 +194,7 @@ namespace UtilityHelper
             var m = new Metaphone();
             return m.Encode(str) == m.Encode(otherStr);
         }
-        
+
 
         public static void SetPropertyByType<T>(object obj, T value)
         {
@@ -219,7 +234,7 @@ namespace UtilityHelper
                     return str.Split(s);
             return new[] { str };
         }
-        
+
         public static string[] SameWords(this string str, string otherStr, bool casaeSensitive = false, string splitBy = " ", int minWordLength = 1)
         {
             if (casaeSensitive)
@@ -227,7 +242,7 @@ namespace UtilityHelper
                 str = str.ToLower();
                 otherStr = otherStr.ToLower();
             }
-            
+
             var str1Arr = str.Split(splitBy);
             var str2Arr = otherStr.Split(splitBy);
             var intersection = str1Arr.Intersect(str2Arr).Where(w => w.Length >= minWordLength);
@@ -264,7 +279,7 @@ namespace UtilityHelper
             return str.SameWords(otherStrings, false, " ", 1).Any();
         }
 
-      
+
 
         public static double? TryToDouble(this string str)
         {
@@ -281,7 +296,7 @@ namespace UtilityHelper
             var parsedD = str.TryToDouble();
             if (parsedD == null)
                 throw new InvalidCastException("Nie można sparsować wartości double");
-            return (double) parsedD;
+            return (double)parsedD;
         }
 
         public static bool IsDouble(this string str)

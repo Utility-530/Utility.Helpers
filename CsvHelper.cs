@@ -17,6 +17,26 @@ namespace UtilityHelper
     public static class CsvHelper
     {
 
+
+
+        public static string[] GetColumn(string path, string field, char delimiter = ',')
+        {
+
+            var temp = File.ReadAllLines(path);
+            List<string> myExtraction = new List<string>();
+
+            int headerline = temp.First().Split(delimiter).ToList().IndexOf(field);
+
+            foreach (string line in temp)
+            {
+                var delimitedLine = line.Split(delimiter); //set ur separator, in this case tab
+
+                myExtraction.Add(delimitedLine[headerline]);
+            }
+            return myExtraction.ToArray();
+        }
+
+
         public static int GetLineCount(string filename)
         {
             var text = File.OpenText(filename);
@@ -257,6 +277,19 @@ namespace UtilityHelper
             return dictbuilder.ToDictionary(_ => _.Key, _ => _.Value.ToString());
 
 
+        }
+
+
+
+        public static void WriteToFile<T>(this T[][] data, string file)
+        {
+            using (StreamWriter outfile = new StreamWriter(file))
+            {
+                foreach (var line in data)
+                {
+                    outfile.WriteLine(String.Join(",", line));
+                }
+            }
         }
 
 
