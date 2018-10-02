@@ -15,7 +15,11 @@ related methods/types
     <PackageTags>utility</PackageTags>
     <PackageId>dt_UtilityHelper</PackageId>
     <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>1.2.3-alpha</Version>
+    <Version>1.2.5-alpha</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
 
 </Project>

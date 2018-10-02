@@ -43,6 +43,15 @@ namespace UtilityHelper
 
         }
 
+        public static int GetDayInterval(this DateTime date)
+        {
+
+            DateTime startDate = new DateTime(1970, 7, 1);
+            return date.Subtract(startDate).Days % 365;
+
+
+        }
+
         public static DayOfWeek ToDayOfWeek(string dayofweek)
         {
             var daysOfWeek = Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>();

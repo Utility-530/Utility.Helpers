@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -11,64 +12,76 @@ namespace UtilityHelper
 {
     public static class PropertyHelper
     {
-        public static T GetPropValue<T>(this Object obj, String name)
+        public static T GetPropValue<T>(this Object obj, String name, Type type = null) => GetPropValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
+
+        public static object GetPropValue(this Object obj, String name, Type type = null) => GetPropValue(obj, (type ?? obj.GetType()).GetProperty(name));
+
+        public static T GetPropValue<T, R>(R obj, String name) => GetPropValue<T>(obj, typeof(R).GetProperty(name));
+
+        public static object GetPropValue(this Object obj, PropertyInfo info = null)
         {
-            Type type = obj.GetType();
-            PropertyInfo info = type.GetProperty(name);
+            if (info == null) return null;
+            object retval = info.GetValue(obj, null);
+            return retval == null ? null : retval;
+        }
+
+
+        public static T GetPropValue<T>(this Object obj, PropertyInfo info = null)
+        {
             if (info == null) return default(T);
             object retval = info.GetValue(obj, null);
-
-            if (retval == null)
-                return default(T);
-            else
-                // throws InvalidCastException if types are incompatable
-                return (T)retval;
+            return retval == null ? default(T) : (T)retval;
         }
-        public static T GetPropValue<T, R>(R obj, String name)
+
+
+        public static IEnumerable<T> GetPropValues<T>(this IEnumerable<Object> obj, String name, Type type = null)
         {
-
-            PropertyInfo info = typeof(R).GetProperty(name);
-            if (info == null) return default(T);
-            object retval = info.GetValue(obj, null);
-
-            if (retval == null)
-                return default(T);
-            else
-                // throws InvalidCastException if types are incompatable
-                return (T)retval;
+            var x = (type ?? obj.First().GetType()).GetProperty(name);
+            return obj.Select(_ => GetPropValue<T>(_, x));
         }
+
+        public static IEnumerable<T> GetPropValues<T, R>(IEnumerable<R> obj, String name)
+        {
+            var x = typeof(R).GetProperty(name);
+            return obj.Select(_ => GetPropValue<T>(_, x));
+        }
+
+        public static IEnumerable<T> GetPropValues<T>(this IEnumerable<Object> obj, PropertyInfo info = null) => obj.Select(_ => GetPropValue<T>(_, info));
+
+
+        public static IEnumerable<T> GetPropValues<T>(this IEnumerable obj, PropertyInfo info = null)
+        {
+            foreach (var x in obj)
+                yield return GetPropValue<T>(x, info);
+        }
+
+        public static IEnumerable<T> GetPropValues<T>(this IEnumerable obj, String name, Type type = null)
+        {
+            var info = (type ?? obj.FirstNG().GetType()).GetProperty(name);
+            foreach (var x in obj)
+                yield return GetPropValue<T>(x, info);
+        }
+
+        public static IEnumerable GetPropValues(this IEnumerable obj, String name, Type type = null)
+        {
+            var info = (type ?? obj.FirstNG().GetType()).GetProperty(name);
+            foreach (var x in obj)
+                yield return GetPropValue(x, info);
+        }
+
+
 
         public static bool SetPropertyByType<T>(object obj, T value)
         {
             var properties = obj.GetType().GetProperties();
-            var prop = properties.SingleOrDefault(_ => _.PropertyType ==typeof(T));
+            var prop = properties.SingleOrDefault(_ => _.PropertyType == typeof(T));
             if (prop != null)
             {
                 prop.SetValue(obj, value, null);
                 return true;
             }
-
             return false;
-
         }
-
-
-
-        //public static Object GetPropValue(this Object obj, String name)
-        //{
-        //    if (obj == null)  return null; 
-
-        //    foreach (String part in name.Split('.'))
-        //    {
-        //        Type type = obj.GetType();
-        //        PropertyInfo info = type.GetProperty(part);
-        //        if (info == null)  return null; 
-
-        //        obj = info.GetValue(obj, null);
-        //    }
-        //    return obj;
-        //}
-
 
 
         public static void SetValue(object inputObject, string propertyName, object propertyVal, bool ignoreCase = true)
@@ -97,11 +110,7 @@ namespace UtilityHelper
         }
 
 
-        private static bool IsNullableType(Type type)
-        {
-            return type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
-        }
-
+        private static bool IsNullableType(Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
 
 
         public static T ToObject<T>(this Dictionary<string, object> dict)
@@ -143,6 +152,25 @@ namespace UtilityHelper
             return (T)obj;
         }
 
+
+        public static object ToObject(this Dictionary<string, string> dict, Type type, Dictionary<string, Type> propertytypes = null)
+        {
+ 
+            var obj = Activator.CreateInstance(type);
+
+            propertytypes = propertytypes ?? type.GetProperties().ToDictionary(_ => _.Name, _ => _.PropertyType);
+
+
+            foreach (var kv in dict)
+            {
+                //  type.GetProperty(kv.Key).SetValue(obj, kv.Value);
+
+                if (kv.Value != null)
+
+                    PropertyHelper.SetValue(obj, kv.Key, Convert.ChangeType(kv.Value, propertytypes[kv.Key]));
+            }
+            return obj;
+        }
 
 
         public static IEnumerable<T> ToObjects<T>(this IEnumerable<Dictionary<string, string>> dicts)
@@ -293,12 +321,10 @@ namespace UtilityHelper
 
 
         public static Type[] GetTypesInNamespace(this Assembly assembly, string nameSpace)
-        {
-            return
-              assembly.GetTypes()
+            => assembly.GetTypes()
                       .Where(t => String.Equals(t.Namespace, nameSpace, StringComparison.Ordinal))
                       .ToArray();
-        }
+
 
 
         //        Type[] typelist = GetTypesInNamespace(Assembly.GetExecutingAssembly(), "MyNamespace");

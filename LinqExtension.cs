@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,13 @@ namespace UtilityHelper
             }
         }
 
+        public static object FirstNG(this IEnumerable enumerable)
+        {
 
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            enumerator.MoveNext();
+            return enumerator.Current;
+        }
 
 
         public static void AddOrReplaceBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TSource replacement)
@@ -132,7 +139,23 @@ namespace UtilityHelper
         }
 
 
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> collection, int size)
+        {
+            Func<IEnumerable<T>, int> f = (c) => c.Count() / size;
 
+            var chunkCount = collection.Count() % size > 0 ? f(collection) + 1 : f(collection);
+
+            return Enumerable.Range(0, chunkCount).Select(i => collection.Skip(i * size).Take(size).ToList());
+
+        }
+
+
+        public static IEnumerable<T>[] SplitInTwo<T>(this IEnumerable<T> collection, double ratio)
+        {
+            int chunkCount = (int)(collection.Count() * ratio);
+
+            return new[] { collection.Take(chunkCount), collection.Skip(chunkCount) };
+        }
 
 
 
@@ -401,8 +424,6 @@ params System.Collections.IEnumerable[] itemCollections)
                    .GroupBy(r => rprop.GetValue(r, null))
                    .GroupBy(c => cprop.GetValue(c, null))
                    .Select(_ => _.First());
-
-
 
             return query;
 
