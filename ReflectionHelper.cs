@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using UtilityHelper.NonGeneric;
 
 namespace UtilityHelper
 {
@@ -57,14 +58,14 @@ namespace UtilityHelper
 
         public static IEnumerable<T> GetPropValues<T>(this IEnumerable obj, String name, Type type = null)
         {
-            var info = (type ?? obj.FirstNG().GetType()).GetProperty(name);
+            var info = (type ?? obj.First().GetType()).GetProperty(name);
             foreach (var x in obj)
                 yield return GetPropValue<T>(x, info);
         }
 
         public static IEnumerable GetPropValues(this IEnumerable obj, String name, Type type = null)
         {
-            var info = (type ?? obj.FirstNG().GetType()).GetProperty(name);
+            var info = (type ?? obj.First().GetType()).GetProperty(name);
             foreach (var x in obj)
                 yield return GetPropValue(x, info);
         }

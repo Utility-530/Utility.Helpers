@@ -6,6 +6,91 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+namespace UtilityHelper.NonGeneric
+{
+    public static class LinqExtension
+    {
+        public static object First(this IEnumerable enumerable)
+        {
+
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            enumerator.MoveNext();
+            return enumerator.Current;
+        }
+
+
+
+
+        public static IEnumerable FilterByIndex(this IEnumerable enumerable, IEnumerable<int> indices)
+        {
+
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                if (indices.Contains(i))
+                    yield return enumerator.Current;
+                i++;
+            }
+
+        }
+
+        public static int Count(this IEnumerable enumerable)
+        {
+
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                i++;
+            }
+
+            return i;
+        }
+
+        public static IEnumerable[] SplitInTwo(this IEnumerable collection, double ratio)
+        {
+            int chunkCount = (int)(collection.Count() * ratio);
+
+            return new[] { collection.Take(chunkCount), collection.Skip(chunkCount) };
+        }
+
+
+        public static IEnumerable Skip(this IEnumerable collection, int chunkCount)
+        {
+
+            IEnumerator enumerator = collection.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                if (i > chunkCount)
+                    yield return enumerator.Current;
+                i++;
+            }
+
+        }
+        public static IEnumerable Take(this IEnumerable collection, int chunkCount)
+        {
+
+            IEnumerator enumerator = collection.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                if (i < chunkCount)
+                    yield return enumerator.Current;
+                i++;
+            }
+
+        }
+
+    }
+
+}
+
+
+
+
 namespace UtilityHelper
 {
     public static class LinqExtension
@@ -27,6 +112,51 @@ namespace UtilityHelper
         }
 
 
+        public static IEnumerable<T> Filter<T,R>(IEnumerable<T> data, params KeyValuePair<string,R>[] kvps)
+        {
+            return data.FilterByIndex(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
+
+        }
+
+
+        public static IEnumerable<T> FilterByIndex<T>(this IEnumerable<T> enumerable, IEnumerable<int> indices)
+        {
+
+            IEnumerator<T> enumerator = enumerable.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                if (indices.Contains(i))
+                    yield return enumerator.Current;
+                i++;
+            }
+
+        }
+
+
+        public static IEnumerable<int> FilterIndex<T, R>(this IEnumerable<T> data, IEnumerable<string> filter, IEnumerable<R> filterOn)
+        {
+
+            IEnumerator<string> fenm = ((IEnumerable<string>)filter).GetEnumerator();
+            IEnumerator<string> fenom = ((IEnumerable<string>)filterOn).GetEnumerator();
+
+            fenm.MoveNext(); fenom.MoveNext();
+            filter = data.GetPropValues<string>((string)fenm.Current);
+            var filtered = filter.Select((_, i) => _ == fenom.Current ? (int?)i : null).Where(_ => _ != null).Select(a => (int)a);
+            while (fenm.MoveNext() && fenom.MoveNext())
+            {
+                filtered = filter
+                    .Select((_, i) => _ == fenom.Current ? (int?)i : null).Where(_ => _ != null)
+                    .Select(a => (int)a)
+                    .Union(filtered).ToList();
+            }
+
+            return filtered;
+
+
+        }
+
+
 
         public static void RemoveFirst<T>(this ICollection<T> collection, int n)
         {
@@ -37,13 +167,7 @@ namespace UtilityHelper
             }
         }
 
-        public static object FirstNG(this IEnumerable enumerable)
-        {
 
-            IEnumerator enumerator = enumerable.GetEnumerator();
-            enumerator.MoveNext();
-            return enumerator.Current;
-        }
 
 
         public static void AddOrReplaceBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TSource replacement)
@@ -126,17 +250,7 @@ namespace UtilityHelper
         }
 
 
-        public static IEnumerable<double> SelectDifferences(this IEnumerable<double> sequence)
-        {
-            using (var e = sequence.GetEnumerator())
-            {
-                e.MoveNext();
-                double last = e.Current;
-                while (e.MoveNext())
-                    yield return e.Current - last;
 
-            }
-        }
 
 
         public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> collection, int size)
@@ -271,7 +385,7 @@ params System.Collections.IEnumerable[] itemCollections)
         }
 
 
-        
+
         public static double WeightedAverage<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight, double control = 0)
         {
             double weightedValueSum = records.Sum(x => (value(x) - control) * weight(x));
@@ -299,71 +413,6 @@ params System.Collections.IEnumerable[] itemCollections)
                     yield return 0;
             }
 
-        }
-        // equivalent to running-profit if records = trades (value = purchase-price, weight = quantity) and control = actual-price 
-        public static IEnumerable<double> RunningWeightedDifference<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight, IEnumerable<double> control)
-        {
-            var runningweightedvaluesum = 0d;
-            var runningweightsum = 0d;
-
-            using (var x = records.GetEnumerator())
-            using (var y = control.GetEnumerator())
-            {
-                while (x.MoveNext() && y.MoveNext())
-                {
-                    runningweightedvaluesum += value(x.Current) * weight(x.Current);
-                    runningweightsum += weight(x.Current);
-                    if (runningweightedvaluesum != 0)
-                        yield return (runningweightedvaluesum - y.Current) / runningweightsum;
-                    else
-                        yield return 0;
-                }
-            }
-        }
-
-
-        //moves the window in which weighted average values are taken
-        public static List<double> MovingWeightedAverage<T>(this IEnumerable<T> series, int period, Func<T, double> value, Func<T, double> weight)
-        {
-            return series.Skip(period - 1).Aggregate(
-       new
-       {
-           Result = new List<double>(),
-           Working = new Queue<T>(series.Take(period - 1))
-       },
-      (list, item) =>
-      {
-          list.Working.Enqueue(item);
-          list.Result.Add(list.Working.WeightedAverage(value, weight));
-          list.Working.Dequeue();
-          return list;
-      }
-    ).Result;
-        }
-
-
-
-
-
-
-
-
-        public static List<double> MovingAverage(this IEnumerable<double> series, int period)
-        {
-            return series.Skip(period - 1).Aggregate(
-       new
-       {
-           Result = new List<double>(),
-           Working = new Queue<double>(series.Take(period - 1).Select(item => item))
-       },
-      (list, item) =>
-      {
-          list.Working.Enqueue(item);
-          list.Result.Add(list.Working.Average());
-          list.Working.Dequeue();
-          return list;
-      }
-    ).Result;
         }
 
 
@@ -419,7 +468,7 @@ params System.Collections.IEnumerable[] itemCollections)
             var rprop = typeof(T).GetProperty(RowField);
             var cprop = typeof(T).GetProperty(columnField);
 
-     
+
             var query = dtable
                    .GroupBy(r => rprop.GetValue(r, null))
                    .GroupBy(c => cprop.GetValue(c, null))

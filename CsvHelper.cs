@@ -64,6 +64,8 @@ namespace UtilityHelper
 
         }
 
+
+
         public static IEnumerable<string[]> GetFileLines(string filename, int skipfirst = 0)
         {
             using (var stream = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -129,7 +131,7 @@ namespace UtilityHelper
 
         }
 
-        
+
         private static string StringToCSVCell(string str)
         {
             bool mustQuote = (str.Contains(",") || str.Contains("\"") || str.Contains("\r") || str.Contains("\n"));
@@ -293,7 +295,7 @@ namespace UtilityHelper
         }
 
 
-      
+
 
         //https://github.com/22222/CsvTextFieldParser
         //public static IEnumerable<string[]> Parse(string path)
