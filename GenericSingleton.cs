@@ -52,10 +52,10 @@ namespace UtilityHelper
 
 
     /// <summary>
-    /// Singleton pattern for a generic class that implements IDisposable and has a constructor with arity 0
+    /// Singleton pattern for a generic class
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public static class Singleton2<T> where T : class, IDisposable, new()
+    public static class Singleton2<T> where T : class, new()
     {
 
         private static object lockingObject = new object();
@@ -81,14 +81,6 @@ namespace UtilityHelper
             return singleTonObject;
         }
 
-        /// <summary>
-        /// Disposes the singleton instance
-        /// </summary>
-        public static void Dispose()
-        {
-            Instance.Dispose();
-            singleTonObject = null;
-        }
     }
 
 

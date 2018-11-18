@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UtilityHelper;
 
 namespace UtilityHelper
 {
@@ -66,7 +67,7 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<string[]> GetFileLines(string filename, int skipfirst = 0)
+        public static IEnumerable<string[]> GetFileLines(string filename, int skipfirst = 0,char splitchar=',')
         {
             using (var stream = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -77,7 +78,7 @@ namespace UtilityHelper
                     while ((line = reader.ReadLine()) != null)
                     {
                         if (i > skipfirst - 1)
-                            yield return line.Split();
+                            yield return line.Split(splitchar);
                         else
                             i++;
                     }
@@ -87,10 +88,10 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<T> ReadFromCsv<T>(string filename)
+        public static IEnumerable<T> ReadFromCsv<T>(string filename,char splitchar = ',')
         {
 
-            var x = GetFileLines(filename, 0);
+            var x = GetFileLines(filename, 0,splitchar);
             var y = x.First();
 
             var z = x.Skip(1).Select(_ => _.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));

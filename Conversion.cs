@@ -4,8 +4,11 @@ using System.Text;
 
 namespace UtilityHelper
 {
+    //https://stackoverflow.com/questions/8171412/cannot-implicitly-convert-type-int-to-t
+    // try Convert.ChangeType();
     public class Conversion
     {
+
         public static bool TryToDouble(object value, out double result)
         {
             result = 0d;

@@ -221,7 +221,64 @@ namespace UtilityHelper
 
 
 
-   
+
+        public static bool CheckDate1(string date, out DateTime result)
+        {
+            string[] formats = {"M/d/yyyy h:mm:ss tt", "M/d/yyyy h:mm tt",
+                   "MM/dd/yyyy hh:mm:ss", "M/d/yyyy h:mm:ss",
+                   "M/d/yyyy hh:mm tt", "M/d/yyyy hh tt",
+                   "M/d/yyyy h:mm", "M/d/yyyy h:mm",
+                   "MM/dd/yyyy hh:mm", "M/dd/yyyy hh:mm"};
+
+            result = default(DateTime);
+            foreach (string s in regexstrings)
+            {
+
+                DateTime.TryParseExact(date, formats,
+                                                CultureInfo.InvariantCulture,
+                                                  DateTimeStyles.None,
+                                                  out result);
+                return true;
+
+            }
+            return false;
+            //Match m = Regex.Match(example, @"^(?<day>\d\d?)-(?<month>\d\d?)-(?<year>\d\d\d\d)$");
+            //string strDay = m.Groups["day"].Value;
+            //string strMonth = m.Groups["month"].Value;
+            //string strYear = m.Groups["year"].Value;
+        }
+
+
+        public static bool CheckDate2(string date, out DateTime result)
+        {
+            result = default(DateTime);
+            foreach (string s in regexstrings)
+            {
+                System.Text.RegularExpressions.Match m = System.Text.RegularExpressions.Regex.Match(date, s);
+                if (DateTime.TryParse(m.Value, out result))
+                    return true;
+
+            }
+            return false;
+            //Match m = Regex.Match(example, @"^(?<day>\d\d?)-(?<month>\d\d?)-(?<year>\d\d\d\d)$");
+            //string strDay = m.Groups["day"].Value;
+            //string strMonth = m.Groups["month"].Value;
+            //string strYear = m.Groups["year"].Value;
+        }
+
+        //http://regexlib.com/DisplayPatterns.aspx?cattabindex=4&categoryId=5&AspxAutoDetectCookieSupport=1
+
+        //This RE validates dates in the dd MMM yyyy format. Spaces separate the values.
+        const string regex1 = @"^((31(?!\ (Feb(ruary)?|Apr(il)?|June?|(Sep(?=\b|t)t?|Nov)(ember)?)))|((30|29)(?!\ Feb(ruary)?))|(29(?=\ Feb(ruary)?\ (((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)))))|(0?[1-9])|1\d|2[0-8])\ (Jan(uary)?|Feb(ruary)?|Ma(r(ch)?|y)|Apr(il)?|Ju((ly?)|(ne?))|Aug(ust)?|Oct(ober)?|(Sep(?=\b|t)t?|Nov|Dec)(ember)?)\ ((1[6-9]|[2-9]\d)\d{2})$";
+        //Matches ANSI SQL date format YYYY-mm-dd hh:mi:ss am/pm. You can use / - or space for date delimiters, so 2004-12-31 works just as well as 2004/12/31. Checks leap year from 1901 to 2099.
+        const string regex2 = @"^((\d{2}(([02468][048])|([13579][26]))[\-\/\s]?((((0?[13578])|(1[02]))[\-\/\s]?((0?[1-9])|([1-2][0-9])|(3[01])))|(((0?[469])|(11))[\-\/\s]?((0?[1-9])|([1-2][0-9])|(30)))|(0?2[\-\/\s]?((0?[1-9])|([1-2][0-9])))))|(\d{2}(([02468][1235679])|([13579][01345789]))[\-\/\s]?((((0?[13578])|(1[02]))[\-\/\s]?((0?[1-9])|([1-2][0-9])|(3[01])))|(((0?[469])|(11))[\-\/\s]?((0?[1-9])|([1-2][0-9])|(30)))|(0?2[\-\/\s]?((0?[1-9])|(1[0-9])|(2[0-8]))))))(\s(((0?[1-9])|(1[0-2]))\:([0-5][0-9])((\s)|(\:([0-5][0-9])\s))([AM|PM|am|pm]{2,2})))?$";
+        //yyMMdd with leap years. Minimized expression. As we have only 2 numbers for the years, dates 1600, 2000, etc are still validated.
+        const string regex3 = @"^(\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)$";
+
+
+
+        public static string[] regexstrings => new[] { regex1, regex2, regex3 };
+
     }
 
 }

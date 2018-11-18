@@ -1,94 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-
-namespace UtilityHelper.NonGeneric
-{
-    public static class LinqExtension
-    {
-        public static object First(this IEnumerable enumerable)
-        {
-
-            IEnumerator enumerator = enumerable.GetEnumerator();
-            enumerator.MoveNext();
-            return enumerator.Current;
-        }
-
-
-
-
-        public static IEnumerable FilterByIndex(this IEnumerable enumerable, IEnumerable<int> indices)
-        {
-
-            IEnumerator enumerator = enumerable.GetEnumerator();
-            int i = 0;
-            while (enumerator.MoveNext())
-            {
-                if (indices.Contains(i))
-                    yield return enumerator.Current;
-                i++;
-            }
-
-        }
-
-        public static int Count(this IEnumerable enumerable)
-        {
-
-            IEnumerator enumerator = enumerable.GetEnumerator();
-            int i = 0;
-            while (enumerator.MoveNext())
-            {
-                i++;
-            }
-
-            return i;
-        }
-
-        public static IEnumerable[] SplitInTwo(this IEnumerable collection, double ratio)
-        {
-            int chunkCount = (int)(collection.Count() * ratio);
-
-            return new[] { collection.Take(chunkCount), collection.Skip(chunkCount) };
-        }
-
-
-        public static IEnumerable Skip(this IEnumerable collection, int chunkCount)
-        {
-
-            IEnumerator enumerator = collection.GetEnumerator();
-            int i = 0;
-            while (enumerator.MoveNext())
-            {
-                if (i > chunkCount)
-                    yield return enumerator.Current;
-                i++;
-            }
-
-        }
-        public static IEnumerable Take(this IEnumerable collection, int chunkCount)
-        {
-
-            IEnumerator enumerator = collection.GetEnumerator();
-            int i = 0;
-            while (enumerator.MoveNext())
-            {
-                if (i < chunkCount)
-                    yield return enumerator.Current;
-                i++;
-            }
-
-        }
-
-    }
-
-}
-
-
 
 
 namespace UtilityHelper
@@ -111,63 +26,34 @@ namespace UtilityHelper
             }
         }
 
-
-        public static IEnumerable<T> Filter<T,R>(IEnumerable<T> data, params KeyValuePair<string,R>[] kvps)
+        public static IEnumerable<U> Map<T, U>(this IEnumerable<T> s, Func<T, U> f)
         {
-            return data.FilterByIndex(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
-
+            foreach (var item in s)
+                yield return f(item);
         }
 
 
-        public static IEnumerable<T> FilterByIndex<T>(this IEnumerable<T> enumerable, IEnumerable<int> indices)
+        public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
         {
-
-            IEnumerator<T> enumerator = enumerable.GetEnumerator();
-            int i = 0;
-            while (enumerator.MoveNext())
+            foreach (T item in enumeration)
             {
-                if (indices.Contains(i))
-                    yield return enumerator.Current;
+                action(item);
+            }
+        }
+
+
+        public static void ForEach<T>(this IEnumerable<T> sequence, Action<T, int> action)
+        {
+            // argument null checking omitted
+            int i = 0;
+            foreach (T item in sequence)
+            {
+                action(item, i);
                 i++;
             }
-
         }
 
-
-        public static IEnumerable<int> FilterIndex<T, R>(this IEnumerable<T> data, IEnumerable<string> filter, IEnumerable<R> filterOn)
-        {
-
-            IEnumerator<string> fenm = ((IEnumerable<string>)filter).GetEnumerator();
-            IEnumerator<string> fenom = ((IEnumerable<string>)filterOn).GetEnumerator();
-
-            fenm.MoveNext(); fenom.MoveNext();
-            filter = data.GetPropValues<string>((string)fenm.Current);
-            var filtered = filter.Select((_, i) => _ == fenom.Current ? (int?)i : null).Where(_ => _ != null).Select(a => (int)a);
-            while (fenm.MoveNext() && fenom.MoveNext())
-            {
-                filtered = filter
-                    .Select((_, i) => _ == fenom.Current ? (int?)i : null).Where(_ => _ != null)
-                    .Select(a => (int)a)
-                    .Union(filtered).ToList();
-            }
-
-            return filtered;
-
-
-        }
-
-
-
-        public static void RemoveFirst<T>(this ICollection<T> collection, int n)
-        {
-            var x = collection.Take(n);
-            foreach (var y in x)
-            {
-                collection.Remove(y);
-            }
-        }
-
-
+     
 
 
         public static void AddOrReplaceBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TSource replacement)
@@ -300,6 +186,14 @@ params System.Collections.IEnumerable[] itemCollections)
 
         }
 
+        public static void RemoveFirst<T>(this ICollection<T> collection, int n)
+        {
+            var x = collection.Take(n);
+            foreach (var y in x)
+            {
+                collection.Remove(y);
+            }
+        }
 
         public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source,
           Func<TSource, TKey> selector)
@@ -537,5 +431,4 @@ params System.Collections.IEnumerable[] itemCollections)
             Key = key;
         }
     }
-
 }

@@ -39,8 +39,8 @@ namespace UtilityHelper
                     typeof(DescriptionAttribute)) as DescriptionAttribute;
                 if (attribute != null)
                 {
-                    
-                    if (attribute.Description.Equals(description,stringcomparison))
+
+                    if (attribute.Description.Equals(description, stringcomparison))
                         return (T)field.GetValue(null);
                 }
                 else
@@ -58,6 +58,13 @@ namespace UtilityHelper
         {
             return (T)Enum.Parse(typeof(T), value, true);
         }
+
+        public static object ParseByReflection(Type type, string value, string[] names = null)
+        {
+            names = names ?? Enum.GetNames(type);
+            return Enum.ToObject(type, names.Select((a, i) => new { a, i }).SingleOrDefault(c => c.a == value).i);
+        }
+
 
         /// <summary>
         /// Gets an attribute on an enum field value
@@ -97,8 +104,8 @@ namespace UtilityHelper
             List<KeyValuePair<string, int>> enumValList = new List<KeyValuePair<string, int>>();
 
             foreach (var e in Enum.GetValues(enumType))
-               yield return new KeyValuePair<string, int>(GetDescription((Enum)e), (int)e);
-           
+                yield return new KeyValuePair<string, int>(GetDescription((Enum)e), (int)e);
+
 
         }
 
@@ -108,10 +115,10 @@ namespace UtilityHelper
         {
             if (enumType.BaseType != typeof(Enum))
                 throw new ArgumentException("T is not System.Enum");
-            
-            foreach (var e in Enum.GetValues( enumType))
+
+            foreach (var e in Enum.GetValues(enumType))
                 yield return GetDescription((Enum)e);
-           
+
 
         }
 

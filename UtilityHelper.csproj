@@ -3,19 +3,21 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <ApplicationIcon>supporticon.ico</ApplicationIcon>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Declan Taylor</Authors>
     <Company />
     <Product />
     <Description>Personal utility class library 
-inlcudes Combinatorics,CSV,DataTable,DateTime, Dictionary,Directory,Download,Enum,Linq,Reflection,String,TupleList
+Combinatorics,CSV,DataTable,DateTime, Dictionary,Directory,Download,Enum,Linq,Reflection,String,TupleList
 related methods/types
 </Description>
     <NeutralLanguage />
-    <PackageTags>utility</PackageTags>
+    <PackageTags>utility helper</PackageTags>
     <PackageId>dt_UtilityHelper</PackageId>
     <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>1.2.5-alpha</Version>
+    <Version>1.2.10-alpha</Version>
+    <AssemblyVersion>1.2.10.0</AssemblyVersion>
+    <FileVersion>1.2.10.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

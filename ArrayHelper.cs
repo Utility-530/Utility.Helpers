@@ -24,5 +24,23 @@ namespace UtilityHelper
             return arr1d;
         }
 
+        public static double[] To1dArray(params double[][] arr2d)
+        {
+            int width = arr2d[0].Length;
+            int height = arr2d.Length;
+
+
+            double[] arr1d = new double[width * height];
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                {
+
+                    arr1d[width * i + j] = arr2d[i][j];
+                }
+
+            return arr1d;
+
+        }
     }
 }

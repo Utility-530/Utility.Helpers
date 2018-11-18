@@ -348,6 +348,9 @@ namespace UtilityHelper
         //    DomainName completeDomain;
         //    return DomainName.TryParse(new Uri(str).Host, out completeDomain) ? completeDomain.SLD : "";
         //}
+
+
+
     }
 
 
