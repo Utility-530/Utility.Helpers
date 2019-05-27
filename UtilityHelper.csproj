@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ApplicationIcon>https://github.com/dtaylor-530/UtilityHelperStandard/blob/master/supporticon.ico</ApplicationIcon>
+    <ApplicationIcon>supporticon.ico</ApplicationIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Declan Taylor</Authors>
 
@@ -21,6 +21,7 @@ related methods/types
     <FileVersion>2.0.0.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageIconUrl>https://raw.githubusercontent.com/dtaylor-530/UtilityHelperStandard/master/supporticon.ico</PackageIconUrl>
 
     
   </PropertyGroup>
