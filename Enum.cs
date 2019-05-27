@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +20,9 @@ namespace UtilityHelper
         // And this gets you a generic list:
 
         // var valuesAsList = Enum.GetValues(typeof(Enumnum)).Cast<Enumnum>().ToList();
+
+
+     
 
 
         public static T ToEnum<T>(int i)

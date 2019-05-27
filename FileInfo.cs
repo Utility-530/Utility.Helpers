@@ -5,7 +5,7 @@ using System.Text;
 
 namespace UtilityHelper
 {
-    public static class FileHelper
+    public static class FileInfoHelper
     {
         public static bool IsFileLocked(this FileInfo file)
         {

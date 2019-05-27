@@ -8,21 +8,20 @@ using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
-    public  class DirectoryNetFrameworkHelper
+    public  class DirectoryHelper
     {
 
 
         public static string GetProjectPath()
         {
-
-            return Directory.GetParent(
-                     Directory.GetCurrentDirectory()).Parent.FullName;
+            return System.IO.Directory.GetParent(
+                     System.IO.Directory.GetCurrentDirectory()).Parent.FullName;
         }
 
 
         public static string GetSolutionPath()
         {
-            return Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            return System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName;
       
         }
 
@@ -54,9 +53,9 @@ namespace UtilityHelper
                     {
                         pathParts[i] = Path.Combine(pathParts[i - 1], pathParts[i]);
                     }
-                    if (!Directory.Exists(pathParts[i]))
+                    if (!System.IO.Directory.Exists(pathParts[i]))
                     {
-                        Directory.CreateDirectory(pathParts[i]);
+                        System.IO.Directory.CreateDirectory(pathParts[i]);
                     }
                 }
                 return true;
@@ -69,7 +68,7 @@ namespace UtilityHelper
         }
 
         // Get All files (in subdirectories)
-        //Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories)
+        //System.IO.Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories)
         //or 
         //https://stackoverflow.com/questions/2106877/is-there-a-faster-way-than-this-to-find-all-the-files-in-a-directory-and-all-sub/2107294#2107294
         public static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)
@@ -82,7 +81,7 @@ namespace UtilityHelper
                 rootFolderPath = pending.Dequeue();
                 try
                 {
-                    tmp = Directory.GetFiles(rootFolderPath, fileSearchPattern);
+                    tmp = System.IO.Directory.GetFiles(rootFolderPath, fileSearchPattern);
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -92,7 +91,7 @@ namespace UtilityHelper
                 {
                     yield return tmp[i];
                 }
-                tmp = Directory.GetDirectories(rootFolderPath);
+                tmp = System.IO.Directory.GetDirectories(rootFolderPath);
                 for (int i = 0; i < tmp.Length; i++)
                 {
                     pending.Enqueue(tmp[i]);

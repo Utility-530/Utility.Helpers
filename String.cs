@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,6 +12,15 @@ namespace UtilityHelper
     public static class StringHelper
     {
 
+        public static Stream ToStream(this string[] str)
+        {
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
+            foreach (var s in str) writer.WriteLine(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
 
 
         //https://stackoverflow.com/questions/3947126/case-insensitive-list-search

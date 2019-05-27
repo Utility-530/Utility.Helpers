@@ -35,7 +35,7 @@ namespace UtilityHelper
                 return value.ToString();
         }
 
-        public static string GetDescription(this Type value)
+        public static string GetDescription(this System.Type value)
         {
 
 
@@ -54,7 +54,7 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<Type> FilterByCategoryAttribute(this Type[] types, string category)
+        public static IEnumerable<Type> FilterByCategoryAttribute(this System.Type[] types, string category)
         {
 
             return types.Where(_ =>

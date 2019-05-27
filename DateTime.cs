@@ -17,7 +17,7 @@ namespace UtilityHelper
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public static byte GetWeekOfYear(this DateTime time)
+        public static byte GetWeekOfYear(this System.DateTime time)
         {
             // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
             // be the same week# as whatever Thursday, Friday or Saturday are,
@@ -33,20 +33,20 @@ namespace UtilityHelper
         }
 
 
-        public static DateTime GetDateTimeFromDayOfCurrentMonth(int day)
+        public static System.DateTime GetDateTimeFromDayOfCurrentMonth(int day)
         {
-            var dtt = DateTime.Today;
+            var dtt = System.DateTime.Today;
 
-            var dt = new DateTime(dtt.Year, dtt.Month, day);
+            var dt = new System.DateTime(dtt.Year, dtt.Month, day);
 
             return dt;
 
         }
 
-        public static int GetDayInterval(this DateTime date)
+        public static int GetDayInterval(this System.DateTime date)
         {
 
-            DateTime startDate = new DateTime(1970, 7, 1);
+            System.DateTime startDate = new System.DateTime(1970, 7, 1);
             return date.Subtract(startDate).Days % 365;
 
 
@@ -59,12 +59,12 @@ namespace UtilityHelper
 
             if (dayofweek.ToLower() == "yesterday")
                 //var tomorrow = today.AddDays(1);
-                day = DateTime.Now.AddDays(-1).DayOfWeek;
+                day = System.DateTime.Now.AddDays(-1).DayOfWeek;
             else if (dayofweek.ToLower() == "tomorrow")
-                day = DateTime.Now.AddDays(1).DayOfWeek;
+                day = System.DateTime.Now.AddDays(1).DayOfWeek;
 
             else if (dayofweek.ToLower() == "today")
-                day = DateTime.Now.DayOfWeek;
+                day = System.DateTime.Now.DayOfWeek;
             else
                 day = daysOfWeek.First(d => d.ToString().StartsWith(dayofweek));
 
@@ -75,19 +75,19 @@ namespace UtilityHelper
 
 
 
-        public static DateTime GetPreviousWeekDayDate(this DateTime dt, DayOfWeek dow)
+        public static System.DateTime GetPreviousWeekDayDate(this System.DateTime dt, DayOfWeek dow)
         {
 
-            DateTime previousWeekday = dt.AddDays(-1);
+            System.DateTime previousWeekday = dt.AddDays(-1);
             while (previousWeekday.DayOfWeek != dow)
                 previousWeekday = previousWeekday.AddDays(-1);
             return previousWeekday;
         }
 
-        public static DateTime GetNextWeekDayDate(this DateTime dt, DayOfWeek dow)
+        public static System.DateTime GetNextWeekDayDate(this System.DateTime dt, DayOfWeek dow)
         {
 
-            DateTime nextWeekDay = dt.AddDays(1);
+            System.DateTime nextWeekDay = dt.AddDays(1);
             while (nextWeekDay.DayOfWeek != dow)
                 nextWeekDay = nextWeekDay.AddDays(1);
             return nextWeekDay;
@@ -97,9 +97,9 @@ namespace UtilityHelper
 
 
 
-        public static bool Parse(string s, string format, out DateTime dt)
+        public static bool Parse(string s, string format, out System.DateTime dt)
         {
-            return DateTime.TryParseExact(
+            return System.DateTime.TryParseExact(
                 s,
                 format,
                 CultureInfo.InvariantCulture,
@@ -111,10 +111,10 @@ namespace UtilityHelper
 
 
 
-        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        public static System.DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch
-            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            System.DateTime dtDateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
             return dtDateTime;
         }
@@ -122,18 +122,18 @@ namespace UtilityHelper
 
 
 
-        public static DateTime Scale(this DateTime dt, double number)
+        public static System.DateTime Scale(this System.DateTime dt, double number)
         {
-            return new DateTime((long)(dt.Ticks * number));
+            return new System.DateTime((long)(dt.Ticks * number));
         }
 
 
-        public static IEnumerable<TimeSpan> SelectDifferences(this IEnumerable<DateTime> sequence)
+        public static IEnumerable<TimeSpan> SelectDifferences(this IEnumerable<System.DateTime> sequence)
         {
             using (var e = sequence.GetEnumerator())
             {
                 e.MoveNext();
-                DateTime last = e.Current;
+                System.DateTime last = e.Current;
                 while (e.MoveNext())
                 {
                     yield return e.Current - last;
@@ -153,46 +153,46 @@ namespace UtilityHelper
 
 
         // Reschedules timeseries so that the average time increments corresponds to 1 second and the start time is now
-        public static IEnumerable<KeyValuePair<DateTime, double>> Reschedule(this IEnumerable<KeyValuePair<DateTime, double>> _)
+        public static IEnumerable<KeyValuePair<System.DateTime, double>> Reschedule(this IEnumerable<KeyValuePair<System.DateTime, double>> _)
         {
             var avdiff = _.Select(ac => ac.Key).ToList().SelectDifferences().Average();
             var scalefactor = ((double)TimeSpan.TicksPerSecond) / ((double)avdiff.Ticks);
-            var x = _.Select(s => new KeyValuePair<DateTime, double>(s.Key.Scale(scalefactor), s.Value));
+            var x = _.Select(s => new KeyValuePair<System.DateTime, double>(s.Key.Scale(scalefactor), s.Value));
             var y = x.Min(ad => ad.Key);
-            var z = DateTime.Now - y;
-            return x.Select(dd => new KeyValuePair<DateTime, double>(dd.Key + z, dd.Value));
+            var z = System.DateTime.Now - y;
+            return x.Select(dd => new KeyValuePair<System.DateTime, double>(dd.Key + z, dd.Value));
 
         }
 
 
 
 
-        public static string MonthName(this DateTime date)
+        public static string MonthName(this System.DateTime date)
         {
             return CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(date.Month);
         }
 
-        public static DateTime Period(this DateTime date, int periodInDays)
+        public static System.DateTime Period(this System.DateTime date, int periodInDays)
         {
-            var startDate = new DateTime();
-            var myDate = new DateTime(date.Year, date.Month, date.Day);
+            var startDate = new System.DateTime();
+            var myDate = new System.DateTime(date.Year, date.Month, date.Day);
             var diff = myDate - startDate;
             return myDate.AddDays(-(diff.TotalDays % periodInDays));
         }
 
-        public static DateTime? ToDMY(this DateTime? dateTimeNullable)
+        public static System.DateTime? ToDMY(this System.DateTime? DateTimeNullable)
         {
-            if (dateTimeNullable == null)
+            if (DateTimeNullable == null)
                 return null;
 
-            var date = (DateTime)dateTimeNullable;
-            date = new DateTime(date.Year, date.Month, date.Day);
+            var date = (System.DateTime)DateTimeNullable;
+            date = new System.DateTime(date.Year, date.Month, date.Day);
             return date;
         }
 
-        public static DateTime ToDMY(this DateTime dateTime)
+        public static System.DateTime ToDMY(this System.DateTime DateTime)
         {
-            var date = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day);
+            var date = new System.DateTime(DateTime.Year,DateTime.Month,DateTime.Day);
             return date;
         }
 
@@ -214,7 +214,7 @@ namespace UtilityHelper
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         /// <returns></returns>
-        public static IEnumerable<DateTime> Range(this DateTime startDate, DateTime endDate)
+        public static IEnumerable<System.DateTime> Range(this System.DateTime startDate, System.DateTime endDate)
         {
             return Enumerable.Range(0, (int)(endDate - startDate).TotalDays + 1).Select(i => startDate.AddDays(i));
         }
@@ -222,7 +222,7 @@ namespace UtilityHelper
 
 
 
-        public static bool CheckDate1(string date, out DateTime result)
+        public static bool CheckDate1(string date, out System.DateTime result)
         {
             string[] formats = {"M/d/yyyy h:mm:ss tt", "M/d/yyyy h:mm tt",
                    "MM/dd/yyyy hh:mm:ss", "M/d/yyyy h:mm:ss",
@@ -230,13 +230,13 @@ namespace UtilityHelper
                    "M/d/yyyy h:mm", "M/d/yyyy h:mm",
                    "MM/dd/yyyy hh:mm", "M/dd/yyyy hh:mm"};
 
-            result = default(DateTime);
+            result = default(System.DateTime);
             foreach (string s in regexstrings)
             {
 
-                DateTime.TryParseExact(date, formats,
+                System.DateTime.TryParseExact(date, formats,
                                                 CultureInfo.InvariantCulture,
-                                                  DateTimeStyles.None,
+                                                 DateTimeStyles.None,
                                                   out result);
                 return true;
 
@@ -249,13 +249,13 @@ namespace UtilityHelper
         }
 
 
-        public static bool CheckDate2(string date, out DateTime result)
+        public static bool CheckDate2(string date, out System.DateTime result)
         {
-            result = default(DateTime);
+            result = default(System.DateTime);
             foreach (string s in regexstrings)
             {
                 System.Text.RegularExpressions.Match m = System.Text.RegularExpressions.Regex.Match(date, s);
-                if (DateTime.TryParse(m.Value, out result))
+                if (System.DateTime.TryParse(m.Value, out result))
                     return true;
 
             }

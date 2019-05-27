@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace UtilityHelper
+namespace UtilityHelper.Generic
 {
-    public static class LinqExtension
+    public static class LinqEx
     {
 
         public static T FindLast<T>(IEnumerable<T> items, Func<T, DateTime> f, DateTime dt)

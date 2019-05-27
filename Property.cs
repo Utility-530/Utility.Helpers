@@ -80,6 +80,124 @@ namespace UtilityHelper
             }
         }
 
+        public static T GetPropertyValueSafe<T>(object x, string name)
+        {
+            var type = x.GetType();
+
+            var t = typeof(T);
+            if (type == typeof(System.Data.DataRow))
+            {
+                if (!PropertyHelper.IsCastableTo((x as System.Data.DataRow)[name].GetType(), t))
+                {
+                    var response = PropertyHelper.TryChangeType((x as System.Data.DataRow)[name], t);
+                    if (response.IsSuccess)
+                    {
+                        return (T)response.Value;
+                    }
+                    else
+                        return (T)Convert.ChangeType((x as System.Data.DataRow)[name], t);
+                }
+                else
+                    return (T)((x as System.Data.DataRow)[name]);
+            }
+            else
+            {
+                PropertyInfo info = (type).GetProperty(name);
+                return PropertyHelper.GetPropValue<T>(x, info);
+            }
+        }
+
+        public static IEnumerable<T> GetPropertyValuesSafe<T>(this IEnumerable obj, String name, Type type = null)
+        {
+            type = type ?? obj.First().GetType();
+
+            if (type.GetInterfaces().Contains(typeof(IDictionary)))
+            {
+                var t = typeof(T);
+                foreach (var x in obj)
+                    yield return (T)Convert.ChangeType((x as IDictionary)[name], t);
+            }
+            else if (type == typeof(System.Data.DataRow))
+            {
+                var t = typeof(T);
+                foreach (var x in obj)
+                {
+                    if (!PropertyHelper.IsCastableTo((x as System.Data.DataRow)[name].GetType(), t))
+                    {
+                        var response = PropertyHelper.TryChangeType((x as System.Data.DataRow)[name], t);
+                        if (response.IsSuccess)
+                        {
+                            yield return (T)response.Value;
+                        }
+                        else
+                            yield return (T)Convert.ChangeType((x as System.Data.DataRow)[name], t); ;
+                    }
+                    else
+                        yield return (T)((x as System.Data.DataRow)[name]);
+                    //(T)Convert.ChangeType(, );
+                }
+            }
+            else
+            {
+                PropertyInfo info = (type).GetProperty(name);
+                foreach (var x in obj)
+                    yield return PropertyHelper.GetPropValue<T>(x, info);
+            }
+        }
+
+
+        public static IEnumerable<Dictionary<string, object>> GetPropertyValues(this IEnumerable obj, Dictionary<string, Type> propnames, Type type = null)
+        {
+            var xs = obj.First();
+            type = type ?? obj.First().GetType();
+
+
+            if (type.GetInterfaces().Contains(typeof(IDictionary)))
+            {
+
+                foreach (var x in obj)
+                    yield return propnames.ToDictionary(name => name.Key, name => Convert.ChangeType((x as IDictionary)[name.Key], name.Value));
+            }
+            else if (type == typeof(System.Data.DataRow))
+            {
+                var xx = propnames.ToDictionary(name => name, name =>
+                {
+                    System.Data.DataRow dr = (xs as System.Data.DataRow);
+                    if (!PropertyHelper.IsCastableTo(dr[name.Key].GetType(), name.Value))
+                        return (PropertyHelper.TryChangeType(dr[name.Key], name.Value).IsSuccess) ? 1 : 2;
+                    else
+                        return 3;
+                });
+
+                foreach (var x in obj)
+                {
+                    yield return xx.ToDictionary(name => name.Key.Key, name =>
+                    {
+                        System.Data.DataRow dr = (x as System.Data.DataRow);
+                        switch (name.Value)
+                        {
+                            case (1):
+                                return PropertyHelper.TryChangeType(dr[name.Key.Key], name.Key.Value).Value;
+                            case (2):
+                                return Convert.ChangeType(dr[name.Key.Key], name.Key.Value);
+                            case (3):
+                                return dr[name.Key.Key];
+                            default:
+                                return null;
+                        }
+                    });
+                }
+            }
+            else
+            {
+                var xx = propnames.ToDictionary(name => name.Key, name => (type).GetProperty(name.Key));
+                foreach (var x in obj)
+                    yield return xx.ToDictionary(name => name.Key, name => PropertyHelper.GetPropValue<object>(x, name.Value));
+            }
+        }
+
+
+
         // https://stackoverflow.com/questions/1399273/test-if-convert-changetype-will-work-between-two-types
         // answered Dec 8 '17 at 16:46Immac
         public static object ChangeType(object value, Type conversion)

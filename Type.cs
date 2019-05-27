@@ -14,7 +14,7 @@ namespace UtilityHelper
 {
 
 
-    public static class TypeExtensions
+    public static class TypeHelper
     {
 
 
@@ -59,6 +59,7 @@ namespace UtilityHelper
         }
 
 
+
         public static IEnumerable<KeyValuePair<string, Action>> ToActions<T>(this IEnumerable<KeyValuePair<string, Func<T>>> kvps, Action<T> tr)
         {
             foreach (var m in kvps)
@@ -70,6 +71,19 @@ namespace UtilityHelper
                 );
             }
         }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesByAttribute(Type @class, Type attribute)
+
+        => @class.GetProperties()
+        .Where(prop => Attribute.IsDefined(prop, attribute));
+
+
+
+        public static IEnumerable<MethodInfo> GetMethodsByAttribute(Type t, Type attribute) =>
+            t.GetMethods().Where(
+                    method => Attribute.IsDefined(method, attribute));
+
+
 
         public static Func<T, R> GetInstanceMethod<T, R>(MethodInfo method)
         {
@@ -109,9 +123,27 @@ namespace UtilityHelper
         //}
 
 
+        public static Type[] GetTypesByAssembly<T>()
+        {
+            System.Reflection.Assembly asm = typeof(T).Assembly;
+            return asm.GetTypes();
 
 
+        }
 
+        public static Type[] GetTypesByAssembly(Type t)
+        {
+            System.Reflection.Assembly asm = t.Assembly;
+            return asm.GetTypes();
+
+
+        }
+
+
+        public static bool IsNullableType(System.Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
+        }
 
 
     }

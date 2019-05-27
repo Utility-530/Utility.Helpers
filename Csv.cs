@@ -10,10 +10,10 @@ using UtilityHelper;
 namespace UtilityHelper
 {
 
-    //using Microsoft.VisualBasic.FileIO;
     using System.Data;
     using System.IO;
     using System.Reflection;
+    using UtilityHelper.Generic;
 
     public static class CsvHelper
     {
@@ -237,7 +237,7 @@ namespace UtilityHelper
                 });
             }
 
-            DataTable dt = hdict.ToDataTable();
+            System.Data.DataTable dt = hdict.ToDataTable();
 
             dt.SaveToCSV(destinationFile);
         }

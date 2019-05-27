@@ -6,7 +6,7 @@ using System.Text;
 
 namespace UtilityHelper.NonGeneric
 {
-    public static class FilterEx
+    public static class Filter
     {
 
         public static IEnumerable FilterByIndex(this IEnumerable enumerable, IEnumerable<int> indices, bool includenull = false)
@@ -32,7 +32,7 @@ namespace UtilityHelper.NonGeneric
 
         }
 
-        public static IEnumerable Filter<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
+        public static IEnumerable FilterDefault<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
         {
             return data.FilterByIndex(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
 
@@ -48,8 +48,8 @@ namespace UtilityHelper.NonGeneric
 
             while (fenm.MoveNext() && fenom.MoveNext())
             {
-                var filted = data.GetPropValues<R>((string)fenm.Current).ToList();
-                filtered = UtilityHelper.FilterEx.GetFiltered( filted,fenom.Current).Union(filtered).ToArray();
+                var filted = data.GetPropValues<R>(fenm.Current).ToList();
+                filtered = UtilityHelper.Generic.Filter.GetFiltered( filted,fenom.Current).Union(filtered).ToArray();
             }
 
             return filtered;

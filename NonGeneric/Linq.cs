@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace UtilityHelper.NonGeneric
 {
-    public static class LinqEx
+    public static class Linq
     {
 
         public static void DynamicUsing(object resource, Action action)

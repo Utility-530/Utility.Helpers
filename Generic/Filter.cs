@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace UtilityHelper
+namespace UtilityHelper.Generic
 {
-    public static class FilterEx
+    public static class Filter
     {
-        public static IEnumerable<T> Filter<T, R>(IEnumerable<T> data, params KeyValuePair<string, R>[] kvps)
+        public static IEnumerable<T> FilterDefault<T, R>(IEnumerable<T> data, params KeyValuePair<string, R>[] kvps)
         {
             return data.FilterByIndex(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
 
@@ -16,7 +16,7 @@ namespace UtilityHelper
 
         public static IEnumerable<T> FilterWithNull<T, R>(this IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
         {
-            return UtilityHelper.NonGeneric.FilterEx.FilterByIndex(data, FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true).Cast<T>();
+            return UtilityHelper.NonGeneric.Filter.FilterByIndex(data, FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true).Cast<T>();
 
         }
 

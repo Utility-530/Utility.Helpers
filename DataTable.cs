@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 //using LumenWorks.Framework.IO.Csv;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 namespace UtilityHelper
 {
 
-    public static class DataTableExtension
+    public static class DataTableHelper
     {
 
         //public static DataTable ReadCsvToDataTable(string path)
@@ -30,12 +31,17 @@ namespace UtilityHelper
         //}
 
 
+
+
+
+
+
         //https://stackoverflow.com/questions/15293653/coverting-list-of-dictionary-to-datatable
        // answered Mar 8 '13 at 14:57 John Kraft
-        public static DataTable ToDataTableAsDictionary<T>(this IList<Dictionary<string, T>> list)
+        public static System.Data.DataTable ToDataTableAsDictionary<T>(this IList<Dictionary<string, T>> list)
         {
-            DataTable result = new DataTable();
-            if (list.Count == 0)
+            System.Data.DataTable result = new System.Data.DataTable();
+            if (list ==null || list.Count == 0)
                 return result;
 
             var columnNames = list.SelectMany(dict => dict.Keys).Distinct();
@@ -55,11 +61,11 @@ namespace UtilityHelper
         }
 
 
-        public static DataTable ToDataTable<T>(this IEnumerable<T> data)
+        public static System.Data.DataTable ToDataTable<T>(this IEnumerable<T> data)
         {
             PropertyDescriptorCollection properties =
                 TypeDescriptor.GetProperties(typeof(T));
-            DataTable table = new DataTable();
+            System.Data.DataTable table = new System.Data.DataTable();
             foreach (PropertyDescriptor prop in properties)
                 table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
             foreach (T item in data)
@@ -73,9 +79,9 @@ namespace UtilityHelper
         }
 
 
-        public static DataTable ToDataTable(this IEnumerable<IEnumerable<object>> list, IEnumerable<string> colNames = null)
+        public static System.Data.DataTable ToDataTable(this IEnumerable<IEnumerable<object>> list, IEnumerable<string> colNames = null)
         {
-            DataTable tmp = new DataTable();
+            System.Data.DataTable tmp = new System.Data.DataTable();
             DataColumn[] cols = null;
 
             if (colNames == null)
@@ -94,7 +100,7 @@ namespace UtilityHelper
 
 
 
-        public static void SaveToCSV(this DataTable dtDataTable, string strFilePath)
+        public static void SaveToCSV(this System.Data.DataTable dtDataTable, string strFilePath)
         {
             StreamWriter sw = new StreamWriter(strFilePath, false);
             //headers  
@@ -138,7 +144,7 @@ namespace UtilityHelper
 
 
 
-        public static string ToCsv(this DataTable dt)
+        public static string ToCsvString(this System.Data.DataTable dt)
         {
             StringBuilder sb = new StringBuilder();
             try
@@ -195,6 +201,71 @@ namespace UtilityHelper
 
 
 
+        // function that creates a list of an object from the given data table
+        public static List<T> ToList<T>(this System.Data.DataTable tbl, Dictionary<string, string> replacementDict = null) where T : new()
+        {
+            List<T> lst = new List<T>();
+
+            foreach (DataRow r in tbl.Rows)
+                lst.Add(r.SetItem<T>(replacementDict));
+
+
+            return lst;
+        }
+
+
+        public static T SetItem<T>(this DataRow row, Dictionary<string, string> replacementDict = null) where T : new()
+        {
+            T item = new T();
+            // go through each column
+            foreach (DataColumn c in row.Table.Columns)
+            {
+                // find the property for the column
+                PropertyInfo p = item.GetType().GetProperty(c.ColumnName);
+
+                if (p == null)
+                {
+                    if (replacementDict.TryGetValue(c.Caption, out string val))
+                        p = item.GetType().GetProperty(val);
+
+                }
+
+                // if exists, set the value
+                if (p != null && row[c] != DBNull.Value)
+                {
+                    if (replacementDict.ContainsKey(c.Caption))
+                    {
+                        SetValue(item, replacementDict[c.Caption], row[c]);
+                    }
+                    else
+                    {
+                        SetValue(item, c.Caption, row[c]);
+                    }
+                }
+            }
+
+            return item;
+        }
+
+
+        public static void SetValue(object inputObject, string propertyName, object propertyVal)
+        {
+
+            //get the property information based on the type
+            System.Reflection.PropertyInfo propertyInfo = inputObject.GetType().GetProperty(propertyName);
+
+            //Convert.ChangeType does not handle conversion to nullable types
+            //if the property type is nullable, we need to get the underlying type of the property
+            var targetType = TypeHelper.IsNullableType(propertyInfo.PropertyType) ? Nullable.GetUnderlyingType(propertyInfo.PropertyType) : propertyInfo.PropertyType;
+
+            //Returns an System.Object with the specified System.Type and whose value is
+            //equivalent to the specified object.
+            propertyVal = Convert.ChangeType(propertyVal, targetType);
+
+            //Set the value of the property
+            propertyInfo.SetValue(inputObject, propertyVal, null);
+
+        }
 
 
 
