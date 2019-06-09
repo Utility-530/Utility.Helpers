@@ -51,17 +51,7 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<double> SelectDifferences(this IEnumerable<double> sequence)
-        {
-            using (var e = sequence.GetEnumerator())
-            {
-                e.MoveNext();
-                double last = e.Current;
-                while (e.MoveNext())
-                    yield return e.Current - last;
 
-            }
-        }
         // equivalent to running-profit if records = trades (value = purchase-price, weight = quantity) and control = actual-price 
         public static IEnumerable<double> RunningWeightedDifference<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight, IEnumerable<double> control)
         {

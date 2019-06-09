@@ -8,17 +8,16 @@
 
     <Company />
     <Product />
-    <Description>Personal utility class library 
-Combinatorics,CSV,DataTable,DateTime, Dictionary,Directory,Download,Enum,Linq,Reflection,String,TupleList,GZip
-related methods/types
+    <Description>Array,Assembly, Combinatorics,CSV,DataTable,DateRange, DateTime, Dictionary,Directory,Download,Enum,FileInfo, GZip, HashCode, Linq,List, Object, Property, Random, Recursive, Regex, String,Type, Url 
+helper classes
 </Description>
     <NeutralLanguage />
     <PackageTags>utility helper</PackageTags>
     <PackageId>UtilityHelper</PackageId>
     <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.1.0-alpha</Version>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageIconUrl>https://raw.githubusercontent.com/dtaylor-530/UtilityHelperStandard/master/supporticon.ico</PackageIconUrl>
@@ -27,7 +26,7 @@ related methods/types
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="UtilityModel" Version="1.0.4-alpha" />
   </ItemGroup>
 
 </Project>

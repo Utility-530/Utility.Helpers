@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
+  //<see href = "http://www.geekzilla.co.uk/View00FF7904-B510-468C-A2C8-F859AA20581F.htm" >
+  // for converting from datetime to string.
+
+
+
     public static class DateTimeHelper
     {
         /// <summary>
@@ -36,48 +41,34 @@ namespace UtilityHelper
         public static System.DateTime GetDateTimeFromDayOfCurrentMonth(int day)
         {
             var dtt = System.DateTime.Today;
-
-            var dt = new System.DateTime(dtt.Year, dtt.Month, day);
-
-            return dt;
+            return new System.DateTime(dtt.Year, dtt.Month, day);
 
         }
 
-        public static int GetDayInterval(this System.DateTime date)
-        {
-
-            System.DateTime startDate = new System.DateTime(1970, 7, 1);
-            return date.Subtract(startDate).Days % 365;
-
-
-        }
+        public static int GetDayInterval(this DateTime date) => date.Subtract(new System.DateTime(1970, 7, 1)).Days % 365;
+    
 
         public static DayOfWeek ToDayOfWeek(string dayofweek)
         {
-            var daysOfWeek = Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>();
-            DayOfWeek day = DayOfWeek.Friday;
+            DayOfWeek day = default;
 
             if (dayofweek.ToLower() == "yesterday")
                 //var tomorrow = today.AddDays(1);
                 day = System.DateTime.Now.AddDays(-1).DayOfWeek;
             else if (dayofweek.ToLower() == "tomorrow")
                 day = System.DateTime.Now.AddDays(1).DayOfWeek;
-
             else if (dayofweek.ToLower() == "today")
                 day = System.DateTime.Now.DayOfWeek;
             else
-                day = daysOfWeek.First(d => d.ToString().StartsWith(dayofweek));
+                day = (DayOfWeek)Enum.Parse(typeof(DayOfWeek), dayofweek);
 
             return day;
-
-
         }
 
 
 
         public static System.DateTime GetPreviousWeekDayDate(this System.DateTime dt, DayOfWeek dow)
         {
-
             System.DateTime previousWeekday = dt.AddDays(-1);
             while (previousWeekday.DayOfWeek != dow)
                 previousWeekday = previousWeekday.AddDays(-1);
@@ -86,7 +77,6 @@ namespace UtilityHelper
 
         public static System.DateTime GetNextWeekDayDate(this System.DateTime dt, DayOfWeek dow)
         {
-
             System.DateTime nextWeekDay = dt.AddDays(1);
             while (nextWeekDay.DayOfWeek != dow)
                 nextWeekDay = nextWeekDay.AddDays(1);
@@ -97,17 +87,14 @@ namespace UtilityHelper
 
 
 
-        public static bool Parse(string s, string format, out System.DateTime dt)
-        {
-            return System.DateTime.TryParseExact(
+        public static bool TryParse(string s, string format, out System.DateTime dt) =>
+            System.DateTime.TryParseExact(
                 s,
                 format,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
-                out dt
-            );
-        }
-
+                out dt);
+        
 
 
 
@@ -122,13 +109,11 @@ namespace UtilityHelper
 
 
 
-        public static System.DateTime Scale(this System.DateTime dt, double number)
-        {
-            return new System.DateTime((long)(dt.Ticks * number));
-        }
+        public static System.DateTime Scale(this System.DateTime dt, double number) => new DateTime((long)(dt.Ticks * number));
 
 
-        public static IEnumerable<TimeSpan> SelectDifferences(this IEnumerable<System.DateTime> sequence)
+
+        public static IEnumerable<TimeSpan> SelectDifferences(this IEnumerable<DateTime> sequence)
         {
             using (var e = sequence.GetEnumerator())
             {
@@ -139,16 +124,7 @@ namespace UtilityHelper
                     yield return e.Current - last;
                     last = e.Current;
                 }
-
             }
-        }
-
-        //https://stackoverflow.com/questions/8847679/find-average-of-collection-of-timespans
-        //answered Jan 13 '12 at 8:23  vc 74
-        public static TimeSpan Average(this IEnumerable<TimeSpan> sourceList)
-        {
-            double doubleAverageTicks = sourceList.Average(timeSpan => timeSpan.Ticks);
-            return new TimeSpan(Convert.ToInt64(doubleAverageTicks));
         }
 
 
@@ -165,36 +141,12 @@ namespace UtilityHelper
         }
 
 
+        public static string MonthName(this System.DateTime date)=> CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(date.Month);
+   
 
+        public static System.DateTime Period(this System.DateTime date, int periodInDays) => date.Date.AddDays(-((date.Date - new System.DateTime()).TotalDays % periodInDays));
+        
 
-        public static string MonthName(this System.DateTime date)
-        {
-            return CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(date.Month);
-        }
-
-        public static System.DateTime Period(this System.DateTime date, int periodInDays)
-        {
-            var startDate = new System.DateTime();
-            var myDate = new System.DateTime(date.Year, date.Month, date.Day);
-            var diff = myDate - startDate;
-            return myDate.AddDays(-(diff.TotalDays % periodInDays));
-        }
-
-        public static System.DateTime? ToDMY(this System.DateTime? DateTimeNullable)
-        {
-            if (DateTimeNullable == null)
-                return null;
-
-            var date = (System.DateTime)DateTimeNullable;
-            date = new System.DateTime(date.Year, date.Month, date.Day);
-            return date;
-        }
-
-        public static System.DateTime ToDMY(this System.DateTime DateTime)
-        {
-            var date = new System.DateTime(DateTime.Year,DateTime.Month,DateTime.Day);
-            return date;
-        }
 
         public static int GetTwoLetterYear(int fourLetterYear)
         {
@@ -214,15 +166,20 @@ namespace UtilityHelper
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         /// <returns></returns>
-        public static IEnumerable<System.DateTime> Range(this System.DateTime startDate, System.DateTime endDate)
+        public static IEnumerable<System.DateTime> Range(this System.DateTime startDate, System.DateTime endDate) => Enumerable.Range(0, (int)(endDate - startDate).TotalDays + 1).Select(i => startDate.AddDays(i));
+
+
+        public static bool TryParseDate(string date, out System.DateTime result)
         {
-            return Enumerable.Range(0, (int)(endDate - startDate).TotalDays + 1).Select(i => startDate.AddDays(i));
+            if (!TryParseDate1(date, out result))
+            {
+                return TryParseDate2(date, out result);
+            }
+            return false;
         }
 
 
-
-
-        public static bool CheckDate1(string date, out System.DateTime result)
+        public static bool TryParseDate1(string date, out System.DateTime result)
         {
             string[] formats = {"M/d/yyyy h:mm:ss tt", "M/d/yyyy h:mm tt",
                    "MM/dd/yyyy hh:mm:ss", "M/d/yyyy h:mm:ss",
@@ -230,40 +187,30 @@ namespace UtilityHelper
                    "M/d/yyyy h:mm", "M/d/yyyy h:mm",
                    "MM/dd/yyyy hh:mm", "M/dd/yyyy hh:mm"};
 
-            result = default(System.DateTime);
+            result = default;
+
             foreach (string s in regexstrings)
             {
-
-                System.DateTime.TryParseExact(date, formats,
+               if(System.DateTime.TryParseExact(date, formats,
                                                 CultureInfo.InvariantCulture,
                                                  DateTimeStyles.None,
-                                                  out result);
+                                                  out result))
                 return true;
-
             }
             return false;
-            //Match m = Regex.Match(example, @"^(?<day>\d\d?)-(?<month>\d\d?)-(?<year>\d\d\d\d)$");
-            //string strDay = m.Groups["day"].Value;
-            //string strMonth = m.Groups["month"].Value;
-            //string strYear = m.Groups["year"].Value;
         }
 
 
-        public static bool CheckDate2(string date, out System.DateTime result)
+        public static bool TryParseDate2(string date, out System.DateTime result)
         {
-            result = default(System.DateTime);
+            result = default;
             foreach (string s in regexstrings)
             {
                 System.Text.RegularExpressions.Match m = System.Text.RegularExpressions.Regex.Match(date, s);
                 if (System.DateTime.TryParse(m.Value, out result))
                     return true;
-
             }
             return false;
-            //Match m = Regex.Match(example, @"^(?<day>\d\d?)-(?<month>\d\d?)-(?<year>\d\d\d\d)$");
-            //string strDay = m.Groups["day"].Value;
-            //string strMonth = m.Groups["month"].Value;
-            //string strYear = m.Groups["year"].Value;
         }
 
         //http://regexlib.com/DisplayPatterns.aspx?cattabindex=4&categoryId=5&AspxAutoDetectCookieSupport=1
@@ -277,7 +224,7 @@ namespace UtilityHelper
 
 
 
-        public static string[] regexstrings => new[] { regex1, regex2, regex3 };
+        static string[] regexstrings => new[] { regex1, regex2, regex3 };
 
     }
 

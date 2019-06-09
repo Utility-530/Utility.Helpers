@@ -13,31 +13,6 @@ namespace UtilityHelper
     {
 
 
-
-        //public static double[] ObjectToDoubleArray(object myobject, params string[] excludeProperties)
-        //{
-        //    return
-        // myobject.GetType()
-        //     .GetProperties()
-        //     .Where(p => (!excludeProperties.Contains(p.Name) &&
-        //        p.PropertyType.IsNumericType()))
-        //    .Select(p => Convert.ToDouble(p.GetValue(myobject))).ToArray();
-        //}
-
-
-        //public static double[][] ObjectsToDoubleArray(IEnumerable<object> objects, params string[] excludeProperties)
-        //{
-        //    var props = objects.GetType()
-        //.GetProperties()
-        //.Where(p => (!excludeProperties.Contains(p.Name)))
-        // .Where(x => { /*var x = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;*/ return x.IsNumericType(); }).ToList();
-
-
-        //    return objects.Select(_ => props.Select(p => Convert.ToDouble(p.GetValue(_))).ToArray()).ToArray();
-        //}
-
-
-
         public static double[][] ObjectsToDoubleArrayWithoutNull(IEnumerable<object> objects, params string[] excludeProperties)
         {
             var props = objects.First().GetType()

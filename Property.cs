@@ -13,13 +13,13 @@ namespace UtilityHelper
 {
     public static partial class PropertyHelper
     {
-        public static T GetPropValue<T>(this Object obj, String name, Type type = null) => GetPropValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
+        public static T GetPropertyValue<T>(this Object obj, String name, Type type = null) => GetPropertyValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
 
 
-        public static T GetPropValue<T, R>(R obj, String name) => GetPropValue<T>(obj, typeof(R).GetProperty(name));
+        public static T GetPropertyValue<T, R>(R obj, String name) => GetPropertyValue<T>(obj, typeof(R).GetProperty(name));
 
 
-        public static T GetPropValue<T>(this Object obj, PropertyInfo info = null)
+        public static T GetPropertyValue<T>(this Object obj, PropertyInfo info = null)
         {
             if (info == null) return default(T);
             object retval = info.GetValue(obj, null);
@@ -27,22 +27,22 @@ namespace UtilityHelper
         }
 
 
-        public static IEnumerable<T> GetPropValues<T, R>(IEnumerable<R> obj, String name)
+        public static IEnumerable<T> GetPropertyValues<T, R>(IEnumerable<R> obj, String name)
         {
             var x = typeof(R).GetProperty(name);
-            return obj.Select(_ => GetPropValue<T>(_, x));
+            return obj.Select(_ => GetPropertyValue<T>(_, x));
         }
 
-        public static IEnumerable<T> GetPropValues<T>(this IEnumerable<Object> obj, PropertyInfo info = null) => obj.Select(_ => GetPropValue<T>(_, info));
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<Object> obj, PropertyInfo info = null) => obj.Select(_ => GetPropertyValue<T>(_, info));
 
 
-        public static IEnumerable<T> GetPropValues<T>(this IEnumerable obj, PropertyInfo info = null)
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable obj, PropertyInfo info = null)
         {
             foreach (var x in obj)
-                yield return GetPropValue<T>(x, info);
+                yield return GetPropertyValue<T>(x, info);
         }
 
-        public static IEnumerable<T> GetPropValues<T>(this IEnumerable obj, String name, Type type = null)
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable obj, String name, Type type = null)
         {
             type = type ?? obj.First().GetType();
 
@@ -76,7 +76,7 @@ namespace UtilityHelper
             {
                 PropertyInfo info = (type).GetProperty(name);
                 foreach (var x in obj)
-                    yield return GetPropValue<T>(x, info);
+                    yield return GetPropertyValue<T>(x, info);
             }
         }
 
@@ -103,7 +103,7 @@ namespace UtilityHelper
             else
             {
                 PropertyInfo info = (type).GetProperty(name);
-                return PropertyHelper.GetPropValue<T>(x, info);
+                return PropertyHelper.GetPropertyValue<T>(x, info);
             }
         }
 
@@ -141,7 +141,7 @@ namespace UtilityHelper
             {
                 PropertyInfo info = (type).GetProperty(name);
                 foreach (var x in obj)
-                    yield return PropertyHelper.GetPropValue<T>(x, info);
+                    yield return PropertyHelper.GetPropertyValue<T>(x, info);
             }
         }
 
@@ -192,7 +192,7 @@ namespace UtilityHelper
             {
                 var xx = propnames.ToDictionary(name => name.Key, name => (type).GetProperty(name.Key));
                 foreach (var x in obj)
-                    yield return xx.ToDictionary(name => name.Key, name => PropertyHelper.GetPropValue<object>(x, name.Value));
+                    yield return xx.ToDictionary(name => name.Key, name => PropertyHelper.GetPropertyValue<object>(x, name.Value));
             }
         }
 
@@ -326,7 +326,7 @@ namespace UtilityHelper
                 return obj.Select(x => (T)Convert.ChangeType((x as System.Data.DataRow)[name], t));
             }
             else
-                return GetPropValues<T>(obj, (type).GetProperty(name));
+                return GetPropertyValues<T>(obj, (type).GetProperty(name));
 
         }
 

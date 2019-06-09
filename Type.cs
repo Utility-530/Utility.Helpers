@@ -96,7 +96,7 @@ namespace UtilityHelper
 
         public static IEnumerable<Type> GetInheritingTypes(Type type)
         {
-            var x = AssemblyHelper.GetSolutionAssemblies();
+            var x = AssemblyHelper.GetNonSystemAssemblies();
 
             var sf = x.SelectMany(sd => sd.GetExportedTypes());
 
@@ -106,45 +106,14 @@ namespace UtilityHelper
 
         }
 
+        public static Type[] GetTypesByAssembly<T>() => typeof(T).GetTypesByAssembly();
+
+
+        public static Type[] GetTypesByAssembly(this Type t) => t.Assembly.GetTypes();
 
 
 
-        public static Type[] GetTypesInNamespace(this Assembly assembly, string nameSpace)
-            => assembly.GetTypes()
-                      .Where(t => String.Equals(t.Namespace, nameSpace, StringComparison.Ordinal))
-                      .ToArray();
-
-
-
-        //        Type[] typelist = GetTypesInNamespace(Assembly.GetExecutingAssembly(), "MyNamespace");
-        //for (int i = 0; i<typelist.Length; i++)
-        //{
-        //    Console.WriteLine(typelist[i].Name);
-        //}
-
-
-        public static Type[] GetTypesByAssembly<T>()
-        {
-            System.Reflection.Assembly asm = typeof(T).Assembly;
-            return asm.GetTypes();
-
-
-        }
-
-        public static Type[] GetTypesByAssembly(Type t)
-        {
-            System.Reflection.Assembly asm = t.Assembly;
-            return asm.GetTypes();
-
-
-        }
-
-
-        public static bool IsNullableType(System.Type type)
-        {
-            return type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
-        }
-
+        public static bool IsNullableType(System.Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
 
     }
 }

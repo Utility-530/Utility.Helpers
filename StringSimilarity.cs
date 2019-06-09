@@ -2,14 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UtilityModel;
 
 namespace UtilityHelper
 {
 
-    // methods that utilise the metaphone algorithm
-
+    /// <summary>
+    /// Collection of methods that utilise the metaphone algorithm
+    /// </summary>
     public static class StringSimilarity
     {
+
+        public static bool IsSimilarToAny(this string str, params string[] strings)
+        {
+            return strings.Any(s => s.IsSimilarTo(str));
+        }
+
+        public static bool IsSimilarToAll(this string str, params string[] strings)
+        {
+            return strings.All(s => s.IsSimilarTo(str));
+        }
+
+        public static bool IsSimilarTo(this string str, string otherStr)
+        {
+            var m = new Metaphone();
+            return m.Encode(str) == m.Encode(otherStr);
+        }
+
+
         public static string[] SimilarWords(this string str, string otherStr, bool caseSensitive = false, string splitBy = " ", int minWordLength = 2, bool includeMistyped = true)
         {
             if (caseSensitive)

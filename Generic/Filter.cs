@@ -62,7 +62,7 @@ namespace UtilityHelper.Generic
 
             while (fenm.MoveNext() && fenom.MoveNext())
             {
-                var filter = data.GetPropValues<IConvertible>((string)fenm.Current);
+                var filter = data.GetPropertyValues<IConvertible>((string)fenm.Current);
                 filtered =filter.GetFiltered(fenom.Current).Union(filtered).ToArray();
             }
             return filtered;

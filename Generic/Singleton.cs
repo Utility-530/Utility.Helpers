@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UtilityHelper
+namespace UtilityHelper.Generic
 {
     // from bphenriques/HelpersForNet
 

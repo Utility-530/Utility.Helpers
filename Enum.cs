@@ -12,25 +12,7 @@ namespace UtilityHelper
     public static class EnumHelper
     {
 
-        // answered Sep 28 '10 at 20:23 Dirk Vollmar
-        // This gets you a plain array of the enum values using Enum.GetValues:
-
-        //var valuesAsArray = Enum.GetValues(typeof(Enumnum));
-
-        // And this gets you a generic list:
-
-        // var valuesAsList = Enum.GetValues(typeof(Enumnum)).Cast<Enumnum>().ToList();
-
-
-     
-
-
-        public static T ToEnum<T>(int i)
-        {
-
-            return (T)Enum.ToObject(typeof(T), i);
-
-        }
+        public static T ToEnum<T>(int i) => (T)Enum.ToObject(typeof(T), i);
 
 
         public static T GetValueFromDescription<T>(string description, StringComparison stringcomparison)
@@ -58,15 +40,12 @@ namespace UtilityHelper
         }
 
 
-        public static T Parse<T>(string value)
-        {
-            return (T)Enum.Parse(typeof(T), value, true);
-        }
+        public static T Parse<T>(string value) => (T)Enum.Parse(typeof(T), value, true);
+   
 
         public static object ParseByReflection(Type type, string value, string[] names = null)
         {
-            names = names ?? Enum.GetNames(type);
-            return Enum.ToObject(type, names.Select((a, i) => new { a, i }).SingleOrDefault(c => c.a == value).i);
+            return Enum.ToObject(type, (names ?? Enum.GetNames(type)).Select((a, i) => new { a, i }).SingleOrDefault(c => c.a == value).i);
         }
 
 
@@ -85,9 +64,6 @@ namespace UtilityHelper
             return (attributes.Length > 0) ? (T)attributes[0] : null;
         }
 
-
-
-
         public static string GetDescription(this Enum e)
         {
 
@@ -96,9 +72,6 @@ namespace UtilityHelper
             return ((attributes.Length > 0) ? attributes[0].Description : e.ToString());
 
         }
-
-
-
 
         public static IEnumerable<KeyValuePair<string, int>> GetAllValuesAndDescriptions(Type enumType)
         {
@@ -109,8 +82,6 @@ namespace UtilityHelper
 
             foreach (var e in Enum.GetValues(enumType))
                 yield return new KeyValuePair<string, int>(GetDescription((Enum)e), (int)e);
-
-
         }
 
 
@@ -122,14 +93,8 @@ namespace UtilityHelper
 
             foreach (var e in Enum.GetValues(enumType))
                 yield return GetDescription((Enum)e);
-
-
         }
 
-
-
-
     }
-
 
 }

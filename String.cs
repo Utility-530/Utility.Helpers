@@ -199,11 +199,7 @@ namespace UtilityHelper
             return substrings.Aggregate(str, (current, substring) => current.Remove(substring));
         }
 
-        public static bool IsSimilarTo(this string str, string otherStr)
-        {
-            var m = new Metaphone();
-            return m.Encode(str) == m.Encode(otherStr);
-        }
+
 
 
         public static void SetPropertyByType<T>(object obj, T value)
@@ -212,10 +208,7 @@ namespace UtilityHelper
             var prop = properties.SingleOrDefault(_ => _.PropertyType == typeof(T));
             prop.SetValue(obj, value, null);
         }
-        public static bool IsSimilarToAny(this string str, params string[] strings)
-        {
-            return strings.Any(s => s.IsSimilarTo(str));
-        }
+
 
         public static string[] Split(this string str, string separator, bool includeSeparator = false)
         {

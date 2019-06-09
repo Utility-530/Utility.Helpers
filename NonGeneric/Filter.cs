@@ -48,7 +48,7 @@ namespace UtilityHelper.NonGeneric
 
             while (fenm.MoveNext() && fenom.MoveNext())
             {
-                var filted = data.GetPropValues<R>(fenm.Current).ToList();
+                var filted = data.GetPropertyValues<R>(fenm.Current).ToList();
                 filtered = UtilityHelper.Generic.Filter.GetFiltered( filted,fenom.Current).Union(filtered).ToArray();
             }
 
