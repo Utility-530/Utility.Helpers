@@ -7,20 +7,20 @@ namespace UtilityHelper.Generic
 {
     public static class Filter
     {
-        public static IEnumerable<T> FilterDefault<T, R>(IEnumerable<T> data, params KeyValuePair<string, R>[] kvps)
+        public static IEnumerable<T> Default<T, R>(IEnumerable<T> data, params KeyValuePair<string, R>[] kvps)
         {
-            return data.FilterByIndex(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
+            return data.ByIndex(Index(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
 
         }
 
 
-        public static IEnumerable<T> FilterWithNull<T, R>(this IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
+        public static IEnumerable<T> WithNull<T, R>(this IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
         {
-            return UtilityHelper.NonGeneric.Filter.FilterByIndex(data, FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true).Cast<T>();
+            return UtilityHelper.NonGeneric.Filter.FilterByIndex(data, Index(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true).Cast<T>();
 
         }
 
-        public static IEnumerable<T> FilterByIndex<T>(this IEnumerable<T> enumerable, IEnumerable<int> indices)
+        public static IEnumerable<T> ByIndex<T>(this IEnumerable<T> enumerable, IEnumerable<int> indices)
         {
 
             IEnumerator<T> enumerator = enumerable.GetEnumerator();
@@ -34,7 +34,7 @@ namespace UtilityHelper.Generic
 
         }
 
-        public static IEnumerable<T> FilterByIndex<T>(this IEnumerable<T> feed, Func<int, bool> filter)
+        public static IEnumerable<T> ByIndex<T>(this IEnumerable<T> feed, Func<int, bool> filter)
         {
             return feed
          .Select((p, i) => new
@@ -47,12 +47,12 @@ namespace UtilityHelper.Generic
         }
 
 
-        public static IEnumerable<T> FilterWithout<T>(this IEnumerable<T> feed, int[] filter)
+        public static IEnumerable<T> Without<T>(this IEnumerable<T> feed, int[] filter)
         {
-            return feed.FilterByIndex(_ => !filter.Contains(_));
+            return feed.ByIndex(_ => !filter.Contains(_));
         }
 
-        public static IEnumerable<int> FilterIndex<T, R>(this IEnumerable<T> data, IEnumerable<string> filterheaders, IEnumerable<R> filterOn)
+        public static IEnumerable<int> Index<T, R>(this IEnumerable<T> data, IEnumerable<string> filterheaders, IEnumerable<R> filterOn)
         {
 
             IEnumerator<string> fenm = ((IEnumerable<string>)filterheaders).GetEnumerator();
@@ -71,7 +71,7 @@ namespace UtilityHelper.Generic
         }
 
 
-        public static IEnumerable<int> GetFiltered<R>(this IEnumerable<R> filted, R current) where R : IConvertible
+        public static IEnumerable<int> Get<R>(this IEnumerable<R> filted, R current) where R : IConvertible
         {
             return filted
                     .Select((_, i) => _.Equals(current) ? (int?)i : null)

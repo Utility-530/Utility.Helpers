@@ -14,6 +14,15 @@ namespace UtilityHelper
 
     public static class DateTimeHelper
     {
+        public static bool IsYesterday(this DateTime dt) => (dt >= DateTime.Today.AddDays(-1) && dt < DateTime.Today);
+
+        public static bool IsTomorrow(this DateTime dt) => (dt <= DateTime.Today.AddDays(1) && dt > DateTime.Today);
+
+        public static bool IsToday(this DateTime dt) => DateTime.Today == dt.Date;
+
+
+
+
         /// <summary>
         /// Returns the week of the year for a given Date
         /// Iso8601

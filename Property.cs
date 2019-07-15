@@ -311,7 +311,7 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<T> GetPropValues<T>(this IEnumerable<Object> obj, String name, Type type = null)
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<Object> obj, String name, Type type = null)
         {
             type = type ?? obj.First().GetType();
 
@@ -372,7 +372,9 @@ namespace UtilityHelper
         }
 
 
-        private static bool IsNullableType(Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
+        public static bool IsNullableType(Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
+
+
 
 
         public static T ToObject<T>(this Dictionary<string, object> dict)
@@ -480,15 +482,85 @@ namespace UtilityHelper
                     return false;
             }
         }
+
+
+        public static IEnumerable<PropertyInfo> GetNullProperties<T, R>(R myObject, bool isNull, IEnumerable<PropertyInfo> propertyInfos) => from property in propertyInfos
+                                                                                                                                             let value = property.GetValue(myObject)
+                                                                                                                                             where (value == null) == isNull
+                                                                                                                                             select property;
+        /// <summary>
+        /// How to check all properties of an object are either null or empty?
+        /// <see href="https://stackoverflow.com/questions/22683040/how-to-check-all-properties-of-an-object-whether-null-or-empty"/> Matthew Watson
+        /// </summary>
+        /// <param name="myObject"></param>
+        /// <returns></returns>
+        public static IEnumerable<PropertyInfo> GetNullProperties<T, R>(R myObject, bool isNull) => GetNullProperties<T, R>(myObject, isNull, from property in typeof(R).GetProperties()
+                                                                                                                                               where property.PropertyType == typeof(T)
+                                                                                                                                               select property);
+
+        public static bool IsAnyPropertyNull<T, R>(R myObject, bool isNull) => GetNullProperties<T, R>(myObject, isNull).Any();
+
+        public static bool IsAnyPropertyNull<T, R>(R myObject, bool isNull, IEnumerable<PropertyInfo> propertyInfos) => GetNullProperties<T, R>(myObject, isNull, propertyInfos).Any();
+
+        public static IEnumerable<R> SelectWhereNoPropertiesNull<T, R>(IEnumerable<R> myObjects, bool isNull)
+        {
+            PropertyInfo[] propertyInfos = (from property in typeof(R).GetProperties()
+                                            where property.PropertyType == typeof(T)
+                                            select property).ToArray();
+
+            return from myObject in myObjects
+                   where IsAnyPropertyNull<T, R>(myObject, isNull, propertyInfos)
+                   select myObject;
+        }
+
+
+        public static IEnumerable<PropertyInfo> GetPropertiesByPredicate<T, R>(R myObject, Predicate<T> predicate, IEnumerable<PropertyInfo> propertyInfos) => from property in propertyInfos
+                                                                                                                                                               let value = (T)property.GetValue(myObject)
+                                                                                                                                                               where predicate(value)
+                                                                                                                                                               select property;
+        /// <summary>
+        /// How to check all properties of an object are either null or empty?
+        /// <see href="https://stackoverflow.com/questions/22683040/how-to-check-all-properties-of-an-object-whether-null-or-empty"/> Matthew Watson
+        /// </summary>
+        /// <param name="myObject"></param>
+        /// <returns></returns>
+        public static IEnumerable<PropertyInfo> GetPropertiesByPredicate<T, R>(R myObject, Predicate<T> predicate) => GetPropertiesByPredicate<T, R>(myObject, predicate, from property in typeof(R).GetProperties()
+                                                                                                                                                                          where property.PropertyType == typeof(T)
+                                                                                                                                                                          select property);
+
+        public static bool IsTrue<T, R>(R myObject, Predicate<T> predicate) => GetPropertiesByPredicate<T, R>(myObject, predicate).Any();
+
+        public static bool IsTrue<T, R>(R myObject, Predicate<T> predicate, IEnumerable<PropertyInfo> propertyInfos) => GetPropertiesByPredicate<T, R>(myObject, predicate, propertyInfos).Any();
+
+        public static IEnumerable<R> SelectByPredicateAny<T, R>(IEnumerable<R> myObjects, Predicate<T> predicate)
+        {
+            PropertyInfo[] propertyInfos = (from property in typeof(R).GetProperties()
+                                            where property.PropertyType == typeof(T)
+                                            select property).ToArray();
+
+            return from myObject in myObjects
+                   where GetPropertiesByPredicate<T, R>(myObject, predicate, propertyInfos).Any()
+                   select myObject;
+        }
+
+        public static IEnumerable<R> SelectByPredicateAll<T, R>(IEnumerable<R> myObjects, Predicate<T> predicate)
+        {
+            PropertyInfo[] propertyInfos = (from property in typeof(R).GetProperties()
+                                            where property.PropertyType == typeof(T)
+                                            select property).ToArray();
+
+            return from myObject in myObjects
+                   where propertyInfos.Count() == (GetPropertiesByPredicate<T, R>(myObject, predicate, propertyInfos).Count())
+                   select myObject;
+        }
     }
-
-
-
-
-
-
-
-
-
 }
+
+
+
+
+
+
+
+
 

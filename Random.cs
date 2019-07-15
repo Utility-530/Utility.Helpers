@@ -9,7 +9,7 @@ namespace UtilityHelper
     public static class RandomHelper
     {
 
-        public static IEnumerable<T> GetRandomSelection<T>(this IEnumerable<T> x, double percent, Random rand = null)
+        public static IEnumerable<T> Sample<T>(this IEnumerable<T> x, double percent, Random rand = null)
         {
             rand = rand ?? new Random();
 
@@ -20,25 +20,14 @@ namespace UtilityHelper
                         yield return e.Current;
 
             }
-
-
-        }
-        public static IEnumerable<T> GetRandomSelection<T>(this IEnumerable<T> x, int count, Random rand = null)
-        {
-
-            return x.OrderBy(_ => rand.Next()).Take(count);
-
         }
 
-        public static IEnumerable<T> GetRandomSelection<T>(this IEnumerable<T> x, int count)
-        {
+        public static IEnumerable<T> Sample<T>(this IEnumerable<T> x, int count, Random rand) => x.OrderBy(_ => rand.Next()).Take(count);
 
-            return x.OrderBy(arg => Guid.NewGuid()).Take(count);
-        }
+        public static IEnumerable<T> Sample<T>(this IEnumerable<T> x, int count) => x.OrderBy(arg => Guid.NewGuid()).Take(count);
+  
 
-
-
-        public static IEnumerable<int> GetRandomNumbersInRange(int size, int percent, Random rand = null)
+        public static IEnumerable<int> SampleInRange(int size, int percent, Random rand = null)
         {
             rand = rand ?? new Random();
 
