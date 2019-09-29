@@ -9,11 +9,12 @@ using UtilityHelper;
 
 namespace UtilityHelper
 {
-
+    using System.Collections;
     using System.Data;
     using System.IO;
     using System.Reflection;
     using UtilityHelper.Generic;
+
 
     public static class CsvHelper
     {
@@ -67,7 +68,7 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<string[]> GetFileLines(string filename, int skipfirst = 0,char splitchar=',')
+        public static IEnumerable<string[]> GetFileLines(string filename, int skipfirst = 0, char splitchar = ',')
         {
             using (var stream = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -88,10 +89,10 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<T> ReadFromCsv<T>(string filename,char splitchar = ',')
+        public static IEnumerable<T> ReadFromCsv<T>(string filename, char splitchar = ',')
         {
 
-            var x = GetFileLines(filename, 0,splitchar);
+            var x = GetFileLines(filename, 0, splitchar);
             var y = x.First();
 
             var z = x.Skip(1).Select(_ => _.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));
@@ -102,25 +103,48 @@ namespace UtilityHelper
 
 
 
-        public static string ToCSVString<T>(this IEnumerable<T> data)
+        public static string ToCSVString(this IEnumerable data)
         {
-            var properties = typeof(T).GetProperties();
+            var first = UtilityHelper.NonGeneric.Linq.First(data);
+            var type = first.GetType();
+            var properties = type.GetProperties();
             var result = new StringBuilder();
 
-            var props = typeof(T).GetProperties().Select(_ => _.Name);
-
-            var cols = String.Join(",", props);
-
-            result.AppendLine(cols);
-
+            var props = properties.Select(_ => _.Name);
+            List<string> rows = new List<string>();
             foreach (var row in data)
             {
-                result.AppendLine(ToCommaDelimitedRow(row, properties));
+                rows.Add(ToCommaDelimitedRow(row, properties));
+            }
+            return ToCSVString(props.ToArray(), rows);
+        }
+
+
+        public static string ToCSVString<T>(this IEnumerable<T> data)
+        {
+
+            var type = typeof(T);
+            var properties = type.GetProperties();
+            var result = new StringBuilder();
+            var props = properties.Select(_ => _.Name);
+
+            return ToCSVString(props.ToArray(), data.Select(_ => 
+            ToCommaDelimitedRow(_, properties)));
+        }
+
+        public static string ToCSVString(string[] fields, IEnumerable<string> rows)
+        {
+            StringBuilder result = new StringBuilder();
+
+            result.AppendLine(string.Join(",", fields));
+
+            foreach (var row in rows)
+            {
+                result.AppendLine(row);
             }
 
             return result.ToString();
         }
-
 
         public static string ToCommaDelimitedRow<T>(T obj, PropertyInfo[] properties = null)
         {

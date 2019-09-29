@@ -1,39 +1,53 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UtilityHelper.NonGeneric;
 
 namespace UtilityHelper
 {
-    public static partial class PropertyHelper
+
+    public class PropertyCache<R>
     {
-        public static T GetPropertyValue<T>(this Object obj, String name, Type type = null) => GetPropertyValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
-
-
-        public static T GetPropertyValue<T, R>(R obj, String name) => GetPropertyValue<T>(obj, typeof(R).GetProperty(name));
-
-
-        public static T GetPropertyValue<T>(this Object obj, PropertyInfo info = null)
+        Type type;
+        Dictionary<string, PropertyInfo> dictionary = new Dictionary<string, PropertyInfo>();
+        public PropertyCache()
         {
-            if (info == null) return default(T);
-            object retval = info.GetValue(obj, null);
-            return retval == null ? default(T) : (T)retval;
+            type = typeof(R);
+            dictionary = typeof(R).GetProperties().ToDictionary(a => a.Name, a => a);
         }
 
+        public T GetPropertyValue<T>(R obj, string name) => UtilityHelper.PropertyHelper.GetPropertyValue<T>(obj, dictionary[name]);
 
-        public static IEnumerable<T> GetPropertyValues<T, R>(IEnumerable<R> obj, String name)
+        public IEnumerable<string> GetValues<T>(R obj) => dictionary.Select(a => a.Value.GetValue(obj).ToString());
+
+        public IEnumerable<T> GetPropertyValues<T>(IEnumerable<R> obj, string name) => obj.Select(r => GetPropertyValue<T>(r, name));
+
+        public string[] PropertyNames => dictionary.Keys.Cast<string>().ToArray();
+    }
+
+    public static class PropertyHelper
+    {
+        public static T GetPropertyValue<T>(this object obj, string name, Type type = null) => GetPropertyValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
+
+        public static T GetPropertyValue<T, R>(R obj, string name) => GetPropertyValue<T>(obj, typeof(R).GetProperty(name));
+
+        public static T GetPropertyValue<T>(this object obj, PropertyInfo info = null)
+        {
+            if (info == null)
+                return default;
+            object retval = info.GetValue(obj, null);
+            return retval == null ? default : (T)retval;
+        }
+
+        public static IEnumerable<T> GetPropertyValues<T, R>(IEnumerable<R> obj, string name)
         {
             var x = typeof(R).GetProperty(name);
             return obj.Select(_ => GetPropertyValue<T>(_, x));
         }
 
-        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<Object> obj, PropertyInfo info = null) => obj.Select(_ => GetPropertyValue<T>(_, info));
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<object> obj, PropertyInfo info = null) => obj.Select(_ => GetPropertyValue<T>(_, info));
 
 
         public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable obj, PropertyInfo info = null)
@@ -42,7 +56,7 @@ namespace UtilityHelper
                 yield return GetPropertyValue<T>(x, info);
         }
 
-        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable obj, String name, Type type = null)
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable obj, string name, Type type = null)
         {
             type = type ?? obj.First().GetType();
 
@@ -151,12 +165,13 @@ namespace UtilityHelper
             var xs = obj.First();
             type = type ?? obj.First().GetType();
 
-
             if (type.GetInterfaces().Contains(typeof(IDictionary)))
             {
-
                 foreach (var x in obj)
-                    yield return propnames.ToDictionary(name => name.Key, name => Convert.ChangeType((x as IDictionary)[name.Key], name.Value));
+                    yield return propnames
+                        .ToDictionary(
+                        name => name.Key, 
+                        name => Convert.ChangeType((x as IDictionary)[name.Key], name.Value));
             }
             else if (type == typeof(System.Data.DataRow))
             {
@@ -311,7 +326,7 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<Object> obj, String name, Type type = null)
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<object> obj, string name, Type type = null)
         {
             type = type ?? obj.First().GetType();
 
@@ -377,33 +392,25 @@ namespace UtilityHelper
 
 
 
-        public static T ToObject<T>(this Dictionary<string, object> dict)
+        public static T Map<T>(this Dictionary<string, object> dict)
         {
             Type type = typeof(T);
             var obj = Activator.CreateInstance(type);
 
-            foreach (var kv in dict)
+            foreach (var kv in dict.Where(a => a.Value != null))
             {
-                //  type.GetProperty(kv.Key).SetValue(obj, kv.Value);
-
-                if (kv.Value != null)
-
-                    PropertyHelper.SetValue(obj, kv.Key, kv.Value);
-
-
+                SetValue(obj, kv.Key, kv.Value);
             }
             return (T)obj;
         }
 
-
-
-        public static T ToObject<T>(this Dictionary<string, string> dict, Dictionary<string, Type> propertytypes = null)
+        public static T Map<T>(this Dictionary<string, string> dict, Dictionary<string, Type> propertytypes = null)
         {
-            return (T)ToObject(dict, typeof(T), propertytypes);
+            return (T)MapToObject(dict, typeof(T), propertytypes);
         }
 
 
-        public static object ToObject(this Dictionary<string, string> dict, Type type, Dictionary<string, Type> propertytypes = null)
+        public static object MapToObject(this Dictionary<string, string> dict, Type type, Dictionary<string, Type> propertytypes = null)
         {
             var obj = Activator.CreateInstance(type);
 
@@ -423,19 +430,19 @@ namespace UtilityHelper
 
 
 
-        public static IEnumerable<T> ToObjects<T>(this IEnumerable<Dictionary<string, string>> dicts)
+        public static IEnumerable<T> MapToMany<T>(this IEnumerable<Dictionary<string, string>> dicts)
         {
 
             Dictionary<string, Type> propertytypes = typeof(T).GetProperties().ToDictionary(_ => _.Name, _ => _.PropertyType);
 
             foreach (var dict in dicts)
-                yield return dict.ToObject<T>(propertytypes);
+                yield return dict.Map<T>(propertytypes);
 
         }
 
 
 
-        public static double[] ObjectToDoubleArray(object myobject, params string[] excludeProperties)
+        public static double[] GetDoubleArray(object myobject, params string[] excludeProperties)
         {
             return
          myobject.GetType()
@@ -445,7 +452,7 @@ namespace UtilityHelper
             .Select(p => Convert.ToDouble(p.GetValue(myobject))).ToArray();
         }
 
-        public static double[][] ObjectsToDoubleArray(IEnumerable<object> objects, params string[] excludeProperties)
+        public static double[][] GetDoubleArrays(IEnumerable<object> objects, params string[] excludeProperties)
         {
             var props = objects.GetType()
         .GetProperties()
@@ -495,8 +502,8 @@ namespace UtilityHelper
         /// <param name="myObject"></param>
         /// <returns></returns>
         public static IEnumerable<PropertyInfo> GetNullProperties<T, R>(R myObject, bool isNull) => GetNullProperties<T, R>(myObject, isNull, from property in typeof(R).GetProperties()
-                                                                                                                                               where property.PropertyType == typeof(T)
-                                                                                                                                               select property);
+                                                                                                                                              where property.PropertyType == typeof(T)
+                                                                                                                                              select property);
 
         public static bool IsAnyPropertyNull<T, R>(R myObject, bool isNull) => GetNullProperties<T, R>(myObject, isNull).Any();
 
@@ -514,10 +521,6 @@ namespace UtilityHelper
         }
 
 
-        public static IEnumerable<PropertyInfo> GetPropertiesByPredicate<T, R>(R myObject, Predicate<T> predicate, IEnumerable<PropertyInfo> propertyInfos) => from property in propertyInfos
-                                                                                                                                                               let value = (T)property.GetValue(myObject)
-                                                                                                                                                               where predicate(value)
-                                                                                                                                                               select property;
         /// <summary>
         /// How to check all properties of an object are either null or empty?
         /// <see href="https://stackoverflow.com/questions/22683040/how-to-check-all-properties-of-an-object-whether-null-or-empty"/> Matthew Watson
@@ -539,7 +542,7 @@ namespace UtilityHelper
                                             select property).ToArray();
 
             return from myObject in myObjects
-                   where GetPropertiesByPredicate<T, R>(myObject, predicate, propertyInfos).Any()
+                   where GetPropertiesByPredicate(myObject, predicate, propertyInfos).Any()
                    select myObject;
         }
 
@@ -553,6 +556,15 @@ namespace UtilityHelper
                    where propertyInfos.Count() == (GetPropertiesByPredicate<T, R>(myObject, predicate, propertyInfos).Count())
                    select myObject;
         }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesByPredicate<T, R>(
+            R myObject,
+            Predicate<T> predicate,
+            IEnumerable<PropertyInfo> propertyInfos) => from property in propertyInfos
+                                                        let value = (T)property.GetValue(myObject)
+                                                        where predicate(value)
+                                                        select property;
+
     }
 }
 

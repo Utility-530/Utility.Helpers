@@ -15,9 +15,9 @@ helper classes
     <PackageTags>utility helper</PackageTags>
     <PackageId>UtilityHelper</PackageId>
     <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>2.1.0-alpha</Version>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
+    <Version>2.1.1-alpha</Version>
+    <AssemblyVersion>2.1.1.0</AssemblyVersion>
+    <FileVersion>2.1.1.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageIconUrl>https://raw.githubusercontent.com/dtaylor-530/UtilityHelperStandard/master/supporticon.ico</PackageIconUrl>
@@ -25,8 +25,33 @@ helper classes
     
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <ShouldCreateLogs>True</ShouldCreateLogs>
+    <AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
+    <UpdateAssemblyVersion>False</UpdateAssemblyVersion>
+    <UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
+    <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
+    <UpdatePackageVersion>True</UpdatePackageVersion>
+    <PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.Alpha</PackageVersionSettings>
+    <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
+    <InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="UtilityModel" Version="1.0.4-alpha" />
+    <PackageReference Include="UtilityModel" Version="1.0.6-alpha" />
   </ItemGroup>
+  
 
+ <!--   <ItemGroup>
+        <MySourceFiles Include="..\..\..\$(PackageId).*.nupkg"/>
+    </ItemGroup>
+    <PropertyGroup>
+<DestinationFolder >"C:\Users\rytal\Documents\Visual Studio 2019\NugetPackages"</DestinationFolder>
+    </PropertyGroup>
+
+    <Target Name="CopyFiles">
+    
+        <Copy
+            SourceFiles="@(MySourceFiles)"
+            DestinationFolder="$(DestinationFolder)" />
+    </Target>-->
 </Project>

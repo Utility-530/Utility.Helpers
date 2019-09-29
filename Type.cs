@@ -115,5 +115,8 @@ namespace UtilityHelper
 
         public static bool IsNullableType(System.Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
 
+
+        public static IEnumerable<KeyValuePair<string, Type>> ToKeyValuePairs(IEnumerable<Type> types) => types.Select(_ => new KeyValuePair<string, Type>(_.ToString(), _));
+
     }
 }

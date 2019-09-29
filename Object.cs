@@ -237,11 +237,10 @@ namespace UtilityHelper
             {
                 dateValue = (DateTime)value;
                 return true;
-
             }
             else if (type == typeof(string))
             {
-                return DateTimeHelper.CheckDate1((string)value, out dateValue);
+                return DateTimeHelper.TryParseDate1((string)value, out dateValue) || DateTimeHelper.TryParseDate2((string)value, out dateValue);
             }
             else
             {
@@ -263,7 +262,7 @@ namespace UtilityHelper
             }
             else if (type == typeof(string))
             {
-                return DateTimeHelper.CheckDate1((string)value, out dateValue);
+                return DateTimeHelper.TryParseDate1((string)value, out dateValue) || DateTimeHelper.TryParseDate2((string)value, out dateValue);
                 //    Console.WriteLine("Converted '{0}' to {1}.", dateString, dateValue);
                 //else
                 //    Console.WriteLine("Unable to convert '{0}' to a date.", dateString);

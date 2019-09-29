@@ -9,7 +9,7 @@ namespace UtilityHelper.NonGeneric
     public static class Filter
     {
 
-        public static IEnumerable FilterByIndex(this IEnumerable enumerable, IEnumerable<int> indices, bool includenull = false)
+        public static IEnumerable FilterByIndices(this IEnumerable enumerable, IEnumerable<int> indices, bool includenull = false)
         {
 
             IEnumerator enumerator = enumerable.GetEnumerator();
@@ -28,13 +28,13 @@ namespace UtilityHelper.NonGeneric
 
         public static IEnumerable FilterWithNull<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
         {
-            return data.FilterByIndex(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true);
+            return data.FilterByIndices(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true);
 
         }
 
         public static IEnumerable FilterDefault<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
         {
-            return data.FilterByIndex(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
+            return data.FilterByIndices(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
 
         }
 
@@ -49,7 +49,7 @@ namespace UtilityHelper.NonGeneric
             while (fenm.MoveNext() && fenom.MoveNext())
             {
                 var filted = data.GetPropertyValues<R>(fenm.Current).ToList();
-                filtered = UtilityHelper.Generic.Filter.GetFiltered( filted,fenom.Current).Union(filtered).ToArray();
+                filtered = UtilityHelper.Generic.Filter.Get( filted,fenom.Current).Union(filtered).ToArray();
             }
 
             return filtered;
