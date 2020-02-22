@@ -97,7 +97,7 @@ namespace UtilityHelper
 
             var z = x.Skip(1).Select(_ => _.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));
 
-            return z.ToObjects<T>();
+            return z.MapToMany<T>();
 
         }
 

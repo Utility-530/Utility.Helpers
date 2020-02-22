@@ -50,6 +50,32 @@ namespace UtilityHelper
         }
 
 
+        public static T?[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary) where T : struct
+        {
+            var a = dictionary.Select(c => c.Key.Item1).Distinct().ToArray();
+            var b = dictionary.Select(c => c.Key.Item2).Distinct().ToArray();
+
+            T?[,] result = new T?[a.Length, b.Length];
+
+            for (int i = 0, j = 0; i < a.Length - 1; i++)
+            {
+                for (int k = 0, u = 0; k < b.Length - 1; k++)
+                {
+                    if (dictionary.ContainsKey((a[i], b[k])))
+                    {
+                        result[j, u] = dictionary[(a[i], b[k])];
+                    }
+                    else
+                    {
+                        result[j, u] = null;
+                    }
+                    u++;
+                }
+                j++;
+            }
+
+            return result;
+        }
 
 
         public static T[][] RemoveColumns<T>(this T[][] originalArray, params int[] columnsToRemove)
