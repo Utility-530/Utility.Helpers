@@ -50,33 +50,37 @@ namespace UtilityHelper
         }
 
 
-        public static T?[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary) where T : struct
+        public static T?[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary, IComparer<string> comparer = null) where T : struct
         {
-            var a = dictionary.Select(c => c.Key.Item1).Distinct().ToArray();
-            var b = dictionary.Select(c => c.Key.Item2).Distinct().ToArray();
+            comparer = comparer ?? StringComparer.InvariantCultureIgnoreCase;
 
-            T?[,] result = new T?[a.Length, b.Length];
+            var hNames = dictionary.Select(c => c.Key.Item1).Distinct().OrderBy(a => a, comparer).ToArray();
+            var vNames = dictionary.Select(c => c.Key.Item2).Distinct().OrderBy(a => a, comparer).ToArray();
 
-            for (int i = 0, j = 0; i < a.Length - 1; i++)
+            return ToMultiDimensionalArray<T?>(dictionary.ToDictionary(a=>a.Key,a=>(T?)a.Value), hNames, vNames);
+        }
+
+        public static T[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary, string[] hNames, string[] vNames)
+        {
+            T[,] result = new T[hNames.Length, vNames.Length];
+
+            for (int i = 0; i < hNames.Length; i++)
             {
-                for (int k = 0, u = 0; k < b.Length - 1; k++)
+                for (int k = 0; k < vNames.Length; k++)
                 {
-                    if (dictionary.ContainsKey((a[i], b[k])))
+                    if (dictionary.ContainsKey((hNames[i], vNames[k])))
                     {
-                        result[j, u] = dictionary[(a[i], b[k])];
+                        result[i, k] = dictionary[(hNames[i], vNames[k])];
                     }
                     else
                     {
-                        result[j, u] = null;
+                        result[i, k] = default;
                     }
-                    u++;
                 }
-                j++;
             }
 
             return result;
         }
-
 
         public static T[][] RemoveColumns<T>(this T[][] originalArray, params int[] columnsToRemove)
         {
