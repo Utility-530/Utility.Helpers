@@ -17,7 +17,25 @@ namespace UtilityHelper
     public static class TypeHelper
     {
 
+        public static IEnumerable<Type> Filter<T>() => Filter(typeof(T));
 
+        public static IEnumerable<Type> Filter(Type type) =>
+
+        from domainAssembly in System.AppDomain.CurrentDomain.GetAssemblies()
+        from assemblyType in domainAssembly.GetTypes()
+        where type.IsAssignableFrom(assemblyType) && type != (assemblyType)
+        select assemblyType;
+
+
+        public static string GetDescription<T>()
+        {
+            return GetDescription(typeof(T));
+        }
+
+        public static string GetDescription(this Type type)
+        {
+            return type.GetCustomAttributes(typeof(DescriptionAttribute), false).Cast<DescriptionAttribute>().Single().Description;
+        }
 
         //Stack Overflow nawfal Oct 9 '13 at 7:44
         public static MethodInfo GetGenericMethod(this Type type, string name, Type[] parameterTypes)

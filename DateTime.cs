@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
-  //<see href = "http://www.geekzilla.co.uk/View00FF7904-B510-468C-A2C8-F859AA20581F.htm" >
-  // for converting from datetime to string.
+    //<see href = "http://www.geekzilla.co.uk/View00FF7904-B510-468C-A2C8-F859AA20581F.htm" >
+    // for converting from datetime to string.
 
 
 
@@ -46,6 +46,41 @@ namespace UtilityHelper
             return (byte)CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
         }
 
+        //// This presumes that weeks start with Monday.
+        //// Week 1 is the 1st week of the year with a Thursday in it.
+        //public static int GetWeekOfYear(this DateTime time)
+        //    =>
+        //    CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+        public static DateTime FirstDateOfWeekISO8601(int year, int weekOfYear)
+        {
+            DateTime jan1 = new DateTime(year, 1, 1);
+            int daysOffset = DayOfWeek.Thursday - jan1.DayOfWeek;
+
+            // Use first Thursday in January to get first week of the year as
+            // it will never be in Week 52/53
+            DateTime firstThursday = jan1.AddDays(daysOffset);
+            var cal = CultureInfo.CurrentCulture.Calendar;
+            int firstWeek = cal.GetWeekOfYear(firstThursday, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
+            var weekNum = weekOfYear;
+            // As we're adding days to a date in Week 1,
+            // we need to subtract 1 in order to get the right date for week #1
+            if (firstWeek == 1)
+            {
+                weekNum -= 1;
+            }
+
+            // Using the first Thursday as starting week ensures that we are starting in the right year
+            // then we add number of weeks multiplied with days
+            var result = firstThursday.AddDays(weekNum * 7);
+
+            // Subtract 3 days from Thursday to get Monday, which is the first weekday in ISO8601
+            return result.AddDays(-3);
+        }
+
+
+
+
 
         public static System.DateTime GetDateTimeFromDayOfCurrentMonth(int day)
         {
@@ -55,7 +90,7 @@ namespace UtilityHelper
         }
 
         public static int GetDayInterval(this DateTime date) => date.Subtract(new System.DateTime(1970, 7, 1)).Days % 365;
-    
+
 
         public static DayOfWeek ToDayOfWeek(string dayofweek)
         {
@@ -103,7 +138,7 @@ namespace UtilityHelper
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out dt);
-        
+
 
 
 
@@ -150,11 +185,11 @@ namespace UtilityHelper
         }
 
 
-        public static string MonthName(this System.DateTime date)=> CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(date.Month);
-   
+        public static string MonthName(this System.DateTime date) => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(date.Month);
+
 
         public static System.DateTime Period(this System.DateTime date, int periodInDays) => date.Date.AddDays(-((date.Date - new System.DateTime()).TotalDays % periodInDays));
-        
+
 
 
         public static int GetTwoLetterYear(int fourLetterYear)
@@ -200,11 +235,11 @@ namespace UtilityHelper
 
             foreach (string s in regexstrings)
             {
-               if(System.DateTime.TryParseExact(date, formats,
-                                                CultureInfo.InvariantCulture,
-                                                 DateTimeStyles.None,
-                                                  out result))
-                return true;
+                if (System.DateTime.TryParseExact(date, formats,
+                                                 CultureInfo.InvariantCulture,
+                                                  DateTimeStyles.None,
+                                                   out result))
+                    return true;
             }
             return false;
         }
