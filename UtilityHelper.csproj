@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ApplicationIcon>supporticon.ico</ApplicationIcon>
+    <Icon>supporticon.ico</Icon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Declan Taylor</Authors>
 
@@ -15,14 +15,12 @@ helper classes
     <PackageTags>utility helper</PackageTags>
     <PackageId>UtilityHelper</PackageId>
     <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>2.1.1-alpha</Version>
-    <AssemblyVersion>2.1.1.0</AssemblyVersion>
-    <FileVersion>2.1.1.0</FileVersion>
+    <Version>2.1.3-alpha</Version>
+    <AssemblyVersion>2.1.3.0</AssemblyVersion>
+    <FileVersion>2.1.3.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageIconUrl>https://raw.githubusercontent.com/dtaylor-530/UtilityHelperStandard/master/supporticon.ico</PackageIconUrl>
 
-    
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -36,6 +34,11 @@ helper classes
     <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
     <InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove=".gitattributes" />
+    <None Remove=".gitignore" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="UtilityModel" Version="1.0.6-alpha" />
   </ItemGroup>

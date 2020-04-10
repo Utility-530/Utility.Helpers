@@ -9,8 +9,28 @@ using System.Threading.Tasks;
 namespace UtilityHelper
 {
 
+
+
     public static class EnumHelper
     {
+
+        public static T MatchByName<T>(Enum r) where T : struct
+        {
+            var name = r.ToString().ToLowerInvariant().Remove("_");
+            return Enum.GetValues(typeof(T)).Cast<T>().SingleOrDefault(t => t.ToString().ToLowerInvariant().Remove("_").Equals(name));
+
+        }
+
+        public static IEnumerable<(T one, R two)> JoinByName<T, R>()
+            where T : struct
+            where R : struct
+        {
+            var func = new Func<T, string>(t => t.ToString().ToLowerInvariant().Remove("_"));
+            var func2 = new Func<R, string>(r => r.ToString().ToLowerInvariant().Remove("_"));
+
+            return LinqExtension.FullOuterJoin(Enum.GetValues(typeof(T)).Cast<T>(), Enum.GetValues(typeof(R)).Cast<R>(), func, func2);
+        }
+
 
         public static T ToEnum<T>(int i) => (T)Enum.ToObject(typeof(T), i);
 
@@ -41,7 +61,7 @@ namespace UtilityHelper
 
 
         public static T Parse<T>(string value) => (T)Enum.Parse(typeof(T), value, true);
-   
+
 
         public static object ParseByReflection(Type type, string value, string[] names = null)
         {
@@ -64,13 +84,11 @@ namespace UtilityHelper
             return (attributes.Length > 0) ? (T)attributes[0] : null;
         }
 
-        public static string GetDescription(this Enum e)
+        public static string GetDescription(this Enum e, bool toStringIfNone = true)
         {
-
             var fi = e.GetType().GetField(e.ToString());
             var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            return ((attributes.Length > 0) ? attributes[0].Description : e.ToString());
-
+            return ((attributes.Length > 0) ? attributes[0].Description : toStringIfNone ? e.ToString() : null);
         }
 
         public static IEnumerable<KeyValuePair<string, int>> GetAllValuesAndDescriptions(Type enumType)
@@ -78,12 +96,19 @@ namespace UtilityHelper
             if (enumType.BaseType != typeof(Enum))
                 throw new ArgumentException("T is not System.Enum");
 
-            List<KeyValuePair<string, int>> enumValList = new List<KeyValuePair<string, int>>();
-
             foreach (var e in Enum.GetValues(enumType))
                 yield return new KeyValuePair<string, int>(GetDescription((Enum)e), (int)e);
         }
 
+        public static IEnumerable<KeyValuePair<string, T>> GetAllValuesAndDescriptions<T>()
+        {
+            var enumType = typeof(T);
+            if (enumType.BaseType != typeof(Enum))
+                throw new ArgumentException("T is not System.Enum");
+
+            foreach (var e in Enum.GetValues(enumType))
+                yield return new KeyValuePair<string, T>(GetDescription((Enum)e), (T)e);
+        }
 
 
         public static IEnumerable<string> GetAllDescriptions(Type enumType)
@@ -96,5 +121,4 @@ namespace UtilityHelper
         }
 
     }
-
 }

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
@@ -31,7 +29,7 @@ namespace UtilityHelper
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public static byte GetWeekOfYear(this System.DateTime time)
+        public static byte GetWeekOfYear(this DateTime time)
         {
             // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
             // be the same week# as whatever Thursday, Friday or Saturday are,
@@ -94,8 +92,7 @@ namespace UtilityHelper
 
         public static DayOfWeek ToDayOfWeek(string dayofweek)
         {
-            DayOfWeek day = default;
-
+            DayOfWeek day;
             if (dayofweek.ToLower() == "yesterday")
                 //var tomorrow = today.AddDays(1);
                 day = System.DateTime.Now.AddDays(-1).DayOfWeek;
@@ -109,7 +106,24 @@ namespace UtilityHelper
             return day;
         }
 
-
+        /// <summary>
+        /// https://stackoverflow.com/questions/7363978/get-a-list-of-weeks-for-a-year-with-dates
+        /// https://www.codeproject.com/Articles/168662/Time-Period-Library-for-NET
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<(DateTime start, DateTime finish, int weekNumber)> GetWeeksOfYear(int year)
+        {
+            var jan1 = new DateTime(year, 1, 1);
+            //beware different cultures, see other answers
+            var startOfFirstWeek = jan1.AddDays(1 - (int)(jan1.DayOfWeek));
+            return
+                Enumerable
+                    .Range(0, 54)
+                    .Select(i => startOfFirstWeek.AddDays(i * 7))
+                    .TakeWhile(x => x.Year <= year)
+                    .Select((x, i) => (x, x.AddDays(6), i + 1))
+                    .SkipWhile(x => x.Item2.Year < year);
+        }
 
         public static System.DateTime GetPreviousWeekDayDate(this System.DateTime dt, DayOfWeek dow)
         {

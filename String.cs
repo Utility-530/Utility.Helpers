@@ -126,7 +126,12 @@ namespace UtilityHelper
             );
         }
 
-
+        /// <summary>
+        /// Use Humanizer library
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public static string Pluralise(this string source, int count)
         {
             if (count == 1) return $"{count} {source}";
@@ -198,10 +203,7 @@ namespace UtilityHelper
         {
             return substrings.Aggregate(str, (current, substring) => current.Remove(substring));
         }
-
-
-
-
+        
         public static void SetPropertyByType<T>(object obj, T value)
         {
             var properties = obj.GetType().GetProperties();

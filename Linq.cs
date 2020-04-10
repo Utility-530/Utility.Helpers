@@ -7,20 +7,35 @@ namespace UtilityHelper
     public static class LinqExtension
     {
 
-        public static IEnumerable<(T, T)> LeftOuterJoin<T, R>(this IEnumerable<T> firsts, IEnumerable<T> lasts, Func<T, R> equality)
+        public static IEnumerable<(T, T)> LeftOuterJoin<T, R>(this IEnumerable<T> firsts, IEnumerable<T> seconds, Func<T, R> equality)
             => from first in firsts
-               join last in lasts on equality(first) equals equality(last) into temp
-               from last in temp.DefaultIfEmpty()
-               select (first, last);
+               join second in seconds on equality(first) equals equality(second) into temp
+               from a in temp.DefaultIfEmpty()
+               select (first, a);
 
-        public static IEnumerable<(T, T)> RightOuterJoin<T, R>(this IEnumerable<T> firsts, IEnumerable<T> lasts, Func<T, R> equality)
-            => from last in lasts
-               join first in firsts on equality(last) equals equality(first) into temp
-               from first in temp.DefaultIfEmpty()
-               select (first, last);
+        public static IEnumerable<(T, R)> LeftOuterJoin<T, R, S>(this IEnumerable<T> firsts, IEnumerable<R> seconds, Func<T, S> equalityOne, Func<R, S> equalityTwo)
+            => from first in firsts
+               join second in seconds on equalityOne(first) equals equalityTwo(second) into temp
+               from a in temp.DefaultIfEmpty()
+               select (first, a);
 
-        public static IEnumerable<(T, T)> FullOuterJoin<T, R>(this IEnumerable<T> firsts, IEnumerable<T> lasts, Func<T, R> equality)
-            => LeftOuterJoin(firsts, lasts, equality).Concat(RightOuterJoin(firsts, lasts, equality));
+        public static IEnumerable<(T, T)> RightOuterJoin<T, R>(this IEnumerable<T> firsts, IEnumerable<T> seconds, Func<T, R> equality)
+            => from second in seconds
+               join first in firsts on equality(second) equals equality(first) into temp
+               from a in temp.DefaultIfEmpty()
+               select (a, second);
+
+        public static IEnumerable<(T, R)> RightOuterJoin<T, R, S>(this IEnumerable<T> firsts, IEnumerable<R> seconds, Func<T, S> equalityOne, Func<R, S> equalityTwo)
+            => from second in seconds
+               join first in firsts on equalityTwo(second) equals equalityOne(first) into temp
+               from a in temp.DefaultIfEmpty()
+               select (a, second);
+
+        public static IEnumerable<(T, T)> FullOuterJoin<T, R>(this IEnumerable<T> firsts, IEnumerable<T> seconds, Func<T, R> equality)
+            => LeftOuterJoin(firsts, seconds, equality).Concat(RightOuterJoin(firsts, seconds, equality));
+
+        public static IEnumerable<(T, R)> FullOuterJoin<T, R, S>(this IEnumerable<T> firsts, IEnumerable<R> lasts, Func<T, S> keySelector1, Func<R, S> keySelector2)
+            => LeftOuterJoin(firsts, lasts, keySelector1, keySelector2).Concat(RightOuterJoin(firsts, lasts, keySelector1, keySelector2));
 
         /// <summary>
         /// Selects the differences between values in <see cref="sequence"/>
