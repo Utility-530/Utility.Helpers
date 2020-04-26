@@ -121,4 +121,11 @@ namespace UtilityHelper
         }
 
     }
+
+    public static class EnumCycler<T> where T : Enum
+    {
+        static readonly Lazy<T[]> enums = new Lazy<T[]>(() => Enum.GetValues(typeof(T)).Cast<T>().ToArray());
+
+        public static T Next(T side) => (T)(object)((Convert.ToByte(side) + 1) % (Convert.ToByte(enums.Value.Last()) + 1) + Convert.ToByte(enums.Value.First()));
+    }
 }

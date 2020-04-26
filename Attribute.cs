@@ -32,9 +32,9 @@ namespace UtilityHelper
 
 
         public static IEnumerable<Type> FilterByCategoryAttribute(this System.Type[] types, string category) => 
-            types.Where(_ =>
+            types.Where(type =>
             {
-                var ca = _.GetCustomAttributes(typeof(CategoryAttribute), false).FirstOrDefault();
+                var ca = type.GetCustomAttributes(typeof(CategoryAttribute), false).FirstOrDefault();
                 return ca == null ? false :
                 ((CategoryAttribute)ca).Category.Equals(category, StringComparison.OrdinalIgnoreCase);
             });
