@@ -4,7 +4,7 @@ using System.Text;
 
 namespace UtilityHelper
 {
-    public static class LazyExtension
+    public static class LazyEx
     {
         public static Lazy<T> Create<T>(this Func<T> func)
         {
