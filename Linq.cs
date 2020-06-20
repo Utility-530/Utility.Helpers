@@ -83,6 +83,19 @@ namespace UtilityHelper
                where temp.Count() == 0
                select n;
 
+        /// <summary>
+        /// Selects all items in <see cref="first"/> that are not in <see cref="second"/> using keySelectors
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> FilterFirstNotInSecond<T, R>(IEnumerable<T> first, IEnumerable<R> second, Func<T, R> keySelectorFirst)
 
+                => from n in first
+                   join n2 in second
+                   on keySelectorFirst(n) equals n2 into temp
+                   where temp.Count() == 0
+                   select n;
     }
 }
