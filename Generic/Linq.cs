@@ -2,9 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using UtilityModel;
 
 namespace UtilityHelper.Generic
 {
@@ -53,7 +51,7 @@ namespace UtilityHelper.Generic
             }
         }
 
-     
+
 
 
         public static void AddOrReplaceBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TSource replacement)
@@ -109,25 +107,6 @@ namespace UtilityHelper.Generic
         {
             return source ?? Enumerable.Empty<T>();
         }
-
-
-        //public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int n)
-        //{
-        //    int count = source.Count();
-
-        //    if (source == null)
-        //        throw new ArgumentNullException("collection");
-        //    if (n < 0)
-        //        throw new ArgumentOutOfRangeException("n", "n must be 0 or greater");
-
-
-        //    int i = 0;
-        //    foreach (T result in source)
-        //    {
-        //        if (++i == count - n) //this is the last item
-        //            yield return result;
-        //    }
-        //}
 
 
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int n)
@@ -194,6 +173,38 @@ params System.Collections.IEnumerable[] itemCollections)
                 collection.Remove(y);
             }
         }
+
+
+        public static IEnumerable<IGrouping<DateRange, T>> GroupBy<T>(this IOrderedEnumerable<T> enumerable, TimeSpan timeSpan, Func<T, DateTime> predicate)
+        {
+            Grouping<T> grouping = null;
+            foreach (var (a, dt) in from b in enumerable select (b, predicate.Invoke(b)))
+            {
+                if (grouping == null || dt > grouping.Key.End)
+                    yield return grouping = new Grouping<T>(new DateRange(dt, dt + timeSpan), a);
+                else
+                    grouping.Add(a);
+            }
+        }
+
+        class Grouping<T> : IGrouping<DateRange, T>
+        {
+
+            readonly List<T> elements = new List<T>();
+
+            public DateRange Key { get; }
+
+            public Grouping(DateRange key) => Key = key;
+
+            public Grouping(DateRange key, T element) : this(key) => Add(element);
+
+            public void Add(T element) => elements.Add(element);
+
+            public IEnumerator<T> GetEnumerator()=> this.elements.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
 
         public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source,
           Func<TSource, TKey> selector)
