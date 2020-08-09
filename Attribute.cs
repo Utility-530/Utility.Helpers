@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using UtilityHelper.NonGeneric;
 
 
 namespace UtilityHelper
@@ -15,7 +10,7 @@ namespace UtilityHelper
     public static class AttributeHelper
     {
 
-        public static string GetDescription(Enum value) => value.GetType().GetField(value.ToString()).GetKey<DescriptionAttribute>(_ => _.Description);
+        public static string GetDescription(Enum value) => value.GetType().GetField(value.ToString()).GetKey<DescriptionAttribute>(a => a.Description);
 
         public static string GetDescription(this MemberInfo type) => type.GetKey<DescriptionAttribute>(_ => _.Description);
 
