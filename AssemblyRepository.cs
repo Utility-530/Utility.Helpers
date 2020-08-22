@@ -53,30 +53,6 @@ namespace UtilityHelper
             }
 
             /// <summary>
-            ///     Intent: Get assemblies referenced by entry assembly. Not recursive.
-            /// </summary>
-            //public static List<string> MyGetReferencedAssemblies()
-            //{
-            //    var results = type.Assembly.GetReferencedAssemblies();
-            //    return results.Select(o => o.FullName).OrderBy(o => o).ToList();
-            //}
-
-            /// <summary>
-            ///     Intent: Get assemblies currently dependent on entry assembly. Recursive.
-            /// </summary>
-
-
-            /// <summary>
-            ///     Intent: Get missing assemblies.
-            /// </summary>
-            //IEnumerable<MissingAssembly> EnumerateMissingAssembliesRecursive()
-            //{
-            //    InternalGetDependentAssembliesRecursive(assembly, ref _missingAssemblyList, ref _dependentAssemblyList);
-
-            //    return _missingAssemblyList;
-            //}
-
-            /// <summary>
             ///     Intent: Internal recursive class to get all dependent assemblies, and all dependent assemblies of
             ///     dependent assemblies, etc.
             /// </summary>
