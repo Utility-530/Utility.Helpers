@@ -85,31 +85,5 @@ namespace UtilityHelper
 
         public static bool ManifestModuleCheck(string assemblyManifestModuleName) => assemblyManifestModuleName != "<In Memory Module>";
 
-
-
-        //public static IEnumerable<Assembly> GetSolutionAssemblies()
-        //{
-        //    var list = new HashSet<string>();
-        //    var stack = new Stack<Assembly>();
-
-        //    stack.Push(Assembly.GetEntryAssembly());
-
-        //    while (stack.Count > 0)
-        //    {
-        //        var asm = stack.Pop();
-
-        //        yield return asm;
-
-        //        foreach (var reference in asm.GetReferencedAssemblies())
-        //            if (!reference.FullName.Contains("Deedle"))
-        //                if (list.Add(reference.FullName))
-        //                    stack.Push(Assembly.Load(reference));
-
-
-
-        //    }
-
-
-        //}
     }
 }
