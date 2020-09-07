@@ -15,9 +15,9 @@ helper classes
     <PackageTags>utility helper</PackageTags>
     <PackageId>UtilityHelper</PackageId>
     <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>2.1.4-alpha</Version>
-    <AssemblyVersion>2.1.4.0</AssemblyVersion>
-    <FileVersion>2.1.4.0</FileVersion>
+    <Version>2.1.5-alpha-01</Version>
+    <AssemblyVersion>2.1.6.0</AssemblyVersion>
+    <FileVersion>2.1.6.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
@@ -39,8 +39,9 @@ helper classes
     <None Remove=".gitattributes" />
     <None Remove=".gitignore" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="UtilityModel" Version="1.0.6-alpha" />
+    <PackageReference Include="UtilityStruct" Version="1.0.9-alpha" />
   </ItemGroup>
   
 
