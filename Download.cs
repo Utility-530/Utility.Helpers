@@ -1,23 +1,18 @@
-﻿
-using System;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using UtilityHelper.Generic;
 
 namespace UtilityHelper
 {
-
     public static class DownloadHelper
     {
-
         /// <summary>
         /// Downloads the file from the specified URL to the destination directory
         /// </summary>
         public static bool DownloadToFolder(string sourceUrl, string destinationFolder, bool overwrite = true)
         {
-
             return Download(sourceUrl, (response) => Path.Combine(destinationFolder, Path.GetFileName(response.ResponseUri.AbsolutePath)), overwrite);
         }
 
@@ -26,8 +21,7 @@ namespace UtilityHelper
         /// </summary>
         public static void DownloadToFolderAsync(string sourceUrl, string destinationFolder, string file)
         {
-
-             DownloadAsync(sourceUrl, Path.Combine(destinationFolder,file));
+            DownloadAsync(sourceUrl, Path.Combine(destinationFolder, file));
         }
 
         /// <summary>
@@ -37,14 +31,10 @@ namespace UtilityHelper
         public static bool DownloadToFile(string sourceUrl, string destinationFile, bool overwrite = true)
         {
             return Download(sourceUrl, (a) => destinationFile, overwrite);
-
         }
-
-
 
         private static bool Download(string sourceUrl, Func<WebResponse, string> destinationFile, bool overwrite = true)
         {
-
             try
             {
                 var request = WebRequest.CreateHttp(sourceUrl);
@@ -75,7 +65,6 @@ namespace UtilityHelper
             return true;
         }
 
-
         public static async void DownloadAsync(string url, string path)
         {
             var client = new System.Net.Http.HttpClient();
@@ -95,13 +84,10 @@ namespace UtilityHelper
                         }
                     }
                 });
-
             })).ContinueWith((a) => client.Dispose());
-
         }
 
-
-        private static async System.Threading.Tasks.Task<string> GetResponse(this HttpClient client,string url ,params Tuple<string,string>[] headers )
+        private static async System.Threading.Tasks.Task<string> GetResponse(this HttpClient client, string url, params Tuple<string, string>[] headers)
         {
             using (var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url)))
             {
@@ -124,5 +110,4 @@ namespace UtilityHelper
             }
         }
     }
-
 }

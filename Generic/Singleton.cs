@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityHelper.Generic
 {
     // from bphenriques/HelpersForNet
-
 
     /// <summary>
     /// Singleton pattern for a generic class that implements IDisposable and has a constructor with arity 0
@@ -15,7 +10,6 @@ namespace UtilityHelper.Generic
     /// <typeparam name="T"></typeparam>
     public static class Singleton<T> where T : class, IDisposable, new()
     {
-
         private static object lockingObject = new object();
         private static T singleTonObject;
 
@@ -49,15 +43,12 @@ namespace UtilityHelper.Generic
         }
     }
 
-
-
     /// <summary>
     /// Singleton pattern for a generic class
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public static class Singleton2<T> where T : class, new()
     {
-
         private static object lockingObject = new object();
         private static T singleTonObject;
 
@@ -80,10 +71,5 @@ namespace UtilityHelper.Generic
             }
             return singleTonObject;
         }
-
     }
-
-
-   
-
 }

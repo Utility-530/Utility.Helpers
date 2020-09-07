@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace UtilityHelper
 {
@@ -29,7 +27,6 @@ namespace UtilityHelper
             clipboardExecutable.StandardInput.Write(value); // CLIP uses STDIN as input.
             // When we are done writing all the string, close it so clip doesn't wait and get stuck
             clipboardExecutable.StandardInput.Close();
-
         }
     }
 }

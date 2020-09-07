@@ -1,18 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
-using System.Dynamic;
 
 namespace UtilityHelper
 {
-
-
-
-
     public static class DictionaryHelper
     {
         /// <summary>
@@ -51,10 +43,8 @@ namespace UtilityHelper
             return x;
         }
 
-
         public static void AddRange<T, K, V>(this IDictionary<K, V> me, params IDictionary<K, V>[] others)
         {
-
             foreach (IDictionary<K, V> src in others)
             {
                 foreach (KeyValuePair<K, V> p in src)
@@ -63,9 +53,7 @@ namespace UtilityHelper
                     me[p.Key] = p.Value;
                 }
             }
-
         }
-
 
         /// <summary>
         /// Unionise two dictionaries of generic types.
@@ -97,9 +85,7 @@ namespace UtilityHelper
             return rd;
         }
 
-
-
-        public static Dictionary<T, R> ToDictionary<T,R>(this IEnumerable<KeyValuePair<T,R>> kvps)
+        public static Dictionary<T, R> ToDictionary<T, R>(this IEnumerable<KeyValuePair<T, R>> kvps)
         {
             return kvps.ToDictionary(_ => _.Key, _ => _.Value);
         }
@@ -109,15 +95,12 @@ namespace UtilityHelper
             return kvps.ToDictionary(_ => _.Item1, _ => _.Item2);
         }
 
-
         public static IEnumerable<dynamic> ToDynamics<T>(this IList<Dictionary<string, T>> dics)
         {
             return dics.Select(_ =>
             {
                 return _.ToDynamic();
-
             });
-
         }
 
         public static dynamic ToDynamic<T>(this Dictionary<string, T> dict)
@@ -129,10 +112,5 @@ namespace UtilityHelper
             }
             return eo;
         }
-
-
     }
-
-
-
 }

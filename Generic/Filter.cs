@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace UtilityHelper.Generic
 {
     public static class Filter
     {
-        public static IEnumerable<T> FilterDefault<T, R>(IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) => 
+        public static IEnumerable<T> FilterDefault<T, R>(IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) =>
             data.FilterByIndices(Index(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
 
-
-        public static IEnumerable<T> FilterWithNull<T, R>(this IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) where R : IConvertible 
+        public static IEnumerable<T> FilterWithNull<T, R>(this IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
             => UtilityHelper.NonGeneric.Filter.FilterByIndices(data, Index(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true).Cast<T>();
-
-        
 
         public static IEnumerable<T> FilterByIndices<T>(this IEnumerable<T> enumerable, IEnumerable<int> indices)
         {
@@ -34,10 +30,7 @@ namespace UtilityHelper.Generic
                where filter(p.index)
                select p.item;
 
-
-
         public static IEnumerable<T> Without<T>(this IEnumerable<T> feed, int[] filter) => feed.FilterByIndices(_ => !filter.Contains(_));
-
 
         public static IEnumerable<int> Index<T, R>(this IEnumerable<T> data, IEnumerable<string> filterheaders, IEnumerable<R> filterOn)
         {
@@ -55,7 +48,6 @@ namespace UtilityHelper.Generic
             }
         }
 
-
         public static IEnumerable<int> Get<R>(this IEnumerable<R> filted, R current) where R : IConvertible
         {
             return filted
@@ -63,6 +55,5 @@ namespace UtilityHelper.Generic
                     .Where(_ => _ != null)
                     .Select(a => (int)a);
         }
-
     }
 }

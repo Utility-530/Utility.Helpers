@@ -2,17 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
-
     // https://stackoverflow.com/questions/141467/recursive-list-flattening
 
     public static class Recursive
     {
-
         public static IEnumerable Flatten(this IEnumerable enumerable)
         {
             foreach (object element in enumerable)
@@ -31,11 +27,9 @@ namespace UtilityHelper
             }
         }
 
-
-
         public static IEnumerable<T> FilterSelect<T>(this IEnumerable<T> nodes, Func<T, IEnumerable<T>> selector)
         {
-            if (nodes.Any(_=>_!=null))
+            if (nodes.Any(_ => _ != null))
                 return nodes.Concat(nodes.SelectMany(selector).FilterSelect(selector));
 
             return nodes;
@@ -54,4 +48,3 @@ namespace UtilityHelper
         }
     }
 }
-

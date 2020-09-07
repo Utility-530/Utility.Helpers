@@ -1,28 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
-    public  class DirectoryHelper
+    public class DirectoryHelper
     {
-
-
         public static string GetProjectPath()
         {
             return System.IO.Directory.GetParent(
                      System.IO.Directory.GetCurrentDirectory()).Parent.FullName;
         }
 
-
         public static string GetSolutionPath()
         {
             return System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-      
         }
 
         public static string GetCurrentExecutingDirectory()
@@ -30,7 +23,6 @@ namespace UtilityHelper
             string filePath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
             return Path.GetDirectoryName(filePath);
         }
-
 
         //StackOverflow answered Jun 17 '16 at 23:03 williambq
         public static bool CreateDirectoryRecursively(string path)
@@ -64,12 +56,11 @@ namespace UtilityHelper
             {
                 throw ex;
             }
-
         }
 
         // Get All files (in subdirectories)
         //System.IO.Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories)
-        //or 
+        //or
         //https://stackoverflow.com/questions/2106877/is-there-a-faster-way-than-this-to-find-all-the-files-in-a-directory-and-all-sub/2107294#2107294
         public static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)
         {
@@ -98,9 +89,6 @@ namespace UtilityHelper
                 }
             }
         }
-
-
-
 
         //public static string GetDirectoryOfAssembly<T>()
         //{

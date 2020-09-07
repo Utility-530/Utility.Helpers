@@ -7,11 +7,11 @@ using UtilityHelper.NonGeneric;
 
 namespace UtilityHelper
 {
-
     public class PropertyCache<R>
     {
-        Type type;
-        Dictionary<string, PropertyInfo> dictionary = new Dictionary<string, PropertyInfo>();
+        private Type type;
+        private Dictionary<string, PropertyInfo> dictionary = new Dictionary<string, PropertyInfo>();
+
         public PropertyCache()
         {
             type = typeof(R);
@@ -48,7 +48,6 @@ namespace UtilityHelper
         }
 
         public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<object> obj, PropertyInfo info = null) => obj.Select(_ => GetPropertyValue<T>(_, info));
-
 
         public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable obj, PropertyInfo info = null)
         {
@@ -159,7 +158,6 @@ namespace UtilityHelper
             }
         }
 
-
         public static IEnumerable<Dictionary<string, object>> GetPropertyValues(this IEnumerable obj, Dictionary<string, Type> propnames, Type type = null)
         {
             var xs = obj.First();
@@ -170,7 +168,7 @@ namespace UtilityHelper
                 foreach (var x in obj)
                     yield return propnames
                         .ToDictionary(
-                        name => name.Key, 
+                        name => name.Key,
                         name => Convert.ChangeType((x as IDictionary)[name.Key], name.Value));
             }
             else if (type == typeof(System.Data.DataRow))
@@ -193,10 +191,13 @@ namespace UtilityHelper
                         {
                             case (1):
                                 return PropertyHelper.TryChangeType(dr[name.Key.Key], name.Key.Value).Value;
+
                             case (2):
                                 return Convert.ChangeType(dr[name.Key.Key], name.Key.Value);
+
                             case (3):
                                 return dr[name.Key.Key];
+
                             default:
                                 return null;
                         }
@@ -210,8 +211,6 @@ namespace UtilityHelper
                     yield return xx.ToDictionary(name => name.Key, name => PropertyHelper.GetPropertyValue<object>(x, name.Value));
             }
         }
-
-
 
         // https://stackoverflow.com/questions/1399273/test-if-convert-changetype-will-work-between-two-types
         // answered Dec 8 '17 at 16:46Immac
@@ -257,7 +256,8 @@ namespace UtilityHelper
 
             return response;
         }
-        static Dictionary<Type, List<Type>> dict = new Dictionary<Type, List<Type>>() {
+
+        private static Dictionary<Type, List<Type>> dict = new Dictionary<Type, List<Type>>() {
              { typeof(decimal), new List<Type> { typeof(sbyte), typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(char) } },
         { typeof(double), new List<Type> { typeof(sbyte), typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(char), typeof(float) } },
         { typeof(float), new List<Type> { typeof(sbyte), typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(char), typeof(float) } },
@@ -290,11 +290,11 @@ namespace UtilityHelper
             return castable;
         }
 
-        //below is a more robust alternative 
+        //below is a more robust alternative
         //https://stackoverflow.com/questions/2224266/how-to-tell-if-type-a-is-implicitly-convertible-to-type-b
         //public static bool IsImplicitlyCastableTo(this Type from, Type to)
         //{
-        //    // from http://www.codeducky.org/10-utilities-c-developers-should-know-part-one/ 
+        //    // from http://www.codeducky.org/10-utilities-c-developers-should-know-part-one/
         //    Throw.IfNull(from, "from");
         //    Throw.IfNull(to, "to");
 
@@ -306,7 +306,7 @@ namespace UtilityHelper
 
         //    try
         //    {
-        //        // overload of GetMethod() from http://www.codeducky.org/10-utilities-c-developers-should-know-part-two/ 
+        //        // overload of GetMethod() from http://www.codeducky.org/10-utilities-c-developers-should-know-part-two/
         //        // that takes Expression<Action>
         //        ReflectionHelpers.GetMethod(() => AttemptImplicitCast<object, object>())
         //            .GetGenericMethodDefinition()
@@ -324,8 +324,6 @@ namespace UtilityHelper
         //    }
         //}
 
-
-
         public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<object> obj, string name, Type type = null)
         {
             type = type ?? obj.First().GetType();
@@ -342,11 +340,7 @@ namespace UtilityHelper
             }
             else
                 return GetPropertyValues<T>(obj, (type).GetProperty(name));
-
         }
-
-
-
 
         public static bool SetPropertyByType<T>(object obj, T value)
         {
@@ -360,11 +354,10 @@ namespace UtilityHelper
             return false;
         }
 
-
         public static void SetValue(object inputObject, string propertyName, object propertyVal, bool ignoreCase = true)
         {
             System.Reflection.PropertyInfo propertyInfo = null;
-            //get the property information based on the 
+            //get the property information based on the
             if (ignoreCase)
                 propertyInfo = inputObject.GetType().GetProperty(propertyName, BindingFlags.SetProperty |
                        BindingFlags.IgnoreCase |
@@ -383,14 +376,9 @@ namespace UtilityHelper
 
             //Set the value of the property
             propertyInfo.SetValue(inputObject, propertyVal, null);
-
         }
 
-
         public static bool IsNullableType(Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
-
-
-
 
         public static T Map<T>(this Dictionary<string, object> dict)
         {
@@ -409,7 +397,6 @@ namespace UtilityHelper
             return (T)MapToObject(dict, typeof(T), propertytypes);
         }
 
-
         public static object MapToObject(this Dictionary<string, string> dict, Type type, Dictionary<string, Type> propertytypes = null)
         {
             var obj = Activator.CreateInstance(type);
@@ -427,20 +414,13 @@ namespace UtilityHelper
             return obj;
         }
 
-
-
-
         public static IEnumerable<T> MapToMany<T>(this IEnumerable<Dictionary<string, string>> dicts)
         {
-
             Dictionary<string, Type> propertytypes = typeof(T).GetProperties().ToDictionary(_ => _.Name, _ => _.PropertyType);
 
             foreach (var dict in dicts)
                 yield return dict.Map<T>(propertytypes);
-
         }
-
-
 
         public static double[] GetDoubleArray(object myobject, params string[] excludeProperties)
         {
@@ -461,8 +441,6 @@ namespace UtilityHelper
 
             return objects.Select(_ => props.Select(p => Convert.ToDouble(p.GetValue(objects))).ToArray()).ToArray();
         }
-
-
 
         public static bool IsNumericType(this object o)
         {
@@ -485,16 +463,17 @@ namespace UtilityHelper
                 case TypeCode.Double:
                 case TypeCode.Single:
                     return true;
+
                 default:
                     return false;
             }
         }
 
-
         public static IEnumerable<PropertyInfo> GetNullProperties<T, R>(R myObject, bool isNull, IEnumerable<PropertyInfo> propertyInfos) => from property in propertyInfos
                                                                                                                                              let value = property.GetValue(myObject)
                                                                                                                                              where (value == null) == isNull
                                                                                                                                              select property;
+
         /// <summary>
         /// How to check all properties of an object are either null or empty?
         /// <see href="https://stackoverflow.com/questions/22683040/how-to-check-all-properties-of-an-object-whether-null-or-empty"/> Matthew Watson
@@ -519,7 +498,6 @@ namespace UtilityHelper
                    where IsAnyPropertyNull<T, R>(myObject, isNull, propertyInfos)
                    select myObject;
         }
-
 
         /// <summary>
         /// How to check all properties of an object are either null or empty?
@@ -564,15 +542,5 @@ namespace UtilityHelper
                                                         let value = (T)property.GetValue(myObject)
                                                         where predicate(value)
                                                         select property;
-
     }
 }
-
-
-
-
-
-
-
-
-

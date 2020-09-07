@@ -19,6 +19,7 @@ namespace UtilityHelper
 
             return new Guid(text);
         }
+
         public static Guid ToGuid(this long input)
         {
             byte[] bytes = new byte[16];
@@ -91,10 +92,7 @@ namespace UtilityHelper
             }
 
             return new Guid(cba);
-
-
         }
-
 
         /// <summary>
         /// https://stackoverflow.com/questions/1383030/how-to-combine-two-guid-values
@@ -129,4 +127,3 @@ namespace UtilityHelper
         }
     }
 }
-

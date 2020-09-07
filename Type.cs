@@ -1,22 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using UtilityHelper.NonGeneric;
-
 
 namespace UtilityHelper
 {
-
-
     public static class TypeHelper
     {
-
         public static IEnumerable<Type> Filter<T>() => Filter(typeof(T));
 
         public static IEnumerable<Type> Filter(Type type) =>
@@ -25,7 +17,6 @@ namespace UtilityHelper
         from assemblyType in domainAssembly.GetTypes()
         where type.IsAssignableFrom(assemblyType) && type != (assemblyType)
         select assemblyType;
-
 
         public static string GetDescription<T>()
         {
@@ -64,7 +55,6 @@ namespace UtilityHelper
             }
         }
 
-
         public static IEnumerable<KeyValuePair<string, Func<T>>> LoadMethods<T>(this Type t, params object[] parameters)
         {
             return Assembly.GetAssembly(t)
@@ -73,10 +63,7 @@ namespace UtilityHelper
                        // filter by return type
                        .Where(a => a.ReturnType.Name == typeof(T).Name)
                         .Select(_ => new KeyValuePair<string, Func<T>>(_.Name, () => (T)_.Invoke(null, parameters)));
-
         }
-
-
 
         public static IEnumerable<KeyValuePair<string, Action>> ToActions<T>(this IEnumerable<KeyValuePair<string, Func<T>>> kvps, Action<T> tr)
         {
@@ -95,13 +82,9 @@ namespace UtilityHelper
         => @class.GetProperties()
         .Where(prop => Attribute.IsDefined(prop, attribute));
 
-
-
         public static IEnumerable<MethodInfo> GetMethodsByAttribute(Type t, Type attribute) =>
             t.GetMethods().Where(
                     method => Attribute.IsDefined(method, attribute));
-
-
 
         public static Func<T, R> GetInstanceMethod<T, R>(MethodInfo method)
         {
@@ -109,8 +92,6 @@ namespace UtilityHelper
             return Expression.Lambda<Func<T, R>>(
                 Expression.Call(null, method), null).Compile();
         }
-
-
 
         public static IEnumerable<Type> GetInheritingTypes(Type type)
         {
@@ -121,20 +102,14 @@ namespace UtilityHelper
             var v = sf.Where(p => p.GetInterfaces().Any(t => t == type));
 
             return v;
-
         }
 
         public static Type[] GetTypesByAssembly<T>() => typeof(T).GetTypesByAssembly();
 
-
         public static Type[] GetTypesByAssembly(this Type t) => t.Assembly.GetTypes();
-
-
 
         public static bool IsNullableType(System.Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
 
-
         public static IEnumerable<KeyValuePair<string, Type>> ToKeyValuePairs(IEnumerable<Type> types) => types.Select(_ => new KeyValuePair<string, Type>(_.ToString(), _));
-
     }
 }

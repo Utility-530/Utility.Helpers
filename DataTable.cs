@@ -6,17 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+
 //using LumenWorks.Framework.IO.Csv;
-
-
 
 namespace UtilityHelper
 {
-
     public static class DataTableHelper
     {
-
         //public static DataTable ReadCsvToDataTable(string path)
         //{
         //    DataTable csvTable = new DataTable();
@@ -30,18 +26,12 @@ namespace UtilityHelper
 
         //}
 
-
-
-
-
-
-
         //https://stackoverflow.com/questions/15293653/coverting-list-of-dictionary-to-datatable
-       // answered Mar 8 '13 at 14:57 John Kraft
+        // answered Mar 8 '13 at 14:57 John Kraft
         public static System.Data.DataTable ToDataTableAsDictionary<T>(this IList<Dictionary<string, T>> list)
         {
             System.Data.DataTable result = new System.Data.DataTable();
-            if (list ==null || list.Count == 0)
+            if (list == null || list.Count == 0)
                 return result;
 
             var columnNames = list.SelectMany(dict => dict.Keys).Distinct();
@@ -60,7 +50,6 @@ namespace UtilityHelper
             return result;
         }
 
-
         public static System.Data.DataTable ToDataTable<T>(this IEnumerable<T> data)
         {
             PropertyDescriptorCollection properties =
@@ -77,7 +66,6 @@ namespace UtilityHelper
             }
             return table;
         }
-
 
         public static System.Data.DataTable ToDataTable(this IEnumerable<IEnumerable<object>> list, IEnumerable<string> colNames = null)
         {
@@ -98,12 +86,10 @@ namespace UtilityHelper
             return tmp;
         }
 
-
-
         public static void SaveToCSV(this System.Data.DataTable dtDataTable, string strFilePath)
         {
             StreamWriter sw = new StreamWriter(strFilePath, false);
-            //headers  
+            //headers
             for (int i = 0; i < dtDataTable.Columns.Count; i++)
             {
                 sw.Write(dtDataTable.Columns[i]);
@@ -139,10 +125,6 @@ namespace UtilityHelper
             }
             sw.Close();
         }
-
-
-
-
 
         public static string ToCsvString(this System.Data.DataTable dt)
         {
@@ -196,11 +178,6 @@ namespace UtilityHelper
             return sb.ToString();
         }
 
-
-
-
-
-
         // function that creates a list of an object from the given data table
         public static List<T> ToList<T>(this System.Data.DataTable tbl, Dictionary<string, string> replacementDict = null) where T : new()
         {
@@ -209,10 +186,8 @@ namespace UtilityHelper
             foreach (DataRow r in tbl.Rows)
                 lst.Add(r.SetItem<T>(replacementDict));
 
-
             return lst;
         }
-
 
         public static T SetItem<T>(this DataRow row, Dictionary<string, string> replacementDict = null) where T : new()
         {
@@ -227,7 +202,6 @@ namespace UtilityHelper
                 {
                     if (replacementDict.TryGetValue(c.Caption, out string val))
                         p = item.GetType().GetProperty(val);
-
                 }
 
                 // if exists, set the value
@@ -247,10 +221,8 @@ namespace UtilityHelper
             return item;
         }
 
-
         public static void SetValue(object inputObject, string propertyName, object propertyVal)
         {
-
             //get the property information based on the type
             System.Reflection.PropertyInfo propertyInfo = inputObject.GetType().GetProperty(propertyName);
 
@@ -264,15 +236,6 @@ namespace UtilityHelper
 
             //Set the value of the property
             propertyInfo.SetValue(inputObject, propertyVal, null);
-
         }
-
-
-
-
     }
-
-
 }
-
-

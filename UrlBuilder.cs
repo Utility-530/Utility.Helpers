@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Text;
 
 namespace UtilityHelper
 {
-
-
     //consider SqlKata (nuget)
     //Stack Overflow Aug 18 '13 at 17:58 Bjoern
     //Building URI with the http client API
@@ -49,7 +45,6 @@ namespace UtilityHelper
             {
                 UrlStringBuilder.AppendFormat("&{0}={1}", key, urlEncodeValue);
             }
-
         }
 
         /// <summary>

@@ -1,31 +1,17 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-
 
 namespace UtilityHelper
 {
     public static class AssemblyHelper
     {
-
-
-
         public static IEnumerable<Type> GetTypesInNamespace(this Assembly assembly, string nameSpace) => from t in assembly.GetTypes()
                                                                                                          where String.Equals(t.Namespace, nameSpace, StringComparison.Ordinal)
                                                                                                          select t;
-      
-
 
         public static IEnumerable<KeyValuePair<string, object>> CreateNonSystemTypesByInterface(params Type[] interfaceTypes) => CreateTypesByInterface(GetNonSystemAssemblies().ToArray(), interfaceTypes);
-
-
 
         public static IEnumerable<KeyValuePair<string, object>> CreateTypesByInterface(Assembly[] assemblies, params Type[] interfaceTypes) =>
                                               from x in assemblies.SelectMany(s => s.GetTypes().Select(t => new { s.GetName().Name, t }))
@@ -37,9 +23,7 @@ namespace UtilityHelper
                                               !x.t.IsAbstract &&
                                               // has parameterless constructor
                                               x.t.GetConstructor(Type.EmptyTypes) != null
-                                              select  new KeyValuePair<string,object>( x.Name, Activator.CreateInstance(x.t) );
-
-
+                                              select new KeyValuePair<string, object>(x.Name, Activator.CreateInstance(x.t));
 
         public static IEnumerable<Assembly> GetNonSystemAssemblies() => from assemblyName in Assembly.GetExecutingAssembly().GetReferencedAssemblies()
                                                                         where FullNameCheck(assemblyName.FullName)
@@ -47,18 +31,11 @@ namespace UtilityHelper
                                                                         where LocationCheck(assembly.Location) && ManifestModuleCheck(assembly.ManifestModule.Name)
                                                                         select assembly;
 
-
         public static IEnumerable<Assembly> GetNonSystemAssembliesInCurrentDomain() => FilterNonSystemAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
-
-
         public static IEnumerable<Assembly> FilterNonSystemAssemblies(Assembly[] assemblies) => from assembly in assemblies
-                                                                                             where assembly.FullCheck()
-                                                                                             select assembly;
-
-
-
-
+                                                                                                where assembly.FullCheck()
+                                                                                                select assembly;
 
         public static bool FullCheck(this Assembly assembly) => assembly.ManifestModule.Name != "<In Memory Module>"
                                                                                              && !assembly.FullName.StartsWith("System")
@@ -69,7 +46,6 @@ namespace UtilityHelper
                                                                                              && assembly.FullName.IndexOf("WebMatrix") == -1
                                                                                              && assembly.FullName.IndexOf("SMDiagnostics") == -1
                                                                                              && !String.IsNullOrEmpty(assembly.Location);
-
 
         public static bool FullNameCheck(string assemblyFullName) =>
     !assemblyFullName.StartsWith("System")
@@ -84,6 +60,5 @@ namespace UtilityHelper
             assemblyLocation.IndexOf("App_global") == -1;
 
         public static bool ManifestModuleCheck(string assemblyManifestModuleName) => assemblyManifestModuleName != "<In Memory Module>";
-
     }
 }

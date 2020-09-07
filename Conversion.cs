@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace UtilityHelper
 {
@@ -8,7 +6,6 @@ namespace UtilityHelper
     // try Convert.ChangeType();
     public class Conversion
     {
-
         public static bool TryToDouble(object value, out double result)
         {
             result = 0d;

@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
     public static class ObjectHelper
     {
-
-
         public static double[][] ObjectsToDoubleArrayWithoutNull(IEnumerable<object> objects, params string[] excludeProperties)
         {
             var props = objects.First().GetType()
@@ -24,16 +18,13 @@ namespace UtilityHelper
 
             foreach (object o in objects)
             {
-
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
                 if (!xx.Any(cc => cc == null))
                     lst.Add(xx.Select(v => (double)v).ToArray());
-
             }
 
             return lst.ToArray();
         }
-
 
         public static double[][] ObjectsToDoubleArrayWithoutNull(System.Collections.IEnumerable objects, params string[] excludeProperties)
         {
@@ -48,11 +39,9 @@ namespace UtilityHelper
 
             foreach (object o in objects)
             {
-
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
                 if (!xx.Any(cc => cc == null))
                     lst.Add(xx.Select(v => (double)v).ToArray());
-
             }
 
             return lst.ToArray();
@@ -71,10 +60,8 @@ namespace UtilityHelper
             int i = 0;
             var indicesList = new List<int>();
 
-
             foreach (object o in objects)
             {
-
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
                 if (!xx.Any(cc => cc == null))
                     lst.Add(xx.Select(v => (double)v).ToArray());
@@ -86,14 +73,8 @@ namespace UtilityHelper
             return lst.ToArray();
         }
 
-
-
-
-
         public static double[][] ObjectsToDoubleArrayWithoutNullProperties(System.Collections.IEnumerable objects, IList<PropertyInfo> props, out IList<KeyValuePair<string, int>> propsmissing)
         {
-
-
             List<double?[]> lst = new List<double?[]>();
             int i = 0;
             var indicesList = new List<int>();
@@ -102,10 +83,8 @@ namespace UtilityHelper
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
 
                 lst.Add(xx.ToArray());
-
             }
             propsmissing = new List<KeyValuePair<string, int>>();
-
 
             for (int j = 0; j < props.Count; j++)
             {
@@ -113,30 +92,23 @@ namespace UtilityHelper
                 {
                     if (lst[k][j] == null && !propsmissing.Select(_ => _.Key).Contains(props[j].Name))
                         propsmissing.Add(new KeyValuePair<string, int>(props[j].Name, j));
-
                 }
             }
 
-
             return lst.ToArray().ToDouble(propsmissing.Select(_ => _.Value).ToArray());
-
         }
 
         public static double[][] ObjectsToDoubleArrayWithoutNullProperties<T>(ICollection<T> objects, IList<PropertyInfo> props, out IList<KeyValuePair<string, int>> propsmissing)
         {
-
             List<double?[]> lst = new List<double?[]>();
-
 
             foreach (object o in objects)
             {
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
                 lst.Add(xx.ToArray());
-
             }
 
             propsmissing = new List<KeyValuePair<string, int>>();
-
 
             for (int j = 0; j < props.Count; j++)
             {
@@ -144,17 +116,11 @@ namespace UtilityHelper
                 {
                     if (lst[k][j] == null && !propsmissing.Select(_ => _.Key).Contains(props[j].Name))
                         propsmissing.Add(new KeyValuePair<string, int>(props[j].Name, j));
-
                 }
             }
 
             return lst.ToArray().ToDouble(propsmissing.Select(_ => _.Value).ToArray());
-
-
         }
-
-
-
 
         public static double[][] ToDouble(this double?[][] arr, int[] propsmissing)
         {
@@ -170,16 +136,11 @@ namespace UtilityHelper
             return xy;
         }
 
-
-
-
         public static IList<PropertyInfo> GetNumericProperties<T>(params string[] excludeProperties) =>
             typeof(T)
         .GetProperties()
         .Where(p => (!excludeProperties.Contains(p.Name)))
          .Where(p => { var x = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType; return x.IsNumericType(); }).ToList();
-
-
 
         public static IEnumerable<PropertyInfo> GetDateTimeProperties<T>(params string[] excludeProperties) =>
 
@@ -188,17 +149,9 @@ namespace UtilityHelper
         .Where(p => !excludeProperties.Contains(p.Name))
         .FilterTypes(_ => IsDateTimeType(_, out DateTime val));
 
-
-
-
-
         public static IEnumerable<PropertyInfo> FilterTypes(this IEnumerable<PropertyInfo> props, Func<Type, bool> filter) =>
             props
              .Where(p => { var x = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType; return filter(x); });
-
-
-
-
 
         public static IEnumerable<PropertyInfo> GetNumericProperties(object obj, params string[] excludeProperties) =>
 
@@ -207,12 +160,9 @@ namespace UtilityHelper
         .Where(p => !excludeProperties.Contains(p.Name))
         .FilterTypes(PropertyHelper.IsNumericType);
 
-
-
         public static bool IsAnyNullOrEmpty(object myObject)
         {
             return IsNullOrEmpty(myObject).Any(_ => _ == true);
-
         }
 
         public static IEnumerable<bool> IsNullOrEmpty(object myObject)
@@ -220,17 +170,11 @@ namespace UtilityHelper
             foreach (PropertyInfo pi in myObject.GetType().GetProperties())
             {
                 yield return pi.GetValue(myObject) == null;
-
             }
-
         }
-
-
-
 
         public static bool IsDateTimeType(object value)
         {
-
             var dateValue = default(DateTime);
             var type = value.GetType();
             if (type == typeof(DateTime))
@@ -248,17 +192,14 @@ namespace UtilityHelper
             }
         }
 
-
         public static bool IsDateTimeType(object value, out DateTime dateValue)
         {
-
             dateValue = default(DateTime);
             var type = value.GetType();
             if (type == typeof(DateTime))
             {
                 dateValue = (DateTime)value;
                 return true;
-
             }
             else if (type == typeof(string))
             {
@@ -272,8 +213,5 @@ namespace UtilityHelper
                 return false;
             }
         }
-
-
-
     }
 }

@@ -6,7 +6,6 @@ namespace UtilityHelper
 {
     public static class LinqExtension
     {
-
         public static IEnumerable<(T, T)> LeftOuterJoin<T, R>(this IEnumerable<T> firsts, IEnumerable<T> seconds, Func<T, R> equality)
             => from first in firsts
                join second in seconds on equality(first) equals equality(second) into temp
@@ -66,8 +65,6 @@ namespace UtilityHelper
                on n equals n2 into temp
                where temp.Count() == 0
                select n;
-
-
 
         /// <summary>
         /// Selects all items in <see cref="first"/> that are not in <see cref="second"/> using keySelectors

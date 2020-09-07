@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
-
 namespace UtilityHelper
 {
     public static class AttributeHelper
@@ -14,7 +13,6 @@ namespace UtilityHelper
         public static string GetAttributeSafe<T>(object value, Func<T, string> func) where T : Attribute => value.GetType().GetAttributeSafe(func);
 
         public static string GetDescriptionSafe(this MemberInfo type) => type.GetAttributeSafe<DescriptionAttribute>(_ => _.Description);
-
 
         public static string GetDescription(object value) => GetAttribute<DescriptionAttribute>(value, a => a.Description);
 
@@ -52,7 +50,6 @@ namespace UtilityHelper
                 return value.ToString();
         }
 
-
         public static IEnumerable<Type> FilterByCategoryAttribute(this System.Type[] types, string category) =>
             types.Where(type =>
             {
@@ -60,6 +57,5 @@ namespace UtilityHelper
                 return ca == null ? false :
                 ((CategoryAttribute)ca).Category.Equals(category, StringComparison.OrdinalIgnoreCase);
             });
-
     }
 }

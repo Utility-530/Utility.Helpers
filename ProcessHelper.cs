@@ -1,8 +1,8 @@
 ﻿namespace UtilityHelper
 {
-    using System.Runtime.InteropServices;
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Based on
@@ -11,17 +11,17 @@
     public static class ProcessHelper
     {
         [StructLayout(LayoutKind.Sequential)]
-        struct RM_UNIQUE_PROCESS
+        private struct RM_UNIQUE_PROCESS
         {
             public int dwProcessId;
             public System.Runtime.InteropServices.ComTypes.FILETIME ProcessStartTime;
         }
 
-        const int RmRebootReasonNone = 0;
-        const int CCH_RM_MAX_APP_NAME = 255;
-        const int CCH_RM_MAX_SVC_NAME = 63;
+        private const int RmRebootReasonNone = 0;
+        private const int CCH_RM_MAX_APP_NAME = 255;
+        private const int CCH_RM_MAX_SVC_NAME = 63;
 
-        enum RM_APP_TYPE
+        private enum RM_APP_TYPE
         {
             RmUnknownApp = 0,
             RmMainWindow = 1,
@@ -33,7 +33,7 @@
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        struct RM_PROCESS_INFO
+        private struct RM_PROCESS_INFO
         {
             public RM_UNIQUE_PROCESS Process;
 
@@ -46,12 +46,13 @@
             public RM_APP_TYPE ApplicationType;
             public uint AppStatus;
             public uint TSSessionId;
+
             [MarshalAs(UnmanagedType.Bool)]
             public bool bRestartable;
         }
 
         [DllImport("rstrtmgr.dll", CharSet = CharSet.Unicode)]
-        static extern int RmRegisterResources(uint pSessionHandle,
+        private static extern int RmRegisterResources(uint pSessionHandle,
                                               UInt32 nFiles,
                                               string[] rgsFilenames,
                                               UInt32 nApplications,
@@ -60,13 +61,13 @@
                                               string[] rgsServiceNames);
 
         [DllImport("rstrtmgr.dll", CharSet = CharSet.Auto)]
-        static extern int RmStartSession(out uint pSessionHandle, int dwSessionFlags, string strSessionKey);
+        private static extern int RmStartSession(out uint pSessionHandle, int dwSessionFlags, string strSessionKey);
 
         [DllImport("rstrtmgr.dll")]
-        static extern int RmEndSession(uint pSessionHandle);
+        private static extern int RmEndSession(uint pSessionHandle);
 
         [DllImport("rstrtmgr.dll")]
-        static extern int RmGetList(uint dwSessionHandle,
+        private static extern int RmGetList(uint dwSessionHandle,
                                     out uint pnProcInfoNeeded,
                                     ref uint pnProcInfo,
                                     [In, Out] RM_PROCESS_INFO[] rgAffectedApps,
@@ -80,7 +81,7 @@
         /// <remarks>See also:
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa373661(v=vs.85).aspx
         /// http://wyupdate.googlecode.com/svn-history/r401/trunk/frmFilesInUse.cs (no copyright in code at time of viewing)
-        /// 
+        ///
         /// </remarks>
         public static List<System.Diagnostics.Process> EnumerateLockingProcesses(string path)
         {
@@ -121,7 +122,7 @@
                     {
                         processes = new List<System.Diagnostics.Process>((int)pnProcInfo);
 
-                        // Enumerate all of the results and add them to the 
+                        // Enumerate all of the results and add them to the
                         // list to be returned
                         for (int i = 0; i < pnProcInfo; i++)
                         {

@@ -1,17 +1,11 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace UtilityHelper.NonGeneric
 {
     public static class Linq
     {
-
         public static void DynamicUsing(object resource, Action action)
         {
             try
@@ -42,6 +36,7 @@ namespace UtilityHelper.NonGeneric
 
             return c;
         }
+
         //public static int Count(this IEnumerable enumerable)
         //{
         //    IEnumerator enumerator = enumerable.GetEnumerator();
@@ -53,31 +48,19 @@ namespace UtilityHelper.NonGeneric
         //    return i;
         //}
 
-
-
         //public static object First(this IEnumerable enumerable)
         //{
-
         //    IEnumerator enumerator = enumerable.GetEnumerator();
         //    enumerator.MoveNext();
         //    return enumerator.Current;
         //}
 
-
-
-
-
-
         public static object First(this IEnumerable enumerable)
         {
-
             IEnumerator enumerator = enumerable.GetEnumerator();
             enumerator.MoveNext();
             return enumerator.Current;
         }
-
-
-
 
         public static IEnumerable<bool> MoveAll(this IEnumerable<IEnumerator> enumerators)
         {
@@ -86,6 +69,7 @@ namespace UtilityHelper.NonGeneric
                 yield return x.MoveNext();
             }
         }
+
         public static IEnumerable GetCurrent(this IEnumerable<IEnumerator> enumerators)
         {
             foreach (var x in enumerators)
@@ -101,10 +85,8 @@ namespace UtilityHelper.NonGeneric
             return new[] { collection.Take(chunkCount), collection.Skip(chunkCount) };
         }
 
-
         public static IEnumerable Skip(this IEnumerable collection, int chunkCount)
         {
-
             IEnumerator enumerator = collection.GetEnumerator();
             int i = 0;
             while (enumerator.MoveNext())
@@ -113,11 +95,10 @@ namespace UtilityHelper.NonGeneric
                     yield return enumerator.Current;
                 i++;
             }
-
         }
+
         public static IEnumerable Take(this IEnumerable collection, int chunkCount)
         {
-
             IEnumerator enumerator = collection.GetEnumerator();
             int i = 0;
             while (enumerator.MoveNext())
@@ -126,12 +107,6 @@ namespace UtilityHelper.NonGeneric
                     yield return enumerator.Current;
                 i++;
             }
-
         }
-
     }
-
 }
-
-
-

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace UtilityHelper
 {
@@ -12,19 +11,16 @@ namespace UtilityHelper
             int width = arr2d[0].Length;
             int height = arr2d.Length;
 
-
             T[] arr1d = new T[width * height];
 
             for (int i = 0; i < height; i++)
                 for (int j = 0; j < width; j++)
                 {
-
                     arr1d[width * i + j] = arr2d[i][j];
                 }
 
             return arr1d;
         }
-
 
         public static T[,] TrimArray<T>(this T[,] originalArray, int rowToRemove, int columnToRemove)
         {
@@ -49,7 +45,6 @@ namespace UtilityHelper
             return result;
         }
 
-
         public static T?[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary, IComparer<string> comparer = null) where T : struct
         {
             comparer = comparer ?? StringComparer.InvariantCultureIgnoreCase;
@@ -57,7 +52,7 @@ namespace UtilityHelper
             var hNames = dictionary.Select(c => c.Key.Item1).Distinct().OrderBy(a => a, comparer).ToArray();
             var vNames = dictionary.Select(c => c.Key.Item2).Distinct().OrderBy(a => a, comparer).ToArray();
 
-            return ToMultiDimensionalArray<T?>(dictionary.ToDictionary(a=>a.Key,a=>(T?)a.Value), hNames, vNames);
+            return ToMultiDimensionalArray<T?>(dictionary.ToDictionary(a => a.Key, a => (T?)a.Value), hNames, vNames);
         }
 
         public static T[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary, string[] hNames, string[] vNames)
@@ -96,7 +91,6 @@ namespace UtilityHelper
                         result[i][u] = originalArray[i][k];
                         u++;
                     }
-
                 }
             }
 
@@ -118,16 +112,11 @@ namespace UtilityHelper
                 }
                 catch
                 {
-
                     throw new Exception();
                 }
             }
             );
             return RemoveColumns(originalArray, ints.ToArray());
-
         }
-
-
-
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UtilityHelper;
 using UtilityHelper.Generic;
 
@@ -28,9 +27,6 @@ namespace UtilityHelper
         ).Result;
         }
 
-
-
-
         public static List<double> MovingAverage(this IEnumerable<double> series, int period)
         {
             return series.Skip(period - 1).Aggregate(
@@ -49,10 +45,7 @@ namespace UtilityHelper
         ).Result;
         }
 
-
-
-
-        // equivalent to running-profit if records = trades (value = purchase-price, weight = quantity) and control = actual-price 
+        // equivalent to running-profit if records = trades (value = purchase-price, weight = quantity) and control = actual-price
         public static IEnumerable<double> RunningWeightedDifference<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight, IEnumerable<double> control)
         {
             var runningweightedvaluesum = 0d;

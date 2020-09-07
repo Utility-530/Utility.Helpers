@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace UtilityHelper
 {
     public class AssemblyRepository
     {
-
         private Lazy<InternalAssemblyRepository> lazyRepo;
 
         public AssemblyRepository(Assembly assembly)
@@ -31,7 +29,6 @@ namespace UtilityHelper
             public string MissingAssemblyName { get; }
             public string MissingAssemblyNameParent { get; }
         }
-
 
         public class InternalAssemblyRepository
         {

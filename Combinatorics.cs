@@ -1,14 +1,11 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
+////////////////////////////////
 
-
- ////////////////////////////////
- 
 ///    WARNING: METHODS PRODUCE NEW COLLECTION
 
- /////////////////////////////////
+/////////////////////////////////
 
 //https://github.com/TommasoScalici/MathExtensions/tree/master/MathExtensions
 

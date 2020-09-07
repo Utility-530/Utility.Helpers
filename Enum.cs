@@ -2,23 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
-
-
-
     public static class EnumHelper
     {
-
         public static T MatchByName<T>(Enum r) where T : struct
         {
             var name = r.ToString().ToLowerInvariant().Remove("_");
             return Enum.GetValues(typeof(T)).Cast<T>().SingleOrDefault(t => t.ToString().ToLowerInvariant().Remove("_").Equals(name));
-
         }
 
         public static IEnumerable<(T one, R two)> JoinByName<T, R>()
@@ -31,9 +23,7 @@ namespace UtilityHelper
             return LinqExtension.FullOuterJoin(Enum.GetValues(typeof(T)).Cast<T>(), Enum.GetValues(typeof(R)).Cast<R>(), func, func2);
         }
 
-
         public static T ToEnum<T>(int i) => (T)Enum.ToObject(typeof(T), i);
-
 
         public static T GetValueFromDescription<T>(string description, StringComparison stringcomparison)
         {
@@ -45,7 +35,6 @@ namespace UtilityHelper
                     typeof(DescriptionAttribute)) as DescriptionAttribute;
                 if (attribute != null)
                 {
-
                     if (attribute.Description.Equals(description, stringcomparison))
                         return (T)field.GetValue(null);
                 }
@@ -59,15 +48,12 @@ namespace UtilityHelper
             // or return default(T);
         }
 
-
         public static T Parse<T>(string value) => (T)Enum.Parse(typeof(T), value, true);
-
 
         public static object ParseByReflection(Type type, string value, string[] names = null)
         {
             return Enum.ToObject(type, (names ?? Enum.GetNames(type)).Select((a, i) => new { a, i }).SingleOrDefault(c => c.a == value).i);
         }
-
 
         /// <summary>
         /// Gets an attribute on an enum field value
@@ -110,7 +96,6 @@ namespace UtilityHelper
                 yield return new KeyValuePair<string, T>(GetDescription((Enum)e), (T)e);
         }
 
-
         public static IEnumerable<string> GetAllDescriptions(Type enumType)
         {
             if (enumType.BaseType != typeof(Enum))
@@ -119,12 +104,11 @@ namespace UtilityHelper
             foreach (var e in Enum.GetValues(enumType))
                 yield return GetDescription((Enum)e);
         }
-
     }
 
     public static class EnumCycler<T> where T : Enum
     {
-        static readonly Lazy<T[]> enums = new Lazy<T[]>(() => Enum.GetValues(typeof(T)).Cast<T>().ToArray());
+        private static readonly Lazy<T[]> enums = new Lazy<T[]>(() => Enum.GetValues(typeof(T)).Cast<T>().ToArray());
 
         public static T Next(T side) => (T)(object)((Convert.ToByte(side) + 1) % (Convert.ToByte(enums.Value.Last()) + 1) + Convert.ToByte(enums.Value.First()));
     }

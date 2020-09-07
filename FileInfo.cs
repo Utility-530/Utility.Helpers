@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace UtilityHelper
 {
@@ -40,6 +37,5 @@ namespace UtilityHelper
 
             return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
         }
-
     }
 }

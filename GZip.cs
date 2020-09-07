@@ -1,9 +1,6 @@
-﻿using System;
-//using ICSharpCode.SharpZipLib.Zip;
-using System.Net;
+﻿//using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
 using System.IO.Compression;
-
 
 namespace UtilityHelper
 {
@@ -51,6 +48,5 @@ namespace UtilityHelper
                 }
             }
         }
-
     }
 }

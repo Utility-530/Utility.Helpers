@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,12 +6,10 @@ namespace UtilityHelper.Generic
 {
     public static class LinqEx
     {
-
         public static T FindLast<T>(IEnumerable<T> items, Func<T, DateTime> f, DateTime dt)
         {
             return items.Where(pss => f(pss) < dt).MaxBy(ps => f(ps)).First();
         }
-
 
         public static void RemoveLast<T>(this ICollection<T> collection, int n)
         {
@@ -29,7 +26,6 @@ namespace UtilityHelper.Generic
                 yield return f(item);
         }
 
-
         public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
         {
             foreach (T item in enumeration)
@@ -37,7 +33,6 @@ namespace UtilityHelper.Generic
                 action(item);
             }
         }
-
 
         public static void ForEach<T>(this IEnumerable<T> sequence, Action<T, int> action)
         {
@@ -50,47 +45,32 @@ namespace UtilityHelper.Generic
             }
         }
 
-
-
-
         public static void AddOrReplaceBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TSource replacement)
         {
-
             RemoveBy(source, keySelector, keySelector(replacement));
             source.Add(replacement);
-
         }
-
-
 
         public static void RemoveBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TKey key)
         {
-
             source.ActionBy(keySelector, key, (a, b) => a.Remove(b));
-
         }
-
 
         public static void ActionBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TKey key, Action<ICollection<TSource>, TSource> action)
         {
-
             if (!source.IsEmpty())
                 foreach (TSource element in source.ToList())
                     if (key?.Equals(keySelector(element)) ?? false)
                     {
                         action(source, element);
                     }
-
         }
-
 
         public static TSource Pernultimate<TSource>(this IEnumerable<TSource> source)
         {
             //from http://stackoverflow.com/questions/8724179/linq-how-to-get-second-last
             return source.Reverse().Skip(1).Take(1).FirstOrDefault();
         }
-
-
 
         public static Boolean IsEmpty<T>(this IEnumerable<T> source)
         {
@@ -99,23 +79,15 @@ namespace UtilityHelper.Generic
             return !source.Any();
         }
 
-
-
-
         public static IEnumerable<T> OrEmptyIfNull<T>(this IEnumerable<T> source)
         {
             return source ?? Enumerable.Empty<T>();
         }
 
-
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int n)
         {
             return source.Skip(Math.Max(0, source.Count() - n));
         }
-
-
-
-
 
         public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> collection, int size)
         {
@@ -124,9 +96,7 @@ namespace UtilityHelper.Generic
             var chunkCount = collection.Count() % size > 0 ? f(collection) + 1 : f(collection);
 
             return Enumerable.Range(0, chunkCount).Select(i => collection.Skip(i * size).Take(size).ToList());
-
         }
-
 
         public static IEnumerable<T>[] SplitInTwo<T>(this IEnumerable<T> collection, double ratio)
         {
@@ -134,9 +104,6 @@ namespace UtilityHelper.Generic
 
             return new[] { collection.Take(chunkCount), collection.Skip(chunkCount) };
         }
-
-
-
 
         // zip multiple collections
         public static IEnumerable<TResult> Zip<TResult>(Func<object[], TResult> resultSelector,
@@ -160,8 +127,6 @@ params System.Collections.IEnumerable[] itemCollections)
             {
                 yield return resultSelector(enumerators.Select(e => e.Current).ToArray());
             }
-
-
         }
 
         public static void RemoveFirst<T>(this ICollection<T> collection, int n)
@@ -173,14 +138,10 @@ params System.Collections.IEnumerable[] itemCollections)
             }
         }
 
-
-
-
         public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source,
           Func<TSource, TKey> selector)
         {
             return source.MaxBy(selector, null);
-
         }
 
         // From MoreLinq
@@ -198,7 +159,6 @@ params System.Collections.IEnumerable[] itemCollections)
   Func<TSource, TKey> selector)
         {
             return source.MinBy(selector, null);
-
         }
 
         // From MoreLinq
@@ -212,14 +172,13 @@ params System.Collections.IEnumerable[] itemCollections)
             return ExtremaBy(source, selector, (x, y) => -Math.Sign(comparer.Compare(x, y)));
         }
 
-
         // > In mathematical analysis, the maxima and minima (the respective
         // > plurals of maximum and minimum) of a function, known collectively
         // > as extrema (the plural of extremum), ...
         // >
         // > - https://en.wikipedia.org/wiki/Maxima_and_minima
 
-        static IEnumerable<TSource> ExtremaBy<TSource, TKey>(IEnumerable<TSource> source,
+        private static IEnumerable<TSource> ExtremaBy<TSource, TKey>(IEnumerable<TSource> source,
             Func<TSource, TKey> selector, Func<TKey, TKey, int> comparer)
         {
             foreach (var item in Extrema())
@@ -254,12 +213,7 @@ params System.Collections.IEnumerable[] itemCollections)
                     return extrema;
                 }
             }
-
-
-
         }
-
-
 
         public static double WeightedAverage<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight, double control = 0)
         {
@@ -271,8 +225,6 @@ params System.Collections.IEnumerable[] itemCollections)
             else
                 return 0;// throw new DivideByZeroException("No weights are greater than 0");
         }
-
-
 
         public static IEnumerable<double> RunningWeightedAverage<T>(this IEnumerable<T> records, Func<T, double> value, Func<T, double> weight)
         {
@@ -287,29 +239,20 @@ params System.Collections.IEnumerable[] itemCollections)
                 else
                     yield return 0;
             }
-
         }
-
-
-
-
 
         public static IEnumerable<TResult> TakeIfNotNull<TResult>(this IEnumerable<TResult> source, int? count)
         {
             return !count.HasValue ? source : source.Take(count.Value);
         }
 
-
         public static IEnumerable<TResult> TakeAllIfNull<TResult>(this IEnumerable<TResult> source, int? count)
         {
-
             if (count == null)
                 return source;
             else
                 return source.Take(count.Value);
         }
-
-
 
         public static IEnumerable<TAccumulate> Scan<TSource, TAccumulate>(
     this IEnumerable<TSource> source,
@@ -335,14 +278,10 @@ params System.Collections.IEnumerable[] itemCollections)
             }
         }
 
-
-
         public static IEnumerable<IGrouping<object, T>> Pivot<T>(this IEnumerable<T> dtable, string RowField, string DataField, string columnField)
         {
-
             var rprop = typeof(T).GetProperty(RowField);
             var cprop = typeof(T).GetProperty(columnField);
-
 
             var query = dtable
                    .GroupBy(r => rprop.GetValue(r, null))
@@ -350,10 +289,7 @@ params System.Collections.IEnumerable[] itemCollections)
                    .Select(_ => _.First());
 
             return query;
-
-
         }
-
 
         public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacent<TSource, TKey>(
          this IEnumerable<TSource> source,
@@ -390,22 +326,24 @@ params System.Collections.IEnumerable[] itemCollections)
             if (haveLast)
                 yield return new GroupOfAdjacent<TSource, TKey>(list, last);
         }
-
     }
 
     public class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>
     {
         public TKey Key { get; set; }
         private List<TSource> GroupList { get; set; }
+
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return ((System.Collections.Generic.IEnumerable<TSource>)this).GetEnumerator();
         }
+
         System.Collections.Generic.IEnumerator<TSource> System.Collections.Generic.IEnumerable<TSource>.GetEnumerator()
         {
             foreach (var s in GroupList)
                 yield return s;
         }
+
         public GroupOfAdjacent(List<TSource> source, TKey key)
         {
             GroupList = source;

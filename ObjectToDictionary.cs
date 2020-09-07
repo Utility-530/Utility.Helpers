@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
 
 namespace UtilityHelper
 {
-
     public static class ObjectToDictionaryMapper
     {
         public static IDictionary<string, object> ToDictionary(this object source)
@@ -43,12 +38,5 @@ namespace UtilityHelper
         {
             throw new ArgumentNullException("source", "Unable to convert object to a dictionary. The source object is null.");
         }
-
-
-
-
-
-
     }
-
 }

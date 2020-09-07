@@ -5,13 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
     public static class StringHelper
     {
-
         public static Stream ToStream(this string[] str)
         {
             MemoryStream stream = new MemoryStream();
@@ -22,15 +20,12 @@ namespace UtilityHelper
             return stream;
         }
 
-
         //https://stackoverflow.com/questions/3947126/case-insensitive-list-search
         //Adam Sills
         public static bool Contains(this IEnumerable<string> source, string keyword, StringComparison comp)
         {
             return source.Any(s => s.Equals(keyword, StringComparison.OrdinalIgnoreCase));
-
         }
-
 
         // JaredPar
         //https://stackoverflow.com/questions/444798/case-insensitive-containsstring
@@ -40,8 +35,6 @@ namespace UtilityHelper
         {
             return source?.IndexOf(toCheck, comp) >= 0;
         }
-
-
 
         public static string RemoveLineEndings(this string value)
         {
@@ -54,7 +47,6 @@ namespace UtilityHelper
 
             return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("\t", String.Empty);
         }
-
 
         public static String ReduceWhitespace(this String value)
         {
@@ -82,13 +74,10 @@ namespace UtilityHelper
             return newString.ToString();
         }
 
-
         public static int ToNumber(this string str)
         {
             return Encoding.ASCII.GetBytes(str).Select(_ => (int)_).Sum();
-
         }
-
 
         public static bool IsDigitsOnly(this string str)
         {
@@ -101,7 +90,6 @@ namespace UtilityHelper
             return true;
         }
 
-
         public static bool HasAnyDigits(this string str)
         {
             foreach (char c in str)
@@ -112,8 +100,6 @@ namespace UtilityHelper
 
             return false;
         }
-
-
 
         public static bool Parse(string s, string format, out DateTime dt)
         {
@@ -142,7 +128,6 @@ namespace UtilityHelper
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return string.Join(delimiter, source.WithDelimiter(delimiter));
-
         }
 
         public static IEnumerable<string> WithDelimiter<T>(this IEnumerable<T> source, string delimiter)
@@ -155,10 +140,7 @@ namespace UtilityHelper
 
             foreach (var item in array.Skip(1))
                 yield return $"{delimiter}{item}";
-
         }
-
-
 
         public static bool HasValueBetween(this string str, string start, string end)
         {
@@ -203,14 +185,13 @@ namespace UtilityHelper
         {
             return substrings.Aggregate(str, (current, substring) => current.Remove(substring));
         }
-        
+
         public static void SetPropertyByType<T>(object obj, T value)
         {
             var properties = obj.GetType().GetProperties();
             var prop = properties.SingleOrDefault(_ => _.PropertyType == typeof(T));
             prop.SetValue(obj, value, null);
         }
-
 
         public static string[] Split(this string str, string separator, bool includeSeparator = false)
         {
@@ -284,8 +265,6 @@ namespace UtilityHelper
             return str.SameWords(otherStrings, false, " ", 1).Any();
         }
 
-
-
         public static double? TryToDouble(this string str)
         {
             str = str.Replace(',', '.');
@@ -353,11 +332,5 @@ namespace UtilityHelper
         //    DomainName completeDomain;
         //    return DomainName.TryParse(new Uri(str).Host, out completeDomain) ? completeDomain.SLD : "";
         //}
-
-
-
     }
-
-
-
 }

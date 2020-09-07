@@ -1,29 +1,20 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UtilityHelper;
 
 namespace UtilityHelper
 {
     using System.Collections;
-    using System.Data;
     using System.IO;
     using System.Reflection;
     using UtilityHelper.Generic;
 
-
     public static class CsvHelper
     {
-
-
-
         public static string[] GetColumn(string path, string field, char delimiter = ',')
         {
-
             var temp = File.ReadAllLines(path);
             List<string> myExtraction = new List<string>();
 
@@ -38,7 +29,6 @@ namespace UtilityHelper
             return myExtraction.ToArray();
         }
 
-
         public static int GetLineCount(string filename)
         {
             var text = File.OpenText(filename);
@@ -50,23 +40,15 @@ namespace UtilityHelper
             }
             text.Dispose();
             return i;
-
-
         }
 
         public static void WriteToCsv(string csvstring, string path)
         {
-
             if (File.Exists(path))
                 File.AppendAllText(path, new System.Text.RegularExpressions.Regex(".*\n").Replace(csvstring, "", 1));
             else
                 File.WriteAllText(path, csvstring);
-
-
-
         }
-
-
 
         public static IEnumerable<string[]> GetFileLines(string filename, int skipfirst = 0, char splitchar = ',')
         {
@@ -87,21 +69,15 @@ namespace UtilityHelper
             }
         }
 
-
-
         public static IEnumerable<T> ReadFromCsv<T>(string filename, char splitchar = ',')
         {
-
             var x = GetFileLines(filename, 0, splitchar);
             var y = x.First();
 
             var z = x.Skip(1).Select(_ => _.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));
 
             return z.MapToMany<T>();
-
         }
-
-
 
         public static string ToCSVString(this IEnumerable data)
         {
@@ -119,16 +95,14 @@ namespace UtilityHelper
             return ToCSVString(props.ToArray(), rows);
         }
 
-
         public static string ToCSVString<T>(this IEnumerable<T> data)
         {
-
             var type = typeof(T);
             var properties = type.GetProperties();
             var result = new StringBuilder();
             var props = properties.Select(_ => _.Name);
 
-            return ToCSVString(props.ToArray(), data.Select(_ => 
+            return ToCSVString(props.ToArray(), data.Select(_ =>
             ToCommaDelimitedRow(_, properties)));
         }
 
@@ -153,9 +127,7 @@ namespace UtilityHelper
             var values = properties.Select(p => p.GetValue(obj, null))
                                    .Select(v => StringToCSVCell(Convert.ToString(v)));
             return string.Join(",", values);
-
         }
-
 
         private static string StringToCSVCell(string str)
         {
@@ -177,7 +149,6 @@ namespace UtilityHelper
             return str;
         }
 
-
         public static void CombineCsvFiles(string sourceFolder, string destinationFile, string searchPattern = "*.csv", bool isMismatched = false)
         {
             // Specify wildcard search to match CSV files that will be combined
@@ -186,10 +157,7 @@ namespace UtilityHelper
                 CombineMisMatchedCsvFiles(filePaths, destinationFile);
             else
                 CombineCsvFiles(filePaths, destinationFile);
-
         }
-
-
 
         public static void CombineCsvFiles(string[] filePaths, string destinationFile)
         {
@@ -218,7 +186,6 @@ namespace UtilityHelper
 
         public static void CombineMisMatchedCsvFiles(string[] filePaths, string destinationFile, char splitter = ',', bool Union = true)
         {
-
             HashSet<string> combinedheaders = new HashSet<string>();
             int i;
             // aggregate headers
@@ -234,8 +201,6 @@ namespace UtilityHelper
 
             if (combinedheaders.Contains("")) combinedheaders.Remove("");
             var hdict = combinedheaders.ToDictionary(y => y, y => new List<object>());
-
-
 
             string[] combinedHeadersArray = combinedheaders.ToArray();
             for (i = 0; i < filePaths.Length; i++)
@@ -257,7 +222,6 @@ namespace UtilityHelper
                     {
                         hdict[header].Add(null);
                     }
-
                 });
             }
 
@@ -266,12 +230,8 @@ namespace UtilityHelper
             dt.SaveToCSV(destinationFile);
         }
 
-
-
-
         public static Dictionary<string, string> SplitCsvFilesByField(string filePath, string header, char splitter = ',')
         {
-
             var firstLine = File.ReadLines(filePath).First();
             int headerindex = Array.IndexOf(firstLine.Split(splitter), header);
 
@@ -280,7 +240,6 @@ namespace UtilityHelper
             Dictionary<string, StringBuilder> dictbuilder = new Dictionary<string, StringBuilder>();
 
             StringBuilder builder = new StringBuilder();
-
 
             File.ReadLines(filePath).Skip(1).ForEach(line =>
             {
@@ -296,17 +255,10 @@ namespace UtilityHelper
                 value.AppendLine(line);
 
                 dictbuilder[key] = value;
-
             });
 
-
-
             return dictbuilder.ToDictionary(_ => _.Key, _ => _.Value.ToString());
-
-
         }
-
-
 
         public static void WriteToFile<T>(this T[][] data, string file)
         {
@@ -319,14 +271,9 @@ namespace UtilityHelper
             }
         }
 
-
-
-
         //https://github.com/22222/CsvTextFieldParser
         //public static IEnumerable<string[]> Parse(string path)
         //{
-
-
         //    using (TextFieldParser csvParser = new TextFieldParser(path))
         //    {
         //        //csvParser.CommentTokens = new string[] { "#" };
@@ -344,16 +291,6 @@ namespace UtilityHelper
         //        }
         //    }
 
-
-
         //}
-
-
-
-
-
-
     }
 }
-
-

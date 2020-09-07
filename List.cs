@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UtilityHelper;
 using UtilityHelper.Generic;
 
@@ -31,17 +29,13 @@ namespace UtilityHelper
         //    return result;
         //}
 
-
         public static T SingleOrAdd<T>(this ICollection<T> query, T x) where T : new()
         {
             var xd = query.SingleOrDefault(null);
             if (xd == null) query.Add(x);
 
             return xd;
-
         }
-
-
 
         public static SortedList<DateTime, double> MovingAverage(this SortedList<DateTime, double> series, int period)
         {
