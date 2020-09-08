@@ -1,50 +1,44 @@
-﻿//using ICSharpCode.SharpZipLib.Zip;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 
 namespace UtilityHelper
 {
-    public static class GZip
+    public static class GZipHelper
     {
         public static void Extract(string infile, string outfile)
         {
-            using (FileStream fInStream = new FileStream(infile, FileMode.Open, FileAccess.Read))
+            using (FileStream outStream = new FileStream(outfile, FileMode.Create, FileAccess.Write))
             {
-                using (GZipStream zipStream = new GZipStream(fInStream, CompressionMode.Decompress))
-                {
-                    using (FileStream fOutStream = new FileStream(outfile,
-                    FileMode.Create, FileAccess.Write))
-                    {
-                        byte[] tempBytes = new byte[4096];
-                        int i;
-                        while ((i = zipStream.Read(tempBytes, 0, tempBytes.Length)) != 0)
-                        {
-                            fOutStream.Write(tempBytes, 0, i);
-                        }
-                    }
-                }
+                Extract(infile, outStream);
             }
         }
 
         public static string Extract(string infile)
         {
+            using (var outStream = new MemoryStream())
+            {
+                Extract(infile, outStream);
+                using (var reader = new StreamReader(outStream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+        }
+
+        public static void Extract(string infile, Stream outStream)
+        {
             using (FileStream fInStream = new FileStream(infile, FileMode.Open, FileAccess.Read))
             {
                 using (GZipStream zipStream = new GZipStream(fInStream, CompressionMode.Decompress))
                 {
-                    using (MemoryStream fOutStream = new MemoryStream())
+
+                    byte[] tempBytes = new byte[4096];
+                    int i;
+                    while ((i = zipStream.Read(tempBytes, 0, tempBytes.Length)) != 0)
                     {
-                        byte[] tempBytes = new byte[4096];
-                        int i;
-                        while ((i = zipStream.Read(tempBytes, 0, tempBytes.Length)) != 0)
-                        {
-                            fOutStream.Write(tempBytes, 0, i);
-                        }
-                        using (var reader = new StreamReader(fOutStream))
-                        {
-                            return reader.ReadToEnd();
-                        }
+                        outStream.Write(tempBytes, 0, i);
                     }
+                    outStream.Seek(0, SeekOrigin.Begin);
                 }
             }
         }
