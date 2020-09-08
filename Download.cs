@@ -67,15 +67,15 @@ namespace UtilityHelper
 
         public static async void DownloadAsync(string url, string path)
         {
-            var client = new System.Net.Http.HttpClient();
+            var client = new HttpClient();
 
             await System.Threading.Tasks.Task.Run(() => client.GetAsync(url).ContinueWith(d =>
             {
                 var x = System.Threading.Tasks.Task.Run(async () =>
                 {
-                    using (System.Net.Http.HttpContent content = d.Result.Content)
+                    using (HttpContent content = d.Result.Content)
                     // actually a System.Net.Http.StreamContent instance but you do not need to cast as the actual type does not matter in this case
-                    using (var file = System.IO.File.Create(path))
+                    using (var file = File.Create(path))
                     {   // get the actual content stream
                         using (var contentStream = await content.ReadAsStreamAsync())
                         {
