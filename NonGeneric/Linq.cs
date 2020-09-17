@@ -22,8 +22,7 @@ namespace UtilityHelper.NonGeneric
 
         public static int Count(this IEnumerable source)
         {
-            var col = source as ICollection;
-            if (col != null)
+            if (source is ICollection col)
                 return col.Count;
 
             int c = 0;
