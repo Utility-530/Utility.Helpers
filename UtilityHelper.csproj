@@ -1,51 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Icon>supporticon.ico</Icon>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Declan Taylor</Authors>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<Icon>supporticon.ico</Icon>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Authors>Declan Taylor</Authors>
 
-    <Company />
-    <Product />
-    <Description>Array,Assembly, Combinatorics,CSV,DataTable,DateRange, DateTime, Dictionary,Directory,Download,Enum,FileInfo, GZip, HashCode, Linq,List, Object, Property, Random, Recursive, Regex, String,Type, Url 
-helper classes
-</Description>
-    <NeutralLanguage />
-    <PackageTags>utility helper</PackageTags>
-    <PackageId>UtilityHelper</PackageId>
-    <PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-    <Version>2.1.6-alpha-01</Version>
-    <AssemblyVersion>2.1.7.0</AssemblyVersion>
-    <FileVersion>2.1.7.0</FileVersion>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<Company />
+		<Product />
+		<Description>Array,Assembly, Combinatorics,CSV,DataTable,DateRange, DateTime, Dictionary,Directory,Download,Enum,FileInfo, GZip, HashCode, Linq,List, Object, Property, Random, Recursive, Regex, String,Type, Url			helper classes
+		</Description>
+		<NeutralLanguage />
+		<PackageTags>utility helper</PackageTags>
+		<PackageId>UtilityHelper</PackageId>
+		<PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
+		<Version>3.0.0-alpha-01</Version>
+		<AssemblyVersion>3.0.0.0</AssemblyVersion>
+		<FileVersion>3.0.0.0</FileVersion>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
-  </PropertyGroup>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <ShouldCreateLogs>True</ShouldCreateLogs>
-    <AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
-    <UpdateAssemblyVersion>False</UpdateAssemblyVersion>
-    <UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
-    <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
-    <UpdatePackageVersion>True</UpdatePackageVersion>
-    <PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.Alpha</PackageVersionSettings>
-    <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
-    <InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<ShouldCreateLogs>True</ShouldCreateLogs>
+		<AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
+		<UpdateAssemblyVersion>False</UpdateAssemblyVersion>
+		<UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
+		<UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
+		<UpdatePackageVersion>True</UpdatePackageVersion>
+		<PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.Alpha</PackageVersionSettings>
+		<AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
+		<InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove=".gitattributes" />
-    <None Remove=".gitignore" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove=".gitattributes" />
+		<None Remove=".gitignore" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="UtilityStruct" Version="1.0.9-alpha" />
-  </ItemGroup>
-  
+	<ItemGroup>
+		<PackageReference Include="UtilityStruct" Version="1.0.9-alpha" />
+	</ItemGroup>
 
- <!--   <ItemGroup>
+
+	<!--   <ItemGroup>
         <MySourceFiles Include="..\..\..\$(PackageId).*.nupkg"/>
     </ItemGroup>
     <PropertyGroup>

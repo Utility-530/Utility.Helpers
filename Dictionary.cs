@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 
@@ -111,6 +112,20 @@ namespace UtilityHelper
                 eo.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
             }
             return eo;
+        }
+
+        public static OrderedDictionary ToOrderedDictionary<TSource>(IEnumerable<TSource> source, Func<TSource, string> keySelector, Func<TSource, object> elementSelector)
+        {
+            var d = new OrderedDictionary();
+
+            foreach (TSource element in source)
+            {
+                var val = elementSelector(element);
+                if (val != null)
+                    d.Add(keySelector(element), val);
+            }
+
+            return d;
         }
     }
 }

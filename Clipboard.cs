@@ -14,7 +14,7 @@ namespace UtilityHelper
             if (value == null)
                 throw new ArgumentNullException("Attempt to set clipboard with null");
 
-            Process clipboardExecutable = new Process
+            System.Diagnostics.Process clipboardExecutable = new System.Diagnostics.Process
             {
                 StartInfo = new ProcessStartInfo // Creates the process
                 {

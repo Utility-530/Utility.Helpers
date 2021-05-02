@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,6 +10,15 @@ namespace UtilityHelper
 {
     public static class TypeHelper
     {
+        public static Type ToType(string assemblyName, string nameSpace, string name)
+        {
+            Type your = Type.GetType(nameSpace + "." + name + ", " + assemblyName);
+            return your;
+        }
+        public static string[] AsString(this Type type)
+        {
+            return new[] { type.Assembly.FullName, type.Namespace, type.Name };
+        }
         public static IEnumerable<Type> Filter<T>() => Filter(typeof(T));
 
         public static IEnumerable<Type> Filter(Type type) =>
@@ -111,5 +121,41 @@ namespace UtilityHelper
         public static bool IsNullableType(System.Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
 
         public static IEnumerable<KeyValuePair<string, Type>> ToKeyValuePairs(IEnumerable<Type> types) => types.Select(_ => new KeyValuePair<string, Type>(_.ToString(), _));
+
+
+        public static bool IsNumericType(this Type o)
+        {
+            switch (Type.GetTypeCode(o))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        public static bool OfClassType(this IEnumerable enumerable) =>
+            enumerable
+                .Cast<object>()
+                .Select(a => a.GetType())
+                .All(a => a.IsClass);
+
+
+        public static bool NotOfClassType(this IEnumerable enumerable) =>
+            enumerable
+                .Cast<object>()
+                .Select(a => a.GetType())
+                .All(a => a.IsClass == false);
     }
 }

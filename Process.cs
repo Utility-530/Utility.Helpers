@@ -8,7 +8,7 @@
     /// Based on
     /// https://stackoverflow.com/questions/317071/how-do-i-find-out-which-process-is-locking-a-file-using-net
     /// </summary>
-    public static class ProcessHelper
+    public static class Process
     {
         [StructLayout(LayoutKind.Sequential)]
         private struct RM_UNIQUE_PROCESS
