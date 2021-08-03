@@ -6,30 +6,28 @@ namespace UtilityHelper
 {
     public static class RandomHelper
     {
-        private static Lazy<Random> random = LazyEx.Create<Random>();
+        private static readonly Lazy<Random> random = LazyEx.Create<Random>();
 
         public static IEnumerable<T> Sample<T>(this IEnumerable<T> x, int count, Random rand) => x.OrderBy(_ => rand.Next()).Take(count);
 
         public static IEnumerable<T> Sample<T>(this IEnumerable<T> x, int count) => x.OrderBy(arg => Guid.NewGuid()).Take(count);
 
-        public static IEnumerable<T> SampleOrdered<T>(this IEnumerable<T> x, double percent, Random rand = null)
+        public static IEnumerable<T> SampleOrdered<T>(this IEnumerable<T> x, double percent, Random? rand = null)
         {
             if (percent <= 0) throw new Exception("percent must be greater than 0");
             if (percent >= 1) throw new Exception("percent must be less than 1");
 
-            rand = rand ?? random.Value;
+            rand ??= random.Value;
 
-            using (var e = x.GetEnumerator())
-            {
-                while (e.MoveNext())
-                    if (rand.Next() <= percent)
-                        yield return e.Current;
-            }
+            using var e = x.GetEnumerator();
+            while (e.MoveNext())
+                if (rand.Next() <= percent)
+                    yield return e.Current;
         }
 
-        public static IEnumerable<T> SampleOrdered<T>(this ICollection<T> x, int count, Random rand = null) => x.SampleOrdered(count / (double)x.Count, rand).Take(count);
+        public static IEnumerable<T> SampleOrdered<T>(this ICollection<T> x, int count, Random? rand = null) => x.SampleOrdered(count / (double)x.Count, rand).Take(count);
 
-        public static IEnumerable<int> SampleInRange(int size, int percent, Random rand = null)
+        public static IEnumerable<int> SampleInRange(int size, int percent, Random? rand = null)
         {
             if (percent <= 0) throw new Exception("percent must be greater than 0");
             if (percent >= 100) throw new Exception("percent must be less than 100");
@@ -54,7 +52,7 @@ namespace UtilityHelper
         private static string[] consonants = { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z" };
         private static string[] vowels = { "a", "e", "i", "o", "u" };
 
-        public static string NextWord(int length = 4, Random rand = null)
+        public static string NextWord(int length = 4, Random? rand = null)
         {
             rand = rand ?? random.Value;
 

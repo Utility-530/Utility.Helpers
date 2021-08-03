@@ -32,9 +32,8 @@ namespace UtilityHelper
         public static int GetLineCount(string filename)
         {
             var text = File.OpenText(filename);
-            int i = 0;
-            string line = null;
-            while ((line = text.ReadLine()) != null)
+            int i = 0;           
+            while (text.ReadLine() is string)
             {
                 i++;
             }
@@ -102,8 +101,7 @@ namespace UtilityHelper
             var result = new StringBuilder();
             var props = properties.Select(_ => _.Name);
 
-            return ToCSVString(props.ToArray(), data.Select(_ =>
-            ToCommaDelimitedRow(_, properties)));
+            return ToCSVString(props.ToArray(), data.Select(_ =>            ToCommaDelimitedRow(_, properties)));
         }
 
         public static string ToCSVString(string[] fields, IEnumerable<string> rows)
@@ -120,13 +118,12 @@ namespace UtilityHelper
             return result.ToString();
         }
 
-        public static string ToCommaDelimitedRow<T>(T obj, PropertyInfo[] properties = null)
+        public static string ToCommaDelimitedRow<T>(T obj, PropertyInfo[]? properties = null)
         {
-            properties = properties ?? typeof(T).GetProperties();
-
-            var values = properties.Select(p => p.GetValue(obj, null))
-                                   .Select(v => StringToCSVCell(Convert.ToString(v)));
-            return string.Join(",", values);
+            return (properties ??= typeof(T).GetProperties())
+                                   .Select(p => p.GetValue(obj, null))
+                                   .Select(v => StringToCSVCell(Convert.ToString(v)))
+                                   .Join(",");
         }
 
         private static string StringToCSVCell(string str)
@@ -200,7 +197,7 @@ namespace UtilityHelper
             }
 
             if (combinedheaders.Contains("")) combinedheaders.Remove("");
-            var hdict = combinedheaders.ToDictionary(y => y, y => new List<object>());
+            var hdict = combinedheaders.ToDictionary(y => y, y => new List<object?>());
 
             string[] combinedHeadersArray = combinedheaders.ToArray();
             for (i = 0; i < filePaths.Length; i++)

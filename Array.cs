@@ -45,17 +45,39 @@ namespace UtilityHelper
             return result;
         }
 
-        public static T?[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary, IComparer<string> comparer = null) where T : struct
+        public static T[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary, IComparer<string>? comparer = null) where T : struct
         {
-            comparer = comparer ?? StringComparer.InvariantCultureIgnoreCase;
+            comparer ??= StringComparer.InvariantCultureIgnoreCase;
 
             var hNames = dictionary.Select(c => c.Key.Item1).Distinct().OrderBy(a => a, comparer).ToArray();
             var vNames = dictionary.Select(c => c.Key.Item2).Distinct().OrderBy(a => a, comparer).ToArray();
 
-            return ToMultiDimensionalArray<T?>(dictionary.ToDictionary(a => a.Key, a => (T?)a.Value), hNames, vNames);
+            return ToMultiDimensionalValueArray(dictionary.ToDictionary(a => a.Key, a => (T)a.Value), hNames, vNames);
         }
 
-        public static T[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary, string[] hNames, string[] vNames)
+        public static T?[,] ToMultiDimensionalArray<T>(this Dictionary<(string, string), T> dictionary, string[] hNames, string[] vNames) where T : class
+        {
+            T?[,] result = new T[hNames.Length, vNames.Length];
+
+            for (int i = 0; i < hNames.Length; i++)
+            {
+                for (int k = 0; k < vNames.Length; k++)
+                {
+                    if (dictionary.ContainsKey((hNames[i], vNames[k])))
+                    {
+                        result[i, k] = dictionary[(hNames[i], vNames[k])];
+                    }
+                    else
+                    {
+                        result[i, k] = default;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static T[,] ToMultiDimensionalValueArray<T>(this Dictionary<(string, string), T> dictionary, string[] hNames, string[] vNames) where T : struct
         {
             T[,] result = new T[hNames.Length, vNames.Length];
 
@@ -77,18 +99,18 @@ namespace UtilityHelper
             return result;
         }
 
-        public static T[,] ToMultidimensionalArray<T>(this IList<T[]> arrays)
+        public static T[,] ToMultidimensionalArray<T>(this IList<T[]?> arrays)
         {
             var minorLength = arrays.Max(c => c?.Length ?? 0);
             var ret = new T[arrays.Count, minorLength];
             for (int i = 0; i < arrays.Count; i++)
             {
-                var array = arrays[i];
-
-                for (int j = 0; j < (array?.Length ?? 0); j++)
-                {
-                    ret[i, j] = array[j];
-                }
+                T[]? array = arrays[i];
+                if (array != null)
+                    for (int j = 0; j < array.Length; j++)
+                    {
+                        ret[i, j] = array[j];
+                    }
             }
             return ret;
         }
@@ -115,23 +137,14 @@ namespace UtilityHelper
 
         public static T[][] RemoveColumns<T>(this T[][] originalArray, params T[][] columnsToRemove)
         {
-            //T[][] result = new T[originalArray.GetLength(0)][];
-
             int l2 = originalArray[0].Length;
 
-            var ints = columnsToRemove.Select(ctr =>
-            {
-                try
+            var ints = columnsToRemove
+                .Select(ctr =>
                 {
-                    var cols = Enumerable.Range(0, l2).Single(i => originalArray.Select(ar => ar[i]).All(_ => _.Equals(ctr[i])));
+                    var cols = Enumerable.Range(0, l2).Single(i => originalArray.Select(ar => ar[i]).All(a => a!.Equals(ctr[i])));
                     return cols;
-                }
-                catch
-                {
-                    throw new Exception();
-                }
-            }
-            );
+                });
             return RemoveColumns(originalArray, ints.ToArray());
         }
     }

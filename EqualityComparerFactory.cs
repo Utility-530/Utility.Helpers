@@ -34,7 +34,7 @@ namespace UtilityHelper
             return new Impl<T>(eq, hashFunc);
         }
 
-        public static IEqualityComparer<T> Create<T, R>(Func<T, R> eq, Func<T, int> hashFunc = null)
+        public static IEqualityComparer<T> Create<T, R>(Func<T, R> eq, Func<T, int>? hashFunc = null) where R : notnull
         {
             return new Impl<T>((a, b) => eq(a).Equals(eq(b)), hashFunc ?? (a => 0));
         }

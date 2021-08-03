@@ -41,7 +41,7 @@ namespace UtilityHelper
                 }
                 else
                 {
-                    if (attribute.Description.Equals(field.Name, stringcomparison))
+                    if (attribute?.Description.Equals(field.Name, stringcomparison) ?? false)
                         return (T)field.GetValue(null);
                 }
             }
@@ -51,13 +51,13 @@ namespace UtilityHelper
 
         public static T Parse<T>(string value) => (T)Enum.Parse(typeof(T), value, true);
 
-        public static object ParseByReflection(Type type, string value, string[] names = null)
+        public static object ParseByReflection(Type type, string value, string[]? names = null)
         {
             return Enum.ToObject(type, (names ?? Enum.GetNames(type)).Select((a, i) => new { a, i }).SingleOrDefault(c => c.a == value).i);
         }
 
 
-        public static string GetDescription(this Enum e, bool toStringIfNone = true)
+        public static string? GetDescription(this Enum e, bool toStringIfNone = true)
         {
             var fi = e.GetType().GetField(e.ToString());
             var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
@@ -81,21 +81,20 @@ namespace UtilityHelper
         }
 
 
-        public static IEnumerable<ValueDescription<T>> GetAllValuesAndDescriptions<T>() where T : Enum
+        public static IEnumerable<ValueDescription<T>> SelectAllValuesAndDescriptions<T>() where T : Enum
         {
-            var type = typeof(T);
-            return Enum.GetValues(type).Cast<T>()
-                .Where(e => e.GetAttribute<BrowsableAttribute>()?.Browsable ?? true)
-                .Select(e =>
-                new ValueDescription<T>
-                {
-                    Value = e,
-                    Description = e.GetDescription(type) ?? e.ToString().Replace("_", " ")
-                }).ToList();
+            return SelectAllValuesAndDescriptions<T>(typeof(T));
         }
 
+        public static IEnumerable<ValueDescription<T>> SelectAllValuesAndDescriptions<T>(this Type type) where T : Enum
+        {        
+            return Enum.GetValues(type).Cast<T>()
+                .Where(e => e.GetAttribute<BrowsableAttribute>()?.Browsable ?? true)
+                .Select(e => new ValueDescription<T>(e.GetDescription(type) ?? e.ToString().Replace("_", " "), e))
+                .ToList();
+        }
 
-        public static IEnumerable<string> GetAllDescriptions(Type enumType)
+        public static IEnumerable<string?> GetAllDescriptions(Type enumType)
         {
             if (enumType.BaseType != typeof(Enum))
                 throw new ArgumentException("T is not System.Enum");
@@ -205,8 +204,14 @@ namespace UtilityHelper
             public Enum? Value { get; set; }
         }
 
-        public class ValueDescription<T>
+        public class ValueDescription<T> where T : Enum
         {
+            public ValueDescription(string description, T value)
+            {
+                Description = description;
+                Value = value;
+            }
+
             public string Description { get; set; }
             public T Value { get; set; }
         }

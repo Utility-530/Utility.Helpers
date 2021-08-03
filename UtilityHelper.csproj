@@ -15,9 +15,9 @@
 		<PackageTags>utility helper</PackageTags>
 		<PackageId>UtilityHelper</PackageId>
 		<PackageProjectUrl>https://github.com/dtaylor-530/UtilityHelperStandard</PackageProjectUrl>
-		<Version>3.0.0-alpha-01</Version>
-		<AssemblyVersion>3.0.0.0</AssemblyVersion>
-		<FileVersion>3.0.0.0</FileVersion>
+		<Version>4.0.1-alpha-01</Version>
+		<AssemblyVersion>4.0.0.0</AssemblyVersion>
+		<FileVersion>4.0.0.0</FileVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
@@ -38,10 +38,6 @@
 	<ItemGroup>
 		<None Remove=".gitattributes" />
 		<None Remove=".gitignore" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="UtilityStruct" Version="1.0.9-alpha" />
 	</ItemGroup>
 
 

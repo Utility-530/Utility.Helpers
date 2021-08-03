@@ -37,11 +37,11 @@ namespace UtilityHelper
 
         //e.g var flattened = ar.RecursiveSelector(x => x.Children).ToList();
 
-        public static List<IEnumerable<T>> SelectList<T>(this IEnumerable<T> nodes, Func<T, IEnumerable<T>> selector, List<IEnumerable<T>> nodesList = null)
+        public static List<IEnumerable<T>>? SelectList<T>(this IEnumerable<T> nodes, Func<T, IEnumerable<T>> selector, List<IEnumerable<T>>? nodesList = null)
         {
             if (nodes.Any())
             {
-                nodesList.Add(nodes.SelectMany(selector));
+                nodesList?.Add(nodes.SelectMany(selector));
                 nodesList.Last().SelectList(selector, nodesList);
             }
             return nodesList;

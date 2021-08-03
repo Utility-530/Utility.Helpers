@@ -89,7 +89,7 @@ namespace UtilityHelper
 
         private static async System.Threading.Tasks.Task<string> GetResponse(this HttpClient client, string url, params Tuple<string, string>[] headers)
         {
-            using (var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url)))
+            using (var request = new HttpRequestMessage(HttpMethod.Get, new System.Uri(url)))
             {
                 headers.ForEach(_ => request.Headers.TryAddWithoutValidation(_.Item1, _.Item2));
                 //request.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");

@@ -33,7 +33,7 @@ namespace UtilityHelper
             throw new Exception($"Member has not attributes of type {typeof(T).Name}");
         }
 
-        public static (bool success, T attribute) GetAttributeSafe<T>(this MemberInfo value) where T : Attribute
+        public static (bool success, T? attribute) GetAttributeSafe<T>(this MemberInfo value) where T : Attribute
         {
             T[] attributes = (T[])value.GetCustomAttributes(typeof(T), false);
 

@@ -39,21 +39,22 @@ namespace UtilityHelper.Generic
             {
                 var filtered = new int[] { };
 
-                while (fenm.MoveNext() && fenom.MoveNext())
+                while (fenm.MoveNext() && fenom.MoveNext() && fenom.Current is string current)
                 {
-                    var filter = data.GetPropertyValues<IConvertible>((string)fenm.Current);
-                    filtered = filter.Get(fenom.Current).Union(filtered).ToArray();
+                    var filter = data.GetPropertyRefValues<IConvertible>(current);
+
+                    filtered = filter.OfType<IConvertible>().Select(current).Union(filtered).ToArray();
                 }
                 return filtered;
             }
         }
 
-        public static IEnumerable<int> Get<R>(this IEnumerable<R> filted, R current) where R : IConvertible
+        public static IEnumerable<int> Select<R>(this IEnumerable<R> filted, R current) where R : IConvertible
         {
             return filted
-                    .Select((_, i) => _.Equals(current) ? (int?)i : null)
-                    .Where(_ => _ != null)
-                    .Select(a => (int)a);
+                    .Select((a, i) => a.Equals(current) ? (int?)i : null)
+                    .Where(a => a != null)
+                    .Select(a => (int)a!);
         }
     }
 }

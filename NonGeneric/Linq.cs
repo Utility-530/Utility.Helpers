@@ -14,9 +14,7 @@ namespace UtilityHelper.NonGeneric
             }
             finally
             {
-                IDisposable d = resource as IDisposable;
-                if (d != null)
-                    d.Dispose();
+                (resource as IDisposable)?.Dispose();
             }
         }
 

@@ -65,7 +65,7 @@ namespace UtilityHelper
         /// <param name="D1">System.Collections.Generic.Dictionary 1</param>
         /// <param name="D2">System.Collections.Generic.Dictionary 2</param>
         /// <returns>The combined dictionaries.</returns>
-        public static Dictionary<T1, T2> UnionDictionaries<T1, T2>(Dictionary<T1, T2> D1, Dictionary<T1, T2> D2)
+        public static Dictionary<T1, T2> UnionDictionaries<T1, T2>(Dictionary<T1, T2> D1, Dictionary<T1, T2> D2) where T2 : notnull
         {
             Dictionary<T1, T2> rd = new Dictionary<T1, T2>(D1);
             foreach (var key in D2.Keys)
@@ -106,10 +106,10 @@ namespace UtilityHelper
 
         public static dynamic ToDynamic<T>(this Dictionary<string, T> dict)
         {
-            IDictionary<string, object> eo = new System.Dynamic.ExpandoObject() as IDictionary<string, object>;
+            IDictionary<string, object?> eo = new System.Dynamic.ExpandoObject();
             foreach (KeyValuePair<string, T> kvp in dict)
             {
-                eo.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                eo.Add(new KeyValuePair<string, object?>(kvp.Key, kvp.Value));
             }
             return eo;
         }

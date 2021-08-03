@@ -10,9 +10,9 @@ namespace UtilityHelper
         public static double[][] ObjectsToDoubleArrayWithoutNull(IEnumerable<object> objects, params string[] excludeProperties)
         {
             var props = objects.First().GetType()
-        .GetProperties()
-        .Where(p => (!excludeProperties.Contains(p.Name)))
-         .Where(p => { var x = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType; return x.IsNumericType(); }).ToList();
+                .GetProperties()
+                .Where(p => (!excludeProperties.Contains(p.Name)))
+                .Where(p => { var x = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType; return x.IsNumericType(); }).ToList();
 
             List<double[]> lst = new List<double[]>();
 
@@ -20,7 +20,7 @@ namespace UtilityHelper
             {
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
                 if (!xx.Any(cc => cc == null))
-                    lst.Add(xx.Select(v => (double)v).ToArray());
+                    lst.Add(xx.OfType<double>().ToArray());
             }
 
             return lst.ToArray();
@@ -31,9 +31,9 @@ namespace UtilityHelper
             var e = objects.GetEnumerator();
             e.MoveNext();
             var props = e.Current.GetType()
-        .GetProperties()
-        .Where(p => (!excludeProperties.Contains(p.Name)))
-         .Where(p => { var x = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType; return x.IsNumericType(); }).ToList();
+                .GetProperties()
+                .Where(p => (!excludeProperties.Contains(p.Name)))
+                .Where(p => { var x = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType; return x.IsNumericType(); }).ToList();
 
             List<double[]> lst = new List<double[]>();
 
@@ -41,7 +41,7 @@ namespace UtilityHelper
             {
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
                 if (!xx.Any(cc => cc == null))
-                    lst.Add(xx.Select(v => (double)v).ToArray());
+                    lst.Add(xx.OfType<double>().ToArray());
             }
 
             return lst.ToArray();
@@ -64,7 +64,7 @@ namespace UtilityHelper
             {
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
                 if (!xx.Any(cc => cc == null))
-                    lst.Add(xx.Select(v => (double)v).ToArray());
+                    lst.Add(xx.OfType<double>().ToArray());
                 else
                     indicesList.Add(i);
                 i++;
@@ -76,7 +76,6 @@ namespace UtilityHelper
         public static double[][] ObjectsToDoubleArrayWithoutNullProperties(System.Collections.IEnumerable objects, IList<PropertyInfo> props, out IList<KeyValuePair<string, int>> propsmissing)
         {
             List<double?[]> lst = new List<double?[]>();
-            int i = 0;
             var indicesList = new List<int>();
             foreach (object o in objects)
             {
@@ -102,7 +101,7 @@ namespace UtilityHelper
         {
             List<double?[]> lst = new List<double?[]>();
 
-            foreach (object o in objects)
+            foreach (object? o in objects)
             {
                 var xx = props.Select(p => { var x = p.GetValue(o); return x == null ? null : (double?)Convert.ToDouble(x); });
                 lst.Add(xx.ToArray());
@@ -124,7 +123,7 @@ namespace UtilityHelper
 
         public static double[][] ToDouble(this double?[][] arr, int[] propsmissing)
         {
-            var conv = new Converter<double?, double>(_ => (double)_);
+            var conv = new Converter<double?, double>(a => a ?? 0);
 
             var kx = arr.RemoveColumns(propsmissing);
 

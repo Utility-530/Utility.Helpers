@@ -70,7 +70,7 @@ namespace UtilityHelper
                             dependentAssemblyList[a.FullName.MyToName()] = a;
                             InternalFindDependentAssembliesRecursive(a, ref missingAssemblies, ref dependentAssemblyList);
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             missingAssemblies.Add(new MissingAssembly(r.FullName.Split(',')[0], assembly.FullName.MyToName()));
                         }
