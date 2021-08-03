@@ -73,7 +73,7 @@ namespace UtilityHelper
             var x = GetFileLines(filename, 0, splitchar);
             var y = x.First();
 
-            var z = x.Skip(1).Select(_ => _.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));
+            var z = x.Skip(1).Select(a => a.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));
 
             return z.MapToMany<T>();
         }
@@ -85,7 +85,7 @@ namespace UtilityHelper
             var properties = type.GetProperties();
             var result = new StringBuilder();
 
-            var props = properties.Select(_ => _.Name);
+            var props = properties.Select(a => a.Name);
             List<string> rows = new List<string>();
             foreach (var row in data)
             {
@@ -99,9 +99,9 @@ namespace UtilityHelper
             var type = typeof(T);
             var properties = type.GetProperties();
             var result = new StringBuilder();
-            var props = properties.Select(_ => _.Name);
+            var props = properties.Select(a => a.Name);
 
-            return ToCSVString(props.ToArray(), data.Select(_ =>            ToCommaDelimitedRow(_, properties)));
+            return ToCSVString(props.ToArray(), data.Select(a => ToCommaDelimitedRow(a, properties)));
         }
 
         public static string ToCSVString(string[] fields, IEnumerable<string> rows)
@@ -254,7 +254,7 @@ namespace UtilityHelper
                 dictbuilder[key] = value;
             });
 
-            return dictbuilder.ToDictionary(_ => _.Key, _ => _.Value.ToString());
+            return dictbuilder.ToDictionary(a => a.Key, a => a.Value.ToString());
         }
 
         public static void WriteToFile<T>(this T[][] data, string file)

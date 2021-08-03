@@ -29,7 +29,7 @@ namespace UtilityHelper
 
         public static IEnumerable<T> FilterSelect<T>(this IEnumerable<T> nodes, Func<T, IEnumerable<T>> selector)
         {
-            if (nodes.Any(_ => _ != null))
+            if (nodes.Any(a => a != null))
                 return nodes.Concat(nodes.SelectMany(selector).FilterSelect(selector));
 
             return nodes;

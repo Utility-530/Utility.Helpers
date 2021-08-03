@@ -24,12 +24,12 @@ namespace UtilityHelper.NonGeneric
 
         public static IEnumerable FilterWithNull<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : class, IConvertible
         {
-            return data.FilterByIndices(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true);
+            return data.FilterByIndices(FilterIndex(data, kvps.Select(a => a.Key), kvps.Select(a => a.Value)), true);
         }
 
         public static IEnumerable FilterDefault<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : class, IConvertible
         {
-            return data.FilterByIndices(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
+            return data.FilterByIndices(FilterIndex(data, kvps.Select(a => a.Key), kvps.Select(a => a.Value)));
         }
 
         public static IEnumerable<int> FilterIndex<R>(this IEnumerable data, IEnumerable<string> filter, IEnumerable<R> filterOn) where R : class, IConvertible

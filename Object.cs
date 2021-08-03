@@ -89,12 +89,12 @@ namespace UtilityHelper
             {
                 for (int k = 0; k < lst.Count; k++)
                 {
-                    if (lst[k][j] == null && !propsmissing.Select(_ => _.Key).Contains(props[j].Name))
+                    if (lst[k][j] == null && !propsmissing.Select(a => a.Key).Contains(props[j].Name))
                         propsmissing.Add(new KeyValuePair<string, int>(props[j].Name, j));
                 }
             }
 
-            return lst.ToArray().ToDouble(propsmissing.Select(_ => _.Value).ToArray());
+            return lst.ToArray().ToDouble(propsmissing.Select(a => a.Value).ToArray());
         }
 
         public static double[][] ObjectsToDoubleArrayWithoutNullProperties<T>(ICollection<T> objects, IList<PropertyInfo> props, out IList<KeyValuePair<string, int>> propsmissing)
@@ -113,12 +113,12 @@ namespace UtilityHelper
             {
                 for (int k = 0; k < lst.Count; k++)
                 {
-                    if (lst[k][j] == null && !propsmissing.Select(_ => _.Key).Contains(props[j].Name))
+                    if (lst[k][j] == null && !propsmissing.Select(a => a.Key).Contains(props[j].Name))
                         propsmissing.Add(new KeyValuePair<string, int>(props[j].Name, j));
                 }
             }
 
-            return lst.ToArray().ToDouble(propsmissing.Select(_ => _.Value).ToArray());
+            return lst.ToArray().ToDouble(propsmissing.Select(a => a.Value).ToArray());
         }
 
         public static double[][] ToDouble(this double?[][] arr, int[] propsmissing)
@@ -146,7 +146,7 @@ namespace UtilityHelper
                  typeof(T)
         .GetProperties()
         .Where(p => !excludeProperties.Contains(p.Name))
-        .FilterTypes(_ => IsDateTimeType(_, out DateTime val));
+        .FilterTypes(a => IsDateTimeType(a, out DateTime val));
 
         public static IEnumerable<PropertyInfo> FilterTypes(this IEnumerable<PropertyInfo> props, Func<Type, bool> filter) =>
             props
@@ -161,7 +161,7 @@ namespace UtilityHelper
 
         public static bool IsAnyNullOrEmpty(object myObject)
         {
-            return IsNullOrEmpty(myObject).Any(_ => _ == true);
+            return IsNullOrEmpty(myObject).Any(a => a == true);
         }
 
         public static IEnumerable<bool> IsNullOrEmpty(object myObject)

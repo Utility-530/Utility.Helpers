@@ -7,10 +7,10 @@ namespace UtilityHelper.Generic
     public static class Filter
     {
         public static IEnumerable<T> FilterDefault<T, R>(IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) =>
-            data.FilterByIndices(Index(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
+            data.FilterByIndices(Index(data, kvps.Select(a => a.Key), kvps.Select(a => a.Value)));
 
         public static IEnumerable<T> FilterWithNull<T, R>(this IEnumerable<T> data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
-            => UtilityHelper.NonGeneric.Filter.FilterByIndices(data, Index(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true).Cast<T>();
+            => UtilityHelper.NonGeneric.Filter.FilterByIndices(data, Index(data, kvps.Select(a => a.Key), kvps.Select(a => a.Value)), true).Cast<T>();
 
         public static IEnumerable<T> FilterByIndices<T>(this IEnumerable<T> enumerable, IEnumerable<int> indices)
         {
@@ -30,7 +30,7 @@ namespace UtilityHelper.Generic
                where filter(p.index)
                select p.item;
 
-        public static IEnumerable<T> Without<T>(this IEnumerable<T> feed, int[] filter) => feed.FilterByIndices(_ => !filter.Contains(_));
+        public static IEnumerable<T> Without<T>(this IEnumerable<T> feed, int[] filter) => feed.FilterByIndices(a => !filter.Contains(a));
 
         public static IEnumerable<int> Index<T, R>(this IEnumerable<T> data, IEnumerable<string> filterheaders, IEnumerable<R> filterOn)
         {

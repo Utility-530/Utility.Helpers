@@ -85,7 +85,7 @@ namespace UtilityHelper
 
         public static int ToNumber(this string str)
         {
-            return Encoding.ASCII.GetBytes(str).Select(_ => (int)_).Sum();
+            return Encoding.ASCII.GetBytes(str).Select(a => (int)a).Sum();
         }
 
         public static bool IsDigitsOnly(this string str)
@@ -246,7 +246,7 @@ namespace UtilityHelper
         public static void SetPropertyByType<T>(object obj, T value)
         {
             var properties = obj.GetType().GetProperties();
-            var prop = properties.SingleOrDefault(_ => _.PropertyType == typeof(T));
+            var prop = properties.SingleOrDefault(a => a.PropertyType == typeof(T));
             prop.SetValue(obj, value, null);
         }
 

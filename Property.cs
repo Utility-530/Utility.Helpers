@@ -472,7 +472,7 @@ namespace UtilityHelper
         public static bool SetPropertyByType<T>(object obj, T value)
         {
             var properties = obj.GetType().GetProperties();
-            var prop = properties.SingleOrDefault(_ => _.PropertyType == typeof(T));
+            var prop = properties.SingleOrDefault(a => a.PropertyType == typeof(T));
             if (prop != null)
             {
                 prop.SetValue(obj, value, null);
@@ -543,7 +543,7 @@ namespace UtilityHelper
 
         public static IEnumerable<T> MapToMany<T>(this IEnumerable<Dictionary<string, string>> dicts)
         {
-            Dictionary<string, Type> propertytypes = typeof(T).GetProperties().ToDictionary(_ => _.Name, _ => _.PropertyType);
+            Dictionary<string, Type> propertytypes = typeof(T).GetProperties().ToDictionary(a => a.Name, a => a.PropertyType);
 
             foreach (var dict in dicts)
                 yield return dict.Map<T>(propertytypes);

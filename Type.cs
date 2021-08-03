@@ -72,7 +72,7 @@ namespace UtilityHelper
                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
                        // filter by return type
                        .Where(a => a.ReturnType.Name == typeof(T).Name)
-                        .Select(_ => new KeyValuePair<string, Func<T>>(_.Name, () => (T)_.Invoke(null, parameters)));
+                        .Select(a => new KeyValuePair<string, Func<T>>(a.Name, () => (T)a.Invoke(null, parameters)));
         }
 
         public static IEnumerable<KeyValuePair<string, Action>> ToActions<T>(this IEnumerable<KeyValuePair<string, Func<T>>> kvps, Action<T> tr)
@@ -120,7 +120,7 @@ namespace UtilityHelper
 
         public static bool IsNullableType(System.Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
 
-        public static IEnumerable<KeyValuePair<string, Type>> ToKeyValuePairs(IEnumerable<Type> types) => types.Select(_ => new KeyValuePair<string, Type>(_.ToString(), _));
+        public static IEnumerable<KeyValuePair<string, Type>> ToKeyValuePairs(IEnumerable<Type> types) => types.Select(a => new KeyValuePair<string, Type>(a.ToString(), a));
 
 
         public static bool IsNumericType(this Type o)

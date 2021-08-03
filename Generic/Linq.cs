@@ -274,7 +274,7 @@ params System.Collections.IEnumerable[] itemCollections)
             var query = dtable
                    .GroupBy(r => rprop.GetValue(r, null))
                    .GroupBy(c => cprop.GetValue(c, null))
-                   .Select(_ => _.First());
+                   .Select(a => a.First());
 
             return query;
         }
