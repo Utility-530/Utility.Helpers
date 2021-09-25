@@ -23,6 +23,8 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<ApplicationIcon>C:\Users\rytal\Documents\UtilityStandard\UtilityHelper\supporticon.ico</ApplicationIcon>
+		<PackageIcon>supporticon.ico</PackageIcon>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -40,6 +42,13 @@
 	<ItemGroup>
 		<None Remove=".gitattributes" />
 		<None Remove=".gitignore" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\supporticon.ico">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
 	</ItemGroup>
 
 
