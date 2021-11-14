@@ -138,25 +138,37 @@ params System.Collections.IEnumerable[] itemCollections)
             }
         }
 
+        public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source,
+          Func<TSource, TKey> selector)
+        {
+            return source.MaxBy(selector, null);
+        }
+
         // From MoreLinq
-        public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey>? comparer = null)
+        public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source,
+       Func<TSource, TKey> selector, IComparer<TKey> comparer)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
-            comparer ??= Comparer<TKey>.Default;
+            comparer = comparer ?? Comparer<TKey>.Default;
             return ExtremaBy(source, selector, (x, y) => comparer.Compare(x, y));
         }
 
-
+        public static IEnumerable<TSource> MinBy<TSource, TKey>(this IEnumerable<TSource> source,
+  Func<TSource, TKey> selector)
+        {
+            return source.MinBy(selector, null);
+        }
 
         // From MoreLinq
-        public static IEnumerable<TSource> MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey> comparer)
+        public static IEnumerable<TSource> MinBy<TSource, TKey>(this IEnumerable<TSource> source,
+       Func<TSource, TKey> selector, IComparer<TKey> comparer)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
-            comparer ??= Comparer<TKey>.Default;
+            comparer = comparer ?? Comparer<TKey>.Default;
             return ExtremaBy(source, selector, (x, y) => -Math.Sign(comparer.Compare(x, y)));
         }
 
@@ -274,15 +286,16 @@ params System.Collections.IEnumerable[] itemCollections)
             var query = dtable
                    .GroupBy(r => rprop.GetValue(r, null))
                    .GroupBy(c => cprop.GetValue(c, null))
-                   .Select(a => a.First());
+                   .Select(_ => _.First());
 
             return query;
         }
 
-        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacent<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
-            where TKey : notnull
+        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacent<TSource, TKey>(
+         this IEnumerable<TSource> source,
+         Func<TSource, TKey> keySelector)
         {
-            TKey last = default;
+            TKey last = default(TKey);
             bool haveLast = false;
             List<TSource> list = new List<TSource>();
             foreach (TSource s in source)
@@ -292,9 +305,10 @@ params System.Collections.IEnumerable[] itemCollections)
                 {
                     if (!k.Equals(last))
                     {
-                        last = k;
                         yield return new GroupOfAdjacent<TSource, TKey>(list, last);
-                        list = new List<TSource> { s };                     
+                        list = new List<TSource>();
+                        list.Add(s);
+                        last = k;
                     }
                     else
                     {
@@ -310,7 +324,7 @@ params System.Collections.IEnumerable[] itemCollections)
                 }
             }
             if (haveLast)
-                yield return new GroupOfAdjacent<TSource, TKey>(list, last!);
+                yield return new GroupOfAdjacent<TSource, TKey>(list, last);
         }
     }
 

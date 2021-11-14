@@ -32,8 +32,9 @@ namespace UtilityHelper
         public static int GetLineCount(string filename)
         {
             var text = File.OpenText(filename);
-            int i = 0;           
-            while (text.ReadLine() is string)
+            int i = 0;
+            string line = null;
+            while ((line = text.ReadLine()) != null)
             {
                 i++;
             }
@@ -73,7 +74,7 @@ namespace UtilityHelper
             var x = GetFileLines(filename, 0, splitchar);
             var y = x.First();
 
-            var z = x.Skip(1).Select(a => a.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));
+            var z = x.Skip(1).Select(_ => _.Zip(y, (a, b) => new { a, b }).ToDictionary(cc => cc.b, vv => vv.a));
 
             return z.MapToMany<T>();
         }
@@ -85,7 +86,7 @@ namespace UtilityHelper
             var properties = type.GetProperties();
             var result = new StringBuilder();
 
-            var props = properties.Select(a => a.Name);
+            var props = properties.Select(_ => _.Name);
             List<string> rows = new List<string>();
             foreach (var row in data)
             {
@@ -99,9 +100,10 @@ namespace UtilityHelper
             var type = typeof(T);
             var properties = type.GetProperties();
             var result = new StringBuilder();
-            var props = properties.Select(a => a.Name);
+            var props = properties.Select(_ => _.Name);
 
-            return ToCSVString(props.ToArray(), data.Select(a => ToCommaDelimitedRow(a, properties)));
+            return ToCSVString(props.ToArray(), data.Select(_ =>
+            ToCommaDelimitedRow(_, properties)));
         }
 
         public static string ToCSVString(string[] fields, IEnumerable<string> rows)
@@ -118,12 +120,13 @@ namespace UtilityHelper
             return result.ToString();
         }
 
-        public static string ToCommaDelimitedRow<T>(T obj, PropertyInfo[]? properties = null)
+        public static string ToCommaDelimitedRow<T>(T obj, PropertyInfo[] properties = null)
         {
-            return (properties ??= typeof(T).GetProperties())
-                                   .Select(p => p.GetValue(obj, null))
-                                   .Select(v => StringToCSVCell(Convert.ToString(v)))
-                                   .Join(",");
+            properties = properties ?? typeof(T).GetProperties();
+
+            var values = properties.Select(p => p.GetValue(obj, null))
+                                   .Select(v => StringToCSVCell(Convert.ToString(v)));
+            return string.Join(",", values);
         }
 
         private static string StringToCSVCell(string str)
@@ -197,7 +200,7 @@ namespace UtilityHelper
             }
 
             if (combinedheaders.Contains("")) combinedheaders.Remove("");
-            var hdict = combinedheaders.ToDictionary(y => y, y => new List<object?>());
+            var hdict = combinedheaders.ToDictionary(y => y, y => new List<object>());
 
             string[] combinedHeadersArray = combinedheaders.ToArray();
             for (i = 0; i < filePaths.Length; i++)
@@ -254,7 +257,7 @@ namespace UtilityHelper
                 dictbuilder[key] = value;
             });
 
-            return dictbuilder.ToDictionary(a => a.Key, a => a.Value.ToString());
+            return dictbuilder.ToDictionary(_ => _.Key, _ => _.Value.ToString());
         }
 
         public static void WriteToFile<T>(this T[][] data, string file)

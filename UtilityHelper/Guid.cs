@@ -6,11 +6,6 @@ namespace UtilityHelper
 {
     public static class GuidHelper
     {
-        public static string ShortKey(int removeAfter = 6)
-        {
-            return Guid.NewGuid().ToString().Remove(removeAfter);
-        }
-
         public static Guid ToGuid(this string input)
         {
             string text = input.TrimEnd();

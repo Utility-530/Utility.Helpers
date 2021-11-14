@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace UtilityHelper
+namespace Utility
 {
     public static class DataWriter
     {
@@ -38,7 +38,7 @@ namespace UtilityHelper
         {
             foreach (KeyValuePair<string, IDictionary> x in data)
             {
-                output.WriteLine(x.Key);
+                output.WriteLine((string)x.Key);
                 Write(x.Value, output);
             }
         }
@@ -49,7 +49,7 @@ namespace UtilityHelper
             {
                 output.Write((string)pair.Key);
                 output.Write('\t');
-                output.WriteLine((string)pair.Value);
+                output.WriteLine((string?)pair.Value?? throw new System.NullReferenceException("Value null"));
             }
         }
     }

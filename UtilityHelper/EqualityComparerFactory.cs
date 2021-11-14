@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UtilityHelper
+namespace Utility
 {
     public class EqualityComparerFactory
     {
         private sealed class Impl<T> : IEqualityComparer<T>
         {
-            private readonly Func<T, T, bool> Eq;
+            private readonly Func<T?, T?, bool> Eq;
             private readonly Func<T, int> HashFunc;
 
-            public Impl(Func<T, T, bool> eq, Func<T, int> hashFunc)
+            public Impl(Func<T?, T?, bool> eq, Func<T, int> hashFunc)
             {
                 Eq = eq;
                 HashFunc = hashFunc;
             }
 
-            public bool Equals(T left, T right)
+            public bool Equals(T? left, T? right)
             {
                 return Eq(left, right);
             }
@@ -29,19 +29,19 @@ namespace UtilityHelper
         }
 
 
-        public static IEqualityComparer<T> Create<T>(Func<T, T, bool> eq, Func<T, int> hashFunc)
+        public static IEqualityComparer<T> Create<T>(Func<T?, T?, bool> eq, Func<T, int>? hashFunc = default)
         {
-            return new Impl<T>(eq, hashFunc);
+            return new Impl<T>(eq, hashFunc ?? (a => a?.GetHashCode() ?? 0));
         }
 
-        public static IEqualityComparer<T> Create<T, R>(Func<T, R> eq, Func<T, int>? hashFunc = null) where R : notnull
+        public static IEqualityComparer<T> Create<T, R>(Func<T, R> eq, Func<T, int>? hashFunc = default)
         {
-            return new Impl<T>((a, b) => eq(a).Equals(eq(b)), hashFunc ?? (a => 0));
+            return new Impl<T>((a, b) => a != null && b != null && (eq(a)?.Equals(eq(b)) ?? false), hashFunc ?? (a => a?.GetHashCode() ?? 0));
         }
 
-        public static Func<T, int> GuidHasher<T>(Func<T, Guid> guidPredicate)
+        public static IEqualityComparer<T> Create<T>(Func<T, int>? hashFunc = default) where T : IEquatable<T>
         {
-            return t => guidPredicate(t).ToByteArray().Take(3).Aggregate(1, (i, b) => i * b);
+            return new Impl<T>((a, b) => a != null && b != null && a.Equals(b), hashFunc ?? (a => a?.GetHashCode() ?? 0));
         }
     }
 

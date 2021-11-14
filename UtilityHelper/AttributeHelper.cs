@@ -1,10 +1,11 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
-namespace UtilityHelper
+namespace Utility
 {
     public static class AttributeHelper
     {
@@ -33,13 +34,33 @@ namespace UtilityHelper
             throw new Exception($"Member has not attributes of type {typeof(T).Name}");
         }
 
-        public static (bool success, T attribute) GetAttributeSafe<T>(this MemberInfo value) where T : Attribute
+        public static bool TryGetAttribute<T>(this MemberInfo value, out T? attribute) where T : Attribute
+        {
+            T[] attributes = (T[])value.GetCustomAttributes(typeof(T), false);
+
+            var greaterThanZero = attributes?.Length > 0;
+            attribute = greaterThanZero ? (attributes ?? throw new NullReferenceException("f8f  fry "))[0] : default;
+            return greaterThanZero;
+        }
+
+
+        public static bool TryGetAttribute<T>(this MemberInfo value, Type type, out T? attribute) where T : Attribute
+        {
+            T[] attributes = value.GetCustomAttributes(type, false).OfType<T>().ToArray();
+
+            var greaterThanZero = attributes?.Length > 0;
+            attribute = greaterThanZero ? (attributes ?? throw new NullReferenceException("3 sf  fry "))[0] : default;
+            return greaterThanZero;
+        }
+
+
+        public static (bool success, T? attribute) GetAttributeSafe<T>(this MemberInfo value) where T : Attribute
         {
             T[] attributes = (T[])value.GetCustomAttributes(typeof(T), false);
 
             return attributes?.Length > 0 ? (true, attributes[0]) : (false, default)!;
-        }     
-        
+        }
+
 
         public static (bool success, object? attribute) GetAttributeSafe(this MemberInfo value, Type type)
         {
@@ -59,20 +80,29 @@ namespace UtilityHelper
 
         public static string GetAttributeStringPropertySafe<T>(this MemberInfo value, Func<T, string> func) where T : Attribute
         {
-            return GetAttributeSafe<T>(value) is (bool success, T t) && success ? func(t) : value.ToString();
+            return GetAttributeSafe<T>(value) is (bool success, T t) && success ? func(t) : value.ToString()!;
         }
 
         public static string GetAttributeStringPropertySafe(this MemberInfo value, Func<object, string> func, Type type)
         {
-            return GetAttributeSafe(value, type) is (bool success, object t) && success ? func(t) : value.ToString();
+            return GetAttributeSafe(value, type) is (bool success, object t) && success ? func(t) : value.ToString()!;
         }
 
-        public static IEnumerable<Type> FilterByCategoryAttribute(this System.Type[] types, string category) =>
-            types.Where(type =>
-            {
-                var ca = type.GetCustomAttributes(typeof(CategoryAttribute), false).FirstOrDefault();
-                return ca == null ? false :
-                ((CategoryAttribute)ca).Category.Equals(category, StringComparison.OrdinalIgnoreCase);
-            });
+        public static IEnumerable<TMember> FilterByCategoryAttribute<TMember>(this IEnumerable<TMember> members, string category) where TMember : MemberInfo =>
+            FilterByAttribute<CategoryAttribute, TMember>(members, ca => ca?.Category.Equals(category, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        public static IEnumerable<MemberInfo> FilterPropertiesByAttribute<TAttribute>(this Type type, Predicate<TAttribute?> predicate) where TAttribute : Attribute =>
+            FilterByAttribute(type.GetProperties(), predicate);
+
+        public static IEnumerable<Type> FilterByAttribute<TAttribute>(this Type[] types, Predicate<TAttribute?> predicate) where TAttribute : Attribute =>
+            FilterByAttribute(types, predicate);
+
+        public static IEnumerable<TMember> FilterByAttribute<TAttribute, TMember>(this IEnumerable<TMember> members, Predicate<TAttribute?> predicate) where TAttribute : Attribute where TMember : MemberInfo =>
+            from member in members
+            let attibute = member.GetCustomAttributes(typeof(TAttribute), false).FirstOrDefault()
+            where predicate((TAttribute?)attibute)
+            select member;
+
     }
 }
+

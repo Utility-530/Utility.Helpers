@@ -29,7 +29,7 @@ namespace UtilityHelper
 
         public static IEnumerable<T> FilterSelect<T>(this IEnumerable<T> nodes, Func<T, IEnumerable<T>> selector)
         {
-            if (nodes.Any(a => a != null))
+            if (nodes.Any(_ => _ != null))
                 return nodes.Concat(nodes.SelectMany(selector).FilterSelect(selector));
 
             return nodes;
@@ -37,11 +37,11 @@ namespace UtilityHelper
 
         //e.g var flattened = ar.RecursiveSelector(x => x.Children).ToList();
 
-        public static List<IEnumerable<T>>? SelectList<T>(this IEnumerable<T> nodes, Func<T, IEnumerable<T>> selector, List<IEnumerable<T>>? nodesList = null)
+        public static List<IEnumerable<T>> SelectList<T>(this IEnumerable<T> nodes, Func<T, IEnumerable<T>> selector, List<IEnumerable<T>> nodesList = null)
         {
             if (nodes.Any())
             {
-                nodesList?.Add(nodes.SelectMany(selector));
+                nodesList.Add(nodes.SelectMany(selector));
                 nodesList.Last().SelectList(selector, nodesList);
             }
             return nodesList;

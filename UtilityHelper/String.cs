@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,14 +10,6 @@ namespace UtilityHelper
 {
     public static class StringHelper
     {
-        public static string Join(this string value, string seperator) => string.Join(seperator, value);
-
-        public static string Join(this string value, char seperator) => string.Join(seperator, value);
-
-        public static string Join(this IEnumerable<string> value, string seperator) => string.Join(seperator, value);
-
-        public static string Join(this IEnumerable<string> value, char seperator) => string.Join(seperator, value);
-
         public static Stream ToStream(this string[] str)
         {
             MemoryStream stream = new MemoryStream();
@@ -85,7 +76,7 @@ namespace UtilityHelper
 
         public static int ToNumber(this string str)
         {
-            return Encoding.ASCII.GetBytes(str).Select(a => (int)a).Sum();
+            return Encoding.ASCII.GetBytes(str).Select(_ => (int)_).Sum();
         }
 
         public static bool IsDigitsOnly(this string str)
@@ -110,54 +101,6 @@ namespace UtilityHelper
             return false;
         }
 
-
-        public static bool IsAllLetters(string s)
-        {
-            foreach (char c in s)
-            {
-                if (!char.IsLetter(c))
-                    return false;
-            }
-            return true;
-        }
-
-        // Only Numbers:
-
-        public static bool IsAllDigits(string s)
-        {
-            foreach (char c in s)
-            {
-                if (!Char.IsDigit(c))
-                    return false;
-            }
-            return true;
-        }
-
-        //  Only Numbers Or Letters:
-
-        public static bool IsAllLettersOrDigits(string s)
-        {
-            foreach (char c in s)
-            {
-                if (!Char.IsLetterOrDigit(c))
-                    return false;
-            }
-            return true;
-        }
-
-        // Only Numbers Or Letters Or Underscores:
-
-        public static bool IsAllLettersOrDigitsOrUnderscores(string s)
-        {
-            foreach (char c in s)
-            {
-                if (!Char.IsLetterOrDigit(c) && c != '_')
-                    return false;
-            }
-            return true;
-        }
-
-
         public static bool Parse(string s, string format, out DateTime dt)
         {
             return DateTime.TryParseExact(
@@ -181,21 +124,21 @@ namespace UtilityHelper
             return $"{count} {source}s"; ;
         }
 
-        public static string ToDelimited<T>(this IEnumerable<T> source, string delimiter = ",") where T : notnull
+        public static string ToDelimited<T>(this IEnumerable<T> source, string delimiter = ",")
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return string.Join(delimiter, source.WithDelimiter(delimiter));
         }
 
-        public static IEnumerable<string> WithDelimiter<T>(this IEnumerable<T> values, string delimiter) where T : notnull
+        public static IEnumerable<string> WithDelimiter<T>(this IEnumerable<T> source, string delimiter)
         {
-            if (values == null) throw new ArgumentNullException(nameof(values));
-            if (!values.Any())
-                yield return string.Empty;
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            var array = source;//.AsArray();
+            if (!array.Any()) yield return string.Empty;
 
-            yield return values.Select(t => t.ToString()).First();
+            yield return array.Select(t => t.ToString()).First();
 
-            foreach (var item in values.Skip(1))
+            foreach (var item in array.Skip(1))
                 yield return $"{delimiter}{item}";
         }
 
@@ -246,7 +189,7 @@ namespace UtilityHelper
         public static void SetPropertyByType<T>(object obj, T value)
         {
             var properties = obj.GetType().GetProperties();
-            var prop = properties.SingleOrDefault(a => a.PropertyType == typeof(T));
+            var prop = properties.SingleOrDefault(_ => _.PropertyType == typeof(T));
             prop.SetValue(obj, value, null);
         }
 
@@ -379,9 +322,9 @@ namespace UtilityHelper
 
         public static bool IsUrl(this string str)
         {
-            System.Uri uriResult;
-            return System.Uri.TryCreate(str, UriKind.Absolute, out uriResult)
-                && (uriResult.Scheme == System.Uri.UriSchemeHttp || uriResult.Scheme == System.Uri.UriSchemeHttps);
+            Uri uriResult;
+            return Uri.TryCreate(str, UriKind.Absolute, out uriResult)
+                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
         }
 
         //public static string UrlToDomain(this string str)
@@ -469,77 +412,5 @@ namespace UtilityHelper
 
 
         public static string TakeDigits(this string input) => string.Concat(input.Join(Digits, a => a, a => a, (a, b) => a == b ? a : char.MinValue));
-
-
-        [Pure]
-        public static string[] SplitLines(this string input)
-        {
-            var list = new List<string>();
-            using (var reader = new StringReader(input))
-            {
-                string str;
-                while ((str = reader.ReadLine()) != null)
-                {
-                    list.Add(str);
-                }
-            }
-
-            return list.ToArray();
-        }
-
-        [Pure]
-        public static string Replace(this string source, string oldValue, string newValue, StringComparison comparisonType)
-        {
-            // from http://stackoverflow.com/a/22565605 with some adaptions
-            if (string.IsNullOrEmpty(oldValue))
-            {
-                throw new ArgumentNullException(nameof(oldValue));
-            }
-
-            if (source.Length == 0)
-            {
-                return source;
-            }
-
-            if (newValue == null)
-            {
-                newValue = string.Empty;
-            }
-
-            var result = new StringBuilder();
-            int startingPos = 0;
-            int nextMatch;
-            while ((nextMatch = source.IndexOf(oldValue, startingPos, comparisonType)) > -1)
-            {
-                result.Append(source, startingPos, nextMatch - startingPos);
-                result.Append(newValue);
-                startingPos = nextMatch + oldValue.Length;
-            }
-
-            result.Append(source, startingPos, source.Length - startingPos);
-
-            return result.ToString();
-        }
-
-        [Pure]
-        public static string TrimSlashes(this string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                return path;
-            }
-
-            var trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-
-            if (trimmed.Length == 2
-                && char.IsLetter(trimmed[0])
-                && trimmed[1] == ':')
-            {
-                return trimmed + Path.DirectorySeparatorChar;
-            }
-
-            return trimmed;
-        }
     }
 }

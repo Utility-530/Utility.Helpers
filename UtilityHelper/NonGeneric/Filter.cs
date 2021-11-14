@@ -22,17 +22,17 @@ namespace UtilityHelper.NonGeneric
             }
         }
 
-        public static IEnumerable FilterWithNull<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : class, IConvertible
+        public static IEnumerable FilterWithNull<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
         {
-            return data.FilterByIndices(FilterIndex(data, kvps.Select(a => a.Key), kvps.Select(a => a.Value)), true);
+            return data.FilterByIndices(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)), true);
         }
 
-        public static IEnumerable FilterDefault<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : class, IConvertible
+        public static IEnumerable FilterDefault<R>(this IEnumerable data, params KeyValuePair<string, R>[] kvps) where R : IConvertible
         {
-            return data.FilterByIndices(FilterIndex(data, kvps.Select(a => a.Key), kvps.Select(a => a.Value)));
+            return data.FilterByIndices(FilterIndex(data, kvps.Select(_ => _.Key), kvps.Select(_ => _.Value)));
         }
 
-        public static IEnumerable<int> FilterIndex<R>(this IEnumerable data, IEnumerable<string> filter, IEnumerable<R> filterOn) where R : class, IConvertible
+        public static IEnumerable<int> FilterIndex<R>(this IEnumerable data, IEnumerable<string> filter, IEnumerable<R> filterOn) where R : IConvertible
         {
             IEnumerator<string> fenm = (filter).GetEnumerator();
             IEnumerator<R> fenom = (filterOn).GetEnumerator();
@@ -41,8 +41,8 @@ namespace UtilityHelper.NonGeneric
 
             while (fenm.MoveNext() && fenom.MoveNext())
             {
-                var filted = data.GetPropertyRefValues<R>(fenm.Current).ToList();
-                filtered = Generic.Filter.Select(filted.Where(a => a != null).OfType<R>(), fenom.Current).Union(filtered).ToArray();
+                var filted = data.GetPropertyValues<R>(fenm.Current).ToList();
+                filtered = UtilityHelper.Generic.Filter.Get(filted, fenom.Current).Union(filtered).ToArray();
             }
 
             return filtered;

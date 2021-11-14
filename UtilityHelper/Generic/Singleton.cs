@@ -11,7 +11,7 @@ namespace UtilityHelper.Generic
     public static class Singleton<T> where T : class, IDisposable, new()
     {
         private static object lockingObject = new object();
-        private static T? singleTonObject;
+        private static T singleTonObject;
 
         /// <summary>
         /// Returns the singleton instance
@@ -50,7 +50,7 @@ namespace UtilityHelper.Generic
     public static class Singleton2<T> where T : class, new()
     {
         private static object lockingObject = new object();
-        private static T? singleTonObject;
+        private static T singleTonObject;
 
         /// <summary>
         /// Returns the singleton instance

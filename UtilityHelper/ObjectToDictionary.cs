@@ -18,7 +18,7 @@ namespace UtilityHelper
 
             var dictionary = new Dictionary<string, T>();
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(source))
-                AddPropertyToDictionary(property, source!, dictionary);
+                AddPropertyToDictionary<T>(property, source, dictionary);
             return dictionary;
         }
 

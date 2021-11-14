@@ -21,7 +21,7 @@ namespace UtilityHelper
 
         public static string GetCurrentExecutingDirectory()
         {
-            string filePath = new System.Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
+            string filePath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
             return Path.GetDirectoryName(filePath);
         }
 
@@ -106,7 +106,7 @@ namespace UtilityHelper
         public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
             // Get the subdirectories for the specified directory.
-            System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(sourceDirName);
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
 
             if (!dir.Exists)
             {
@@ -115,7 +115,7 @@ namespace UtilityHelper
                     + sourceDirName);
             }
 
-            System.IO.DirectoryInfo[] dirs = dir.GetDirectories();
+            DirectoryInfo[] dirs = dir.GetDirectories();
             // If the destination directory doesn't exist, create it.
             if (!Directory.Exists(destDirName))
             {
@@ -140,7 +140,7 @@ namespace UtilityHelper
             // If copying subdirectories, copy them and their contents to new location.
             if (copySubDirs)
             {
-                foreach (System.IO.DirectoryInfo subdir in dirs)
+                foreach (DirectoryInfo subdir in dirs)
                 {
                     string temppath = Path.Combine(destDirName, subdir.Name);
                     DirectoryCopy(subdir.FullName, temppath, copySubDirs);
@@ -183,7 +183,7 @@ namespace UtilityHelper
                 directory.FullName;
         }
 
-        public static System.IO.DirectoryInfo GetBuildFolderDirectoryInfo(string projectFilePath)
+        public static DirectoryInfo GetBuildFolderDirectoryInfo(string projectFilePath)
         {
             return GetDirectories("Debug").Select(dir => (order: 0, dir))
                  .Concat(GetDirectories("Release").Select(dir => (order: 1, dir)))
@@ -191,7 +191,7 @@ namespace UtilityHelper
                  .Last()
                  .dir;
 
-            IEnumerable<System.IO.DirectoryInfo> GetDirectories(string folderName) =>
+            IEnumerable<DirectoryInfo> GetDirectories(string folderName) =>
                 Directory
                     .GetParent(projectFilePath)
                     .GetDirectories("bin\\" + folderName, SearchOption.AllDirectories);

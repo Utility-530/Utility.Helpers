@@ -2,17 +2,18 @@
 using System.IO;
 using System.Linq;
 
-namespace UtilityHelper
+namespace Utility
 {
-    public static class FileInfoHelper
+    public static class FileHelper
     {
-        public static bool IsFileLocked(this FileInfo file)
+        public static bool IsFileLocked(FileInfo file)
         {
-            FileStream stream = null;
-
             try
             {
-                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
             }
             catch (IOException)
             {
@@ -22,22 +23,9 @@ namespace UtilityHelper
                 //or does not exist (has already been processed)
                 return true;
             }
-            finally
-            {
-                if (stream != null)
-                    stream.Close();
-            }
 
             //file is not locked
             return false;
-        }
-
-        public static string MakeValidFileName(string name)
-        {
-            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
-            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
-
-            return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
         }
 
         public static Uri CreateUri(string relativePath, string assemblyName)

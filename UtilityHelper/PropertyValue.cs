@@ -1,91 +1,61 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using UtilityHelper.NonGeneric;
 
 namespace UtilityHelper
 {
-    public class PropertyCache<R> where R : notnull
+    public class PropertyCache<R>
     {
-
-        private readonly Dictionary<string, PropertyInfo> dictionary = new Dictionary<string, PropertyInfo>();
+        private Type type;
+        private Dictionary<string, PropertyInfo> dictionary = new Dictionary<string, PropertyInfo>();
 
         public PropertyCache()
         {
+            type = typeof(R);
             dictionary = typeof(R).GetProperties().ToDictionary(a => a.Name, a => a);
         }
 
-        public T? GetPropertyValue<T>(R obj, string name) where T : struct => PropertyHelper.GetPropertyValue<T>(obj, dictionary[name]);
-
-        public T? GetPropertyRefValue<T>(R obj, string name) where T : class => PropertyHelper.GetPropertyRefValue<T>(obj, dictionary[name]);
+        public T GetPropertyValue<T>(R obj, string name) => UtilityHelper.PropertyHelper.GetPropertyValue<T>(obj, dictionary[name]);
 
         public IEnumerable<string> GetValues<T>(R obj) => dictionary.Select(a => a.Value.GetValue(obj).ToString());
 
-        public IEnumerable<T?> GetPropertyValues<T>(IEnumerable<R> obj, string name) where T : struct => obj.Select(r => GetPropertyValue<T>(r, name));
-
-        public IEnumerable<T?> GetPropertyRefValues<T>(IEnumerable<R> obj, string name) where T : class => obj.Select(r => GetPropertyRefValue<T>(r, name));
+        public IEnumerable<T> GetPropertyValues<T>(IEnumerable<R> obj, string name) => obj.Select(r => GetPropertyValue<T>(r, name));
 
         public string[] PropertyNames => dictionary.Keys.Cast<string>().ToArray();
     }
 
     public static class PropertyHelper
     {
-        public static T? GetPropertyValue<T>(this object obj, string name, Type? type = null) where T : struct => GetPropertyValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
+        public static T GetPropertyValue<T>(this object obj, string name, Type type = null) => GetPropertyValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
 
-        public static T? GetPropertyRefValue<T>(this object obj, string name, Type? type = null) where T : class => GetPropertyRefValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
+        public static T GetPropertyValue<T, R>(R obj, string name) => GetPropertyValue<T>(obj, typeof(R).GetProperty(name));
 
-        public static T? GetPropertyValue<T, R>(R obj, string name) where T : struct where R : notnull => GetPropertyValue<T>(obj, typeof(R).GetProperty(name));
-
-        public static T? GetPropertyRefValue<T, R>(R obj, string name) where T : class where R : notnull => GetPropertyRefValue<T>(obj, typeof(R).GetProperty(name));
-
-        public static T? GetPropertyValue<T>(this object obj, PropertyInfo? info = null) where T : struct
+        public static T? GetPropertyValue<T>(this object obj, PropertyInfo? info = null)
         {
-            if (info == null)
-                return default;
-            object retval = info.GetValue(obj, null);
-            return retval == null ? default : (T)retval;
+            return (T?)info?.GetValue(obj, null);
         }
 
-        public static T? GetPropertyRefValue<T>(this object obj, PropertyInfo? info = null) where T : class
-        {
-            if (info == null)
-                return default;
-            object retval = info.GetValue(obj, null);
-            return retval == null ? default : (T)retval;
-        }
-
-        public static IEnumerable<T?> GetPropertyRefValues<T, R>(IEnumerable<R> obj, string name) where T : class where R :notnull
+        public static IEnumerable<T> GetPropertyValues<T, R>(IEnumerable<R> obj, string name)
         {
             var x = typeof(R).GetProperty(name);
-            return obj.Select(a => GetPropertyRefValue<T>(a, x));
+            return obj.Select(_ => GetPropertyValue<T>(_, x));
         }
 
-        public static IEnumerable<T?> GetPropertyValues<T, R>(IEnumerable<R> obj, string name) where T : struct where R:notnull
-        {
-            var x = typeof(R).GetProperty(name);
-            return obj.Select(a => GetPropertyValue<T>(a, x));
-        }
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<object> obj, PropertyInfo info = null) => obj.Select(_ => GetPropertyValue<T>(_, info));
 
-        public static IEnumerable<T?> GetPropertyValues<T>(this IEnumerable<object> obj, PropertyInfo? info = null) where T : struct => obj.Select(a => GetPropertyValue<T>(a, info));
-     
-        public static IEnumerable<T?> GetPropertyRefValues<T>(this IEnumerable<object> obj, PropertyInfo? info = null) where T : class => obj.Select(a => GetPropertyRefValue<T>(a, info));
-
-        public static IEnumerable<T?> GetPropertyValues<T>(this IEnumerable obj, PropertyInfo? info = null) where T : class
-        {
-            foreach (var x in obj)
-                yield return GetPropertyRefValue<T>(x, info);
-        }
-
-
-        public static IEnumerable<T?> GetPropertyRefValues<T>(this IEnumerable obj, PropertyInfo? info = null) where T : struct
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable obj, PropertyInfo info = null)
         {
             foreach (var x in obj)
                 yield return GetPropertyValue<T>(x, info);
         }
 
-        public static IEnumerable<T?> GetPropertyValues<T>(this IEnumerable obj, string name, Type? type = null) where T : struct
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable obj, string name, Type type = null)
         {
             type ??= obj.First().GetType();
 
@@ -93,26 +63,26 @@ namespace UtilityHelper
             {
                 var t = typeof(T);
                 foreach (var x in obj)
-                    yield return (T)Convert.ChangeType((x as IDictionary)![name], t);
+                    yield return (T)Convert.ChangeType((x as IDictionary)[name], t);
             }
             else if (type == typeof(System.Data.DataRow))
             {
                 var t = typeof(T);
                 foreach (var x in obj)
                 {
-                    if (x is System.Data.DataRow dataRow)
-                        if (!IsCastableTo(dataRow[name].GetType(), t))
+                    if (!IsCastableTo((x as System.Data.DataRow)[name].GetType(), t))
+                    {
+                        var response = TryChangeType((x as System.Data.DataRow)[name], t);
+                        if (response.IsSuccess)
                         {
-                            var response = TryChangeType(dataRow[name], t);
-                            if (response.IsSuccess)
-                            {
-                                yield return (T?)response.Value;
-                            }
-                            else
-                                yield return (T)Convert.ChangeType(dataRow[name], t); ;
+                            yield return (T)response.Value;
                         }
                         else
-                            yield return (T)(dataRow[name]);
+                            yield return (T)Convert.ChangeType((x as System.Data.DataRow)[name], t); ;
+                    }
+                    else
+                        yield return (T)((x as System.Data.DataRow)[name]);
+                    //(T)Convert.ChangeType(, );
                 }
             }
             else
@@ -123,103 +93,60 @@ namespace UtilityHelper
             }
         }
 
-        public static IEnumerable<T?> GetPropertyRefValues<T>(this IEnumerable obj, string name, Type? type = null) where T : class
-        {
-            type ??= obj.First().GetType();
-
-            if (type.GetInterfaces().Contains(typeof(IDictionary)))
-            {
-                var t = typeof(T);
-                foreach (var x in obj)
-                    yield return (T)Convert.ChangeType((x as IDictionary)![name], t);
-            }
-            else if (type == typeof(System.Data.DataRow))
-            {
-                var t = typeof(T);
-                foreach (var x in obj)
-                {
-                    if (x is System.Data.DataRow dataRow)
-                        if (!IsCastableTo(dataRow[name].GetType(), t))
-                        {
-                            var response = TryChangeType(dataRow[name], t);
-                            if (response.IsSuccess)
-                            {
-                                yield return (T?)response.Value;
-                            }
-                            else
-                                yield return (T)Convert.ChangeType(dataRow[name], t); ;
-                        }
-                        else
-                            yield return (T)(dataRow[name]);
-                }
-            }
-            else
-            {
-                PropertyInfo info = (type).GetProperty(name);
-                foreach (var x in obj)
-                    yield return GetPropertyRefValue<T>(x, info);
-            }
-        }
-
-
-        public static T? GetPropertyValueSafe<T>(object x, string name) where T : class
+        public static T GetPropertyValueSafe<T>(object x, string name)
         {
             var type = x.GetType();
 
             var t = typeof(T);
             if (type == typeof(System.Data.DataRow))
             {
-                System.Data.DataRow dataRow = (x as System.Data.DataRow)!;
-                if (!IsCastableTo(dataRow[name].GetType(), t))
+                if (!PropertyHelper.IsCastableTo((x as System.Data.DataRow)[name].GetType(), t))
                 {
-                    var response = TryChangeType(dataRow[name], t);
+                    var response = PropertyHelper.TryChangeType((x as System.Data.DataRow)[name], t);
                     if (response.IsSuccess)
                     {
-                        return (T?)response.Value;
+                        return (T)response.Value;
                     }
                     else
-                        return (T)Convert.ChangeType(dataRow[name], t);
+                        return (T)Convert.ChangeType((x as System.Data.DataRow)[name], t);
                 }
                 else
-                    return (T)(dataRow[name]);
+                    return (T)((x as System.Data.DataRow)[name]);
             }
             else
             {
                 PropertyInfo info = (type).GetProperty(name);
-                return GetPropertyRefValue<T>(x, info);
+                return PropertyHelper.GetPropertyValue<T>(x, info);
             }
         }
 
-        public static IEnumerable<T?> GetPropertyValuesSafe<T>(this IEnumerable obj, string name, Type? type = null) where T : struct
+        public static IEnumerable<T> GetPropertyValuesSafe<T>(this IEnumerable obj, String name, Type type = null)
         {
-            type ??= obj.First().GetType();
+            type = type ?? obj.First().GetType();
 
             if (type.GetInterfaces().Contains(typeof(IDictionary)))
             {
                 var t = typeof(T);
                 foreach (var x in obj)
-                    yield return (T)Convert.ChangeType((x as IDictionary)![name], t);
+                    yield return (T)Convert.ChangeType((x as IDictionary)[name], t);
             }
             else if (type == typeof(System.Data.DataRow))
             {
                 var t = typeof(T);
                 foreach (var x in obj)
                 {
-                    if (x is System.Data.DataRow dataRow)
+                    if (!PropertyHelper.IsCastableTo((x as System.Data.DataRow)[name].GetType(), t))
                     {
-                        if (!IsCastableTo(dataRow[name].GetType(), t))
+                        var response = PropertyHelper.TryChangeType((x as System.Data.DataRow)[name], t);
+                        if (response.IsSuccess)
                         {
-                            var response = TryChangeType(dataRow[name], t);
-                            if (response.IsSuccess)
-                            {
-                                yield return (T?)response.Value;
-                            }
-                            else
-                                yield return (T)Convert.ChangeType(dataRow[name], t); ;
+                            yield return (T)response.Value;
                         }
                         else
-                            yield return (T)(dataRow)[name];
+                            yield return (T)Convert.ChangeType((x as System.Data.DataRow)[name], t); ;
                     }
+                    else
+                        yield return (T)((x as System.Data.DataRow)[name]);
                     //(T)Convert.ChangeType(, );
                 }
             }
@@ -231,53 +158,9 @@ namespace UtilityHelper
             }
         }
 
-        public static IEnumerable<T?> GetPropertyRefValuesSafe<T>(this IEnumerable obj, string name, Type? type = null) where T : class
+        public static IEnumerable<Dictionary<string, object>> GetPropertyValues(this IEnumerable obj, Dictionary<string, Type>? propnames=default, Type? type = null)
         {
-            type ??= obj.First().GetType();
-
-            if (type.GetInterfaces().Contains(typeof(IDictionary)))
-            {
-                var t = typeof(T);
-                foreach (var x in obj)
-                    yield return (T)Convert.ChangeType((x as IDictionary)![name], t);
-            }
-            else if (type == typeof(System.Data.DataRow))
-            {
-                var t = typeof(T);
-                foreach (var x in obj)
-                {
-                    if (x is System.Data.DataRow dataRow)
-                    {
-                        if (!IsCastableTo(dataRow[name].GetType(), t))
-                        {
-                            var response = TryChangeType(dataRow[name], t);
-                            if (response.IsSuccess)
-                            {
-                                yield return (T?)response.Value;
-                            }
-                            else
-                                yield return (T)Convert.ChangeType(dataRow[name], t); ;
-                        }
-                        else
-                            yield return (T)(dataRow)[name];
-                    }
-                    //(T)Convert.ChangeType(, );
-                }
-            }
-            else
-            {
-                PropertyInfo info = (type).GetProperty(name);
-                foreach (var x in obj)
-                    yield return PropertyHelper.GetPropertyRefValue<T>(x, info);
-            }
-        }
-
-        public static IEnumerable<Dictionary<string, object?>> GetPropertyValues(this IEnumerable obj, Dictionary<string, Type> propnames, Type? type = null) 
-        {
-            var dataRow = obj.First() as System.Data.DataRow;
-            if (dataRow == null)
-                yield break;
-
+            var xs = obj.First();
             type ??= obj.First().GetType();
 
             if (type.GetInterfaces().Contains(typeof(IDictionary)))
@@ -286,47 +169,52 @@ namespace UtilityHelper
                     yield return propnames
                         .ToDictionary(
                         name => name.Key,
-                        name => (object?)Convert.ChangeType((x as IDictionary)![name.Key], name.Value));
+                        name => Convert.ChangeType((x as IDictionary)[name.Key], name.Value));
             }
             else if (type == typeof(System.Data.DataRow))
             {
                 var xx = propnames.ToDictionary(name => name, name =>
                 {
-                    
-                    if (!PropertyHelper.IsCastableTo(dataRow[name.Key].GetType(), name.Value))
-                        return (PropertyHelper.TryChangeType(dataRow[name.Key], name.Value).IsSuccess) ? 1 : 2;
+                    System.Data.DataRow dr = (xs as System.Data.DataRow);
+                    if (!PropertyHelper.IsCastableTo(dr[name.Key].GetType(), name.Value))
+                        return (PropertyHelper.TryChangeType(dr[name.Key], name.Value).IsSuccess) ? 1 : 2;
                     else
                         return 3;
                 });
 
-                foreach (var dr in obj.OfType<System.Data.DataRow>())
+                foreach (var x in obj)
                 {
                     yield return xx.ToDictionary(name => name.Key.Key, name =>
                     {
-                        return name.Value switch
+                        System.Data.DataRow dr = (x as System.Data.DataRow);
+                        switch (name.Value)
                         {
-                            (1) => PropertyHelper.TryChangeType(dr[name.Key.Key], name.Key.Value).Value,
-                            (2) => Convert.ChangeType(dr[name.Key.Key], name.Key.Value),
-                            (3) => dr[name.Key.Key],
-                            _ => null,
-                        };
+                            case (1):
+                                return PropertyHelper.TryChangeType(dr[name.Key.Key], name.Key.Value).Value;
+
+                            case (2):
+                                return Convert.ChangeType(dr[name.Key.Key], name.Key.Value);
+
+                            case (3):
+                                return dr[name.Key.Key];
+
+                            default:
+                                return null;
+                        }
                     });
                 }
             }
             else
             {
-
                 var xx = propnames.ToDictionary(name => name.Key, name => (type).GetProperty(name.Key));
-               
                 foreach (var x in obj)
-                    yield return xx.ToDictionary(name => name.Key, name => GetPropertyRefValue<object>(x, name.Value));
+                    yield return xx.ToDictionary(name => name.Key, name => PropertyHelper.GetPropertyValue<object>(x, name.Value));
             }
         }
 
-
         // https://stackoverflow.com/questions/1399273/test-if-convert-changetype-will-work-between-two-types
         // answered Dec 8 '17 at 16:46Immac
-        public static object? ChangeType(object value, Type conversion)
+        public static object ChangeType(object value, Type conversion)
         {
             var type = conversion;
 
@@ -345,11 +233,14 @@ namespace UtilityHelper
 
         //https://stackoverflow.com/questions/1399273/test-if-convert-changetype-will-work-between-two-types
         // answered Dec 8 '17 at 16:46Immac
-        public static (bool IsSuccess, object? Value) TryChangeType(object value, Type conversionType)
+        public static (bool IsSuccess, object Value) TryChangeType(object value, Type conversionType)
         {
-            (bool IsSuccess, object? Value) response = (false, null);
-            var isNotConvertible = !(value is IConvertible) || !(value.GetType() == conversionType);
-            
+            (bool IsSuccess, object Value) response = (false, null);
+            var isNotConvertible =
+                conversionType == null
+                    || value == null
+                    || !(value is IConvertible)
+                || !(value.GetType() == conversionType);
             if (isNotConvertible)
             {
                 return response;
@@ -433,46 +324,28 @@ namespace UtilityHelper
         //    }
         //}
 
-        public static IEnumerable<T?> GetPropertyValues<T>(this IEnumerable<object> obj, string name, Type? type = null) where T : struct
+        public static IEnumerable<T> GetPropertyValues<T>(this IEnumerable<object> obj, string name, Type type = null)
         {
-            type ??= obj.First().GetType();
+            type = type ?? obj.First().GetType();
 
             if (type.GetInterfaces().Contains(typeof(IDictionary)))
             {
                 var t = typeof(T);
-                return obj.Select(x => (T?)Convert.ChangeType((x as IDictionary)![name], t));
+                return obj.Select(x => (T)Convert.ChangeType((x as IDictionary)[name], t));
             }
             else if (type == typeof(System.Data.DataRow))
             {
                 var t = typeof(T);
-                return obj.Select(x => (T?)Convert.ChangeType((x as System.Data.DataRow)![name], t));
+                return obj.Select(x => (T)Convert.ChangeType((x as System.Data.DataRow)[name], t));
             }
             else
                 return GetPropertyValues<T>(obj, (type).GetProperty(name));
-        }     
-        
-        public static IEnumerable<T?> GetPropertyRefValues<T>(this IEnumerable<object> obj, string name, Type? type = null) where T:class
-        {
-            type ??= obj.First().GetType();
-
-            if (type.GetInterfaces().Contains(typeof(IDictionary)))
-            {
-                var t = typeof(T);
-                return obj.Select(x => (T)Convert.ChangeType((x as IDictionary)![name], t));
-            }
-            else if (type == typeof(System.Data.DataRow))
-            {
-                var t = typeof(T);
-                return obj.Select(x => (T)Convert.ChangeType((x as System.Data.DataRow)![name], t));
-            }
-            else
-                return GetPropertyRefValues<T>(obj, (type).GetProperty(name));
         }
 
         public static bool SetPropertyByType<T>(object obj, T value)
         {
             var properties = obj.GetType().GetProperties();
-            var prop = properties.SingleOrDefault(a => a.PropertyType == typeof(T));
+            var prop = properties.SingleOrDefault(_ => _.PropertyType == typeof(T));
             if (prop != null)
             {
                 prop.SetValue(obj, value, null);
@@ -483,7 +356,7 @@ namespace UtilityHelper
 
         public static void SetValue(object inputObject, string propertyName, object propertyVal, bool ignoreCase = true)
         {
-            PropertyInfo? propertyInfo;
+            System.Reflection.PropertyInfo propertyInfo = null;
             //get the property information based on the
             if (ignoreCase)
                 propertyInfo = inputObject.GetType().GetProperty(propertyName, BindingFlags.SetProperty |
@@ -519,16 +392,16 @@ namespace UtilityHelper
             return (T)obj;
         }
 
-        public static T Map<T>(this Dictionary<string, string> dict, Dictionary<string, Type>? propertytypes = null)
+        public static T Map<T>(this Dictionary<string, string> dict, Dictionary<string, Type> propertytypes = null)
         {
             return (T)MapToObject(dict, typeof(T), propertytypes);
         }
 
-        public static object MapToObject(this Dictionary<string, string> dict, Type type, Dictionary<string, Type>? propertytypes = null)
+        public static object MapToObject(this Dictionary<string, string> dict, Type type, Dictionary<string, Type> propertytypes = null)
         {
             var obj = Activator.CreateInstance(type);
 
-            propertytypes ??= type.GetProperties().ToDictionary(a => a.Name, a => a.PropertyType);
+            propertytypes = propertytypes ?? type.GetProperties().ToDictionary(_ => _.Name, _ => _.PropertyType);
 
             foreach (var kv in dict)
             {
@@ -543,7 +416,7 @@ namespace UtilityHelper
 
         public static IEnumerable<T> MapToMany<T>(this IEnumerable<Dictionary<string, string>> dicts)
         {
-            Dictionary<string, Type> propertytypes = typeof(T).GetProperties().ToDictionary(a => a.Name, a => a.PropertyType);
+            Dictionary<string, Type> propertytypes = typeof(T).GetProperties().ToDictionary(_ => _.Name, _ => _.PropertyType);
 
             foreach (var dict in dicts)
                 yield return dict.Map<T>(propertytypes);
@@ -669,5 +542,83 @@ namespace UtilityHelper
                                                         let value = (T)property.GetValue(myObject)
                                                         where predicate(value)
                                                         select property;
+    }
+
+
+    public static class PocoToDictionary
+    {
+        private static readonly MethodInfo AddToDictionaryMethod = typeof(IDictionary<string, object>).GetMethod("Add");
+        private static readonly ConcurrentDictionary<Type, Func<object, IDictionary<string, object>>> Converters = new ConcurrentDictionary<Type, Func<object, IDictionary<string, object>>>();
+        private static readonly ConstructorInfo DictionaryConstructor = typeof(Dictionary<string, object>).GetConstructors().FirstOrDefault(c => c.IsPublic && !c.GetParameters().Any());
+
+        /// <summary>
+        /// <a href="https://softwareproduction.eu/2018/02/28/fast-conversion-objects-dictionaries-c/"></a>
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static IDictionary<string, object> ToDictionary(this object obj) => obj == null ? null : Converters.GetOrAdd(obj.GetType(), o =>
+        {
+            var outputType = typeof(IDictionary<string, object>);
+            var inputType = obj.GetType();
+            var inputExpression = Expression.Parameter(typeof(object), "input");
+            var typedInputExpression = Expression.Convert(inputExpression, inputType);
+            var outputVariable = Expression.Variable(outputType, "output");
+            var returnTarget = Expression.Label(outputType);
+            var body = new List<Expression>
+        {
+            Expression.Assign(outputVariable, Expression.New(DictionaryConstructor))
+        };
+            body.AddRange(
+                from prop in inputType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
+                where prop.CanRead && (prop.PropertyType.IsPrimitive || prop.PropertyType == typeof(string))
+                let getExpression = Expression.Property(typedInputExpression, prop.GetMethod)
+                let convertExpression = Expression.Convert(getExpression, typeof(object))
+                select Expression.Call(outputVariable, AddToDictionaryMethod, Expression.Constant(prop.Name), convertExpression));
+            body.Add(Expression.Return(returnTarget, outputVariable));
+            body.Add(Expression.Label(returnTarget, Expression.Constant(null, outputType)));
+
+            var lambdaExpression = Expression.Lambda<Func<object, IDictionary<string, object>>>(
+                Expression.Block(new[] { outputVariable }, body),
+                inputExpression);
+
+            return lambdaExpression.Compile();
+        })(obj);
+
+
+        public static Dictionary<string, object> ToDictionary2(object source)
+        {
+            Dictionary<string, object> result = new Dictionary<string, object>();
+
+            string[] keys = { };
+            object[] values = { };
+
+            bool outLoopingKeys = false, outLoopingValues = false;
+
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(source))
+            {
+                object value = property.GetValue(source);
+                if (value is Dictionary<string, object>.KeyCollection)
+                {
+                    keys = ((Dictionary<string, object>.KeyCollection)value).ToArray();
+                    outLoopingKeys = true;
+                }
+                if (value is Dictionary<string, object>.ValueCollection)
+                {
+                    values = ((Dictionary<string, object>.ValueCollection)value).ToArray();
+                    outLoopingValues = true;
+                }
+                if (outLoopingKeys & outLoopingValues)
+                {
+                    break;
+                }
+            }
+
+            for (int i = 0; i < keys.Length; i++)
+            {
+                result.Add(keys[i], values[i]);
+            }
+
+            return result;
+        }
     }
 }

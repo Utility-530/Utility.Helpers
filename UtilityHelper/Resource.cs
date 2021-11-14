@@ -10,7 +10,7 @@ namespace UtilityHelper
 {
     public class ResourceHelper
     {
-        public static Stream GetEmbeddedResource(string endsWith, Assembly? assembly = null)
+        public static Stream GetEmbeddedResource(string endsWith, Assembly assembly = null)
         {
             assembly ??= Assembly.GetEntryAssembly();
 

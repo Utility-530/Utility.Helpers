@@ -67,10 +67,10 @@ namespace UtilityHelper
             return table;
         }
 
-        public static System.Data.DataTable ToDataTable(this IEnumerable<IEnumerable<object>> list, IEnumerable<string>? colNames = null)
+        public static System.Data.DataTable ToDataTable(this IEnumerable<IEnumerable<object>> list, IEnumerable<string> colNames = null)
         {
-            DataTable tmp = new DataTable();
-            DataColumn[]? cols = null;
+            System.Data.DataTable tmp = new System.Data.DataTable();
+            DataColumn[] cols = null;
 
             if (colNames == null)
                 cols = Enumerable.Range(0, list.First().Count()).Select(x => new DataColumn(x.ToString())).ToArray();
@@ -170,7 +170,7 @@ namespace UtilityHelper
                     sb.AppendLine();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Do something
             }
@@ -179,7 +179,7 @@ namespace UtilityHelper
         }
 
         // function that creates a list of an object from the given data table
-        public static List<T> ToList<T>(this System.Data.DataTable tbl, Dictionary<string, string>? replacementDict = null) where T : new()
+        public static List<T> ToList<T>(this System.Data.DataTable tbl, Dictionary<string, string> replacementDict = null) where T : new()
         {
             List<T> lst = new List<T>();
 
@@ -189,7 +189,7 @@ namespace UtilityHelper
             return lst;
         }
 
-        public static T SetItem<T>(this DataRow row, Dictionary<string, string>? replacementDict = null) where T : new()
+        public static T SetItem<T>(this DataRow row, Dictionary<string, string> replacementDict = null) where T : new()
         {
             T item = new T();
             // go through each column
@@ -200,13 +200,12 @@ namespace UtilityHelper
 
                 if (p == null)
                 {
-                    string? val = null;
-                    if (replacementDict?.TryGetValue(c.Caption, out val) ?? false)
+                    if (replacementDict.TryGetValue(c.Caption, out string val))
                         p = item.GetType().GetProperty(val);
                 }
 
                 // if exists, set the value
-                if (p != null && row[c] != DBNull.Value && replacementDict != null)
+                if (p != null && row[c] != DBNull.Value)
                 {
                     if (replacementDict.ContainsKey(c.Caption))
                     {

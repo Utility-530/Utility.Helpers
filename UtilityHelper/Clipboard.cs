@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace UtilityHelper
 {
-    public class ClipboardHelper
+    public class Clipboard
     {
         /// <summary>
         /// Sets clipboard to value.

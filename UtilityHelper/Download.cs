@@ -89,9 +89,9 @@ namespace UtilityHelper
 
         private static async System.Threading.Tasks.Task<string> GetResponse(this HttpClient client, string url, params Tuple<string, string>[] headers)
         {
-            using (var request = new HttpRequestMessage(HttpMethod.Get, new System.Uri(url)))
+            using (var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url)))
             {
-                headers.ForEach(a => request.Headers.TryAddWithoutValidation(a.Item1, a.Item2));
+                headers.ForEach(_ => request.Headers.TryAddWithoutValidation(_.Item1, _.Item2));
                 //request.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");
                 //request.Headers.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
                 //request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");
