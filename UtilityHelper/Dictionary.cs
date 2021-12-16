@@ -44,7 +44,7 @@ namespace UtilityHelper
             return x;
         }
 
-        public static void AddRange<T, K, V>(this IDictionary<K, V> me, params IDictionary<K, V>[] others)
+        public static void AddRange<K, V>(this IDictionary<K, V> me, params IDictionary<K, V>[] others)
         {
             foreach (IDictionary<K, V> src in others)
             {
