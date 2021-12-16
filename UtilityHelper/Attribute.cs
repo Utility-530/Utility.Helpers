@@ -38,8 +38,7 @@ namespace UtilityHelper
             T[] attributes = (T[])value.GetCustomAttributes(typeof(T), false);
 
             return attributes?.Length > 0 ? (true, attributes[0]) : (false, default)!;
-        }     
-        
+        }
 
         public static (bool success, object? attribute) GetAttributeSafe(this MemberInfo value, Type type)
         {

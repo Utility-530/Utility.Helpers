@@ -110,7 +110,6 @@ namespace UtilityHelper
             return false;
         }
 
-
         public static bool IsAllLetters(string s)
         {
             foreach (char c in s)
@@ -156,7 +155,6 @@ namespace UtilityHelper
             }
             return true;
         }
-
 
         public static bool Parse(string s, string format, out DateTime dt)
         {
@@ -390,7 +388,6 @@ namespace UtilityHelper
         //    return DomainName.TryParse(new Uri(str).Host, out completeDomain) ? completeDomain.SLD : "";
         //}
 
-
         private static readonly char[] Digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.' };
 
         public static string ToLineSeparatedString(this IEnumerable<KeyValuePair<string, string>> keyValues)
@@ -421,7 +418,6 @@ namespace UtilityHelper
         {
             return ReplaceAtPosition(text, search, replace, text.IndexOf(search, StringComparison.Ordinal));
         }
-
 
         public static string ReplaceLast(this string text, string search, string replace)
         {
@@ -454,9 +450,6 @@ namespace UtilityHelper
         /// <returns></returns>
         public static string RemoveAtPosition(this string text, string search, int index) => ReplaceAtPosition(text, search, String.Empty, index);
 
-
-
-
         /// <summary>
         /// Remove the digits from start of input.
         /// </summary>
@@ -467,9 +460,7 @@ namespace UtilityHelper
         /// <returns></returns>
         public static string RemoveDigitsFromStart(this string input) => input.TrimStart(Digits);
 
-
         public static string TakeDigits(this string input) => string.Concat(input.Join(Digits, a => a, a => a, (a, b) => a == b ? a : char.MinValue));
-
 
         [Pure]
         public static string[] SplitLines(this string input)
@@ -530,7 +521,6 @@ namespace UtilityHelper
             }
 
             var trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
 
             if (trimmed.Length == 2
                 && char.IsLetter(trimmed[0])

@@ -9,7 +9,6 @@ namespace UtilityHelper
 {
     public class PropertyCache<R> where R : notnull
     {
-
         private readonly Dictionary<string, PropertyInfo> dictionary = new Dictionary<string, PropertyInfo>();
 
         public PropertyCache()
@@ -56,20 +55,20 @@ namespace UtilityHelper
             return retval == null ? default : (T)retval;
         }
 
-        public static IEnumerable<T?> GetPropertyRefValues<T, R>(IEnumerable<R> obj, string name) where T : class where R :notnull
+        public static IEnumerable<T?> GetPropertyRefValues<T, R>(IEnumerable<R> obj, string name) where T : class where R : notnull
         {
             var x = typeof(R).GetProperty(name);
             return obj.Select(a => GetPropertyRefValue<T>(a, x));
         }
 
-        public static IEnumerable<T?> GetPropertyValues<T, R>(IEnumerable<R> obj, string name) where T : struct where R:notnull
+        public static IEnumerable<T?> GetPropertyValues<T, R>(IEnumerable<R> obj, string name) where T : struct where R : notnull
         {
             var x = typeof(R).GetProperty(name);
             return obj.Select(a => GetPropertyValue<T>(a, x));
         }
 
         public static IEnumerable<T?> GetPropertyValues<T>(this IEnumerable<object> obj, PropertyInfo? info = null) where T : struct => obj.Select(a => GetPropertyValue<T>(a, info));
-     
+
         public static IEnumerable<T?> GetPropertyRefValues<T>(this IEnumerable<object> obj, PropertyInfo? info = null) where T : class => obj.Select(a => GetPropertyRefValue<T>(a, info));
 
         public static IEnumerable<T?> GetPropertyValues<T>(this IEnumerable obj, PropertyInfo? info = null) where T : class
@@ -77,7 +76,6 @@ namespace UtilityHelper
             foreach (var x in obj)
                 yield return GetPropertyRefValue<T>(x, info);
         }
-
 
         public static IEnumerable<T?> GetPropertyRefValues<T>(this IEnumerable obj, PropertyInfo? info = null) where T : struct
         {
@@ -160,7 +158,6 @@ namespace UtilityHelper
                     yield return GetPropertyRefValue<T>(x, info);
             }
         }
-
 
         public static T? GetPropertyValueSafe<T>(object x, string name) where T : class
         {
@@ -272,7 +269,7 @@ namespace UtilityHelper
             }
         }
 
-        public static IEnumerable<Dictionary<string, object?>> GetPropertyValues(this IEnumerable obj, Dictionary<string, Type> propnames, Type? type = null) 
+        public static IEnumerable<Dictionary<string, object?>> GetPropertyValues(this IEnumerable obj, Dictionary<string, Type> propnames, Type? type = null)
         {
             var dataRow = obj.First() as System.Data.DataRow;
             if (dataRow == null)
@@ -292,7 +289,6 @@ namespace UtilityHelper
             {
                 var xx = propnames.ToDictionary(name => name, name =>
                 {
-                    
                     if (!PropertyHelper.IsCastableTo(dataRow[name.Key].GetType(), name.Value))
                         return (PropertyHelper.TryChangeType(dataRow[name.Key], name.Value).IsSuccess) ? 1 : 2;
                     else
@@ -315,14 +311,12 @@ namespace UtilityHelper
             }
             else
             {
-
                 var xx = propnames.ToDictionary(name => name.Key, name => (type).GetProperty(name.Key));
-               
+
                 foreach (var x in obj)
                     yield return xx.ToDictionary(name => name.Key, name => GetPropertyRefValue<object>(x, name.Value));
             }
         }
-
 
         // https://stackoverflow.com/questions/1399273/test-if-convert-changetype-will-work-between-two-types
         // answered Dec 8 '17 at 16:46Immac
@@ -349,7 +343,7 @@ namespace UtilityHelper
         {
             (bool IsSuccess, object? Value) response = (false, null);
             var isNotConvertible = !(value is IConvertible) || !(value.GetType() == conversionType);
-            
+
             if (isNotConvertible)
             {
                 return response;
@@ -449,9 +443,9 @@ namespace UtilityHelper
             }
             else
                 return GetPropertyValues<T>(obj, (type).GetProperty(name));
-        }     
-        
-        public static IEnumerable<T?> GetPropertyRefValues<T>(this IEnumerable<object> obj, string name, Type? type = null) where T:class
+        }
+
+        public static IEnumerable<T?> GetPropertyRefValues<T>(this IEnumerable<object> obj, string name, Type? type = null) where T : class
         {
             type ??= obj.First().GetType();
 

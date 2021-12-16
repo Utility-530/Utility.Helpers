@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace UtilityHelper.Test
 {
-    class FL_insurance_sample
+    internal class FL_insurance_sample
     {
         public string policyID { get; set; }
         public StateCode statecode { get; set; }
@@ -29,20 +24,23 @@ namespace UtilityHelper.Test
         public string point_granularity { get; set; }
     }
 
-    enum StateCode
+    internal enum StateCode
     {
         [Description("None")]
         None,
+
         [Description("Florida")]
         FL,
+
         [Description("Alabama")]
         AL,
+
         AK,
         AZ,
         AR
     }
 
-    enum StateCodeBad
+    internal enum StateCodeBad
     {
         None,
         fl_, ak, _a_r

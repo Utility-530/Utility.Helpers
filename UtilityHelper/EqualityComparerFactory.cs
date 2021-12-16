@@ -28,7 +28,6 @@ namespace UtilityHelper
             }
         }
 
-
         public static IEqualityComparer<T> Create<T>(Func<T, T, bool> eq, Func<T, int> hashFunc)
         {
             return new Impl<T>(eq, hashFunc);

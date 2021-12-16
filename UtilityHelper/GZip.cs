@@ -31,7 +31,6 @@ namespace UtilityHelper
             {
                 using (GZipStream zipStream = new GZipStream(fInStream, CompressionMode.Decompress))
                 {
-
                     byte[] tempBytes = new byte[4096];
                     int i;
                     while ((i = zipStream.Read(tempBytes, 0, tempBytes.Length)) != 0)

@@ -133,7 +133,6 @@ namespace UtilityHelper
                 }
                 catch (Exception)
                 {
-
                 }
             }
 

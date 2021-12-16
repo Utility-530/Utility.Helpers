@@ -56,14 +56,12 @@ namespace UtilityHelper
             return Enum.ToObject(type, (names ?? Enum.GetNames(type)).Select((a, i) => new { a, i }).SingleOrDefault(c => c.a == value).i);
         }
 
-
         public static string? GetDescription(this Enum e, bool toStringIfNone = true)
         {
             var fi = e.GetType().GetField(e.ToString());
             var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
             return ((attributes.Length > 0) ? attributes[0].Description : toStringIfNone ? e.ToString() : null);
         }
-
 
         public static IEnumerable<ValueDescription> GetAllValuesAndDescriptions(Type type)
         {
@@ -80,14 +78,13 @@ namespace UtilityHelper
                 }).ToList();
         }
 
-
         public static IEnumerable<ValueDescription<T>> SelectAllValuesAndDescriptions<T>() where T : Enum
         {
             return SelectAllValuesAndDescriptions<T>(typeof(T));
         }
 
         public static IEnumerable<ValueDescription<T>> SelectAllValuesAndDescriptions<T>(this Type type) where T : Enum
-        {        
+        {
             return Enum.GetValues(type).Cast<T>()
                 .Where(e => e.GetAttribute<BrowsableAttribute>()?.Browsable ?? true)
                 .Select(e => new ValueDescription<T>(e.GetDescription(type) ?? e.ToString().Replace("_", " "), e))
@@ -102,7 +99,6 @@ namespace UtilityHelper
             foreach (var e in Enum.GetValues(enumType))
                 yield return GetDescription((Enum)e);
         }
-
 
         /// <summary>
         /// Gets an attribute on an enum field value
@@ -196,7 +192,6 @@ namespace UtilityHelper
         {
             return GetAttribute<T, DescriptionAttribute>(value, type)?.Description;
         }
-
 
         public class ValueDescription
         {

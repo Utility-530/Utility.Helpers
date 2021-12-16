@@ -96,7 +96,6 @@ namespace UtilityHelper
                    where temp.Count() == 0
                    select n;
 
-
         public static bool IsEmpty<T>(this IEnumerable<T> enumerable) => enumerable.Any() == false;
 
         /// <summary>

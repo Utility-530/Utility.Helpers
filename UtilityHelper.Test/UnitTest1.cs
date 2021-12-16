@@ -1,11 +1,10 @@
+using AutoFixture;
 using System;
-
+using System.Collections;
 using System.Data;
 using System.Linq;
-using UtilityHelper.NonGeneric;
-using AutoFixture;
-using System.Collections;
 using UtilityHelper.Generic;
+using UtilityHelper.NonGeneric;
 using Xunit;
 
 namespace UtilityHelper.Test
@@ -22,8 +21,7 @@ namespace UtilityHelper.Test
 
             Assert.Equal(type, newType);
         }
-              
-        
+
         [Fact]
         public void TestMethod1()
         {
@@ -56,25 +54,24 @@ namespace UtilityHelper.Test
         {
             var data = TestMethodCsvDataTable();
             var filtered = data.Rows.FilterWithNull(new System.Collections.Generic.KeyValuePair<string, IConvertible>("construction", "Wood"));
-
         }
 
         [Fact]
-        FL_insurance_sample[] TestMethodCsv()
+        private FL_insurance_sample[] TestMethodCsv()
         {
             return CsvHelper.ReadFromCsv<FL_insurance_sample>("../../Data/FL_insurance_sample.csv").ToArray();
 
             //var filtered = data.FilterIndex(new[] { ((string)filter) }, new[] { (IConvertible)filteron });
         }
+
         [Fact]
-        DataTable TestMethodCsvDataTable()
+        private DataTable TestMethodCsvDataTable()
         {
             var xx = TestMethodCsv();
             var dt = xx.ToDataTable();
             return dt;
             //var filtered = data.FilterIndex(new[] { ((string)filter) }, new[] { (IConvertible)filteron });
         }
-
 
         [Fact]
         public void TestMethodToCsvString()
@@ -94,7 +91,6 @@ namespace UtilityHelper.Test
             var tempfn = System.IO.Path.GetTempFileName();
             System.IO.File.WriteAllText(tempfn, xx);
             var xc = CsvHelper.ReadFromCsv<FL_insurance_sample>(tempfn).ToArray();
-
         }
 
         [Fact]
@@ -110,14 +106,11 @@ namespace UtilityHelper.Test
                             .Select(a => (a.Key, a.First().Item2))
                             .ToDictionary(a => a.Key, a => a.Item2);
             var arr = dict.ToMultiDimensionalArray();
-
         }
-
 
         [Fact]
         public void Test_JoinByName()
         {
-
             var joins = EnumHelper.JoinByName<StateCode, StateCodeBad>().ToArray();
 
             Assert.Equal(10, joins.Length);
@@ -126,17 +119,14 @@ namespace UtilityHelper.Test
         [Fact]
         public void Test_MatchByName()
         {
-
             var match = EnumHelper.MatchByName<StateCodeBad>(StateCode.FL);
 
             Assert.Equal(StateCodeBad.fl_, match);
         }
 
-
         [Fact]
         public void Test_WeeksOfYear()
         {
-
             var match = DateTimeHelper.GetWeeksOfYear(2014).ToArray();
 
             // Assert.AreEqual(match, StateCode2.fl_);
@@ -145,7 +135,6 @@ namespace UtilityHelper.Test
         [Fact]
         public void EnumHelper_GetAllValuesAndDescriptions()
         {
-
             var match = EnumHelper.SelectAllValuesAndDescriptions<StateCode>().ToArray(); //.GetWeeksOfYear(2014).ToArray();
 
             // Assert.AreEqual(match, StateCode2.fl_);
@@ -154,7 +143,6 @@ namespace UtilityHelper.Test
         [Fact]
         public void Test_That_Guid_Int_Conversion_Goes_Both_Ways()
         {
-
             var match = GuidHelper.ToGuid(100);
             var hundred = GuidHelper.ToInt(match);
 
@@ -180,7 +168,6 @@ namespace UtilityHelper.Test
             Assert.Equal(guidDate, date);
         }
 
-
         [Fact]
         public void Test_Merge()
         {
@@ -195,7 +182,6 @@ namespace UtilityHelper.Test
 
             Assert.Equal(match, match2);
         }
-
 
         //[Fact]
         //public void Test_That_GroupBy_Works()
@@ -222,23 +208,16 @@ namespace UtilityHelper.Test
             var l = ass.MissingAssemblyList;
         }
 
-        
         [Fact]
         public void Test_WhereNotNull()
         {
             //var ass = Observable.Return(true);
         }
 
-
         public class Sample
         {
             public DateTime timestamp;
             public double value;
         }
-
     }
-
-
-
-
 }

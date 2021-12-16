@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 
 namespace UtilityHelper
 {
@@ -32,8 +30,6 @@ namespace UtilityHelper
             return false;
         }
 
-
-     
         public static FileInfo AppendToFileName(this FileInfo fileInfo, string appendage)
         {
             string file = Path.GetFileNameWithoutExtension(fileInfo.FullName);

@@ -15,7 +15,6 @@ namespace UtilityHelper
             if (percent <= 0) throw new Exception("percent must be greater than 0");
             if (percent >= 1) throw new Exception("percent must be less than 1");
 
-
             using var e = x.GetEnumerator();
             while (e.MoveNext())
                 if (random.Next() <= percent)
@@ -28,7 +27,6 @@ namespace UtilityHelper
         {
             if (percent <= 0) throw new Exception("percent must be greater than 0");
             if (percent >= 100) throw new Exception("percent must be less than 100");
-
 
             for (int i = 0; i < size; i++)
             {

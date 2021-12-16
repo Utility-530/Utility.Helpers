@@ -32,7 +32,7 @@ namespace UtilityHelper
         public static int GetLineCount(string filename)
         {
             var text = File.OpenText(filename);
-            int i = 0;           
+            int i = 0;
             while (text.ReadLine() is string)
             {
                 i++;

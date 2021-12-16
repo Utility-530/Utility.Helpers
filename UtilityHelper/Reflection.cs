@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace UtilityHelper
 {
@@ -31,13 +30,11 @@ namespace UtilityHelper
                    select Activator.CreateInstance(type) as T;
         }
 
-
         public static IEnumerable<TypeInfo> AllTypes(this IEnumerable<Assembly> assembliesToScan)
         {
             return assembliesToScan
                 .SelectMany(a => a.DefinedTypes);
         }
-
 
         public static IEnumerable RecursivePropertyValues(object e, string path)
         {
@@ -56,11 +53,6 @@ namespace UtilityHelper
             return lst.SelectMany(a => a.Cast<object>());
         }
 
-
-
-
-
-
         public static IEnumerable<(string, Func<object?>)> GetStaticMethods(this Type t, params object[] parameters)
         {
             return t
@@ -74,7 +66,6 @@ namespace UtilityHelper
                     .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                         .Select(m => (m.GetDescription(), new Func<object?>(() => m.Invoke(instance, parameters))));
         }
-
 
         public static string GetDescription(this MethodInfo methodInfo)
         {
@@ -90,14 +81,12 @@ namespace UtilityHelper
             }
             catch (NullReferenceException)
             {
-}
+            }
             return methodInfo.Name;
         }
 
-
-
         ///<summary>
-        /// <a href="https://dotnetcoretutorials.com/2020/07/03/getting-assemblies-is-harder-than-you-think-in-c/"></a> 
+        /// <a href="https://dotnetcoretutorials.com/2020/07/03/getting-assemblies-is-harder-than-you-think-in-c/"></a>
         /// </summary>
         public static IEnumerable<Assembly> GetAssemblies(Predicate<AssemblyName>? predicate = null)
         {

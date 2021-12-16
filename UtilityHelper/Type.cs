@@ -15,10 +15,12 @@ namespace UtilityHelper
             Type your = Type.GetType(nameSpace + "." + name + ", " + assemblyName);
             return your;
         }
+
         public static string[] AsString(this Type type)
         {
             return new[] { type.Assembly.FullName, type.Namespace, type.Name };
         }
+
         public static IEnumerable<Type> Filter<T>() => Filter(typeof(T));
 
         public static IEnumerable<Type> Filter(Type type) =>
@@ -122,7 +124,6 @@ namespace UtilityHelper
 
         public static IEnumerable<KeyValuePair<string, Type>> ToKeyValuePairs(IEnumerable<Type> types) => types.Select(a => new KeyValuePair<string, Type>(a.ToString(), a));
 
-
         public static bool IsNumericType(this Type o)
         {
             switch (Type.GetTypeCode(o))
@@ -150,7 +151,6 @@ namespace UtilityHelper
                 .Cast<object>()
                 .Select(a => a.GetType())
                 .All(a => a.IsClass);
-
 
         public static bool NotOfClassType(this IEnumerable enumerable) =>
             enumerable

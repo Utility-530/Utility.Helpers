@@ -148,8 +148,6 @@ params System.Collections.IEnumerable[] itemCollections)
             return ExtremaBy(source, selector, (x, y) => comparer.Compare(x, y));
         }
 
-
-
         // From MoreLinq
         public static IEnumerable<TSource> MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey> comparer)
         {
@@ -294,7 +292,7 @@ params System.Collections.IEnumerable[] itemCollections)
                     {
                         last = k;
                         yield return new GroupOfAdjacent<TSource, TKey>(list, last);
-                        list = new List<TSource> { s };                     
+                        list = new List<TSource> { s };
                     }
                     else
                     {

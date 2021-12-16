@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace UtilityHelper
 {
-
     /// <summary>
     /// <a href="https://wiert.me/2009/09/14/netc-exceptioncatcher-and-exceptionhelper-gems/"/></a>
     /// </summary>
@@ -17,7 +14,6 @@ namespace UtilityHelper
             ExceptionCatcher exceptionCatcher = new ExceptionCatcher();
             exceptionCatcher.Catch(codeBlock);
             return exceptionCatcher;
-
         }
 
         public static bool Failed(SendOrPostCallback codeBlock)
@@ -33,14 +29,12 @@ namespace UtilityHelper
             bool result = exceptionCatcher.Succeeded(codeBlock);
             return result;
         }
-
     }
 
     public class ExceptionCatcher
     {
         public Exception? Exception { get; private set; }
         public bool Success { get; private set; }
-
 
         public object? Catch(SendOrPostCallback codeBlock)
         {
@@ -92,5 +86,3 @@ namespace UtilityHelper
         }
     }
 }
-
-

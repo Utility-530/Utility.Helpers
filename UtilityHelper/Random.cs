@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace UtilityHelper
 {
@@ -8,7 +7,7 @@ namespace UtilityHelper
     {
         public static double NextPercent(this Random random)
         {
-            return random.Next(100) + random.NextDouble();    
+            return random.Next(100) + random.NextDouble();
         }
 
         public static bool NextBoolean(this Random source)
@@ -22,7 +21,6 @@ namespace UtilityHelper
 
         public static string NextWord(this Random random, int length = 4)
         {
-
             if (length < 1) // do not allow words of zero length
                 throw new ArgumentException("Length must be greater than 0");
 
