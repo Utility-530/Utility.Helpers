@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<Nullable>enable</Nullable>
-		<Icon>supporticon.ico</Icon>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Authors>Declan Taylor</Authors>
 
@@ -23,8 +22,10 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<ApplicationIcon>C:\Users\rytal\Documents\UtilityStandard\UtilityHelper\supporticon.ico</ApplicationIcon>
-		<PackageIcon>supporticon.ico</PackageIcon>
+		<!--<ApplicationIcon>C:\Users\rytal\source\repos\UtilityStandard\UtilityHelper\settings.png</ApplicationIcon>-->
+		<Icon>supporticon.ico</Icon>
+		<PackageIcon>settings.png</PackageIcon>
+		<ApplicationIcon>supporticon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -46,6 +47,10 @@
 
 	<ItemGroup>
 	  <None Include="..\supporticon.ico">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>	
+		<None Include="..\settings.png">
 	    <Pack>True</Pack>
 	    <PackagePath></PackagePath>
 	  </None>

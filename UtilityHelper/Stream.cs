@@ -16,6 +16,7 @@ namespace UtilityHelper
 
         public static void OverWriteFile(this Stream stream, string path)
         {
+            Directory.GetParent(path).Create();
             using FileStream fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             fileStream.SetLength(0);
             stream.CopyTo(fileStream);
