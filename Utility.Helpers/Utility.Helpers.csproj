@@ -23,7 +23,6 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<!--<ApplicationIcon>C:\Users\rytal\source\repos\UtilityStandard\Utility.Helper\settings.png</ApplicationIcon>-->
 		<Icon>supporticon.ico</Icon>
 		<PackageIcon>settings.png</PackageIcon>
 		<ApplicationIcon>supporticon.ico</ApplicationIcon>
