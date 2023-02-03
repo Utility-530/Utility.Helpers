@@ -491,9 +491,8 @@ namespace Utility.Helpers
             //if the property type is nullable, we need to get the underlying type of the property
             var targetType = IsNullableType(propertyInfo.PropertyType) ? Nullable.GetUnderlyingType(propertyInfo.PropertyType) : propertyInfo.PropertyType;
 
-            //Returns an System.Object with the specified System.Type and whose value is
-            //equivalent to the specified object.
-            propertyVal = Convert.ChangeType(propertyVal, targetType);
+            if (targetType.IsAssignableFrom(propertyVal.GetType()) == false)
+                propertyVal = Convert.ChangeType(propertyVal, targetType);
 
             //Set the value of the property
             propertyInfo.SetValue(inputObject, propertyVal, null);

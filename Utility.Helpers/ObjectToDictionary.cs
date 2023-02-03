@@ -6,12 +6,12 @@ namespace Utility.Helpers
 {
     public static class ObjectToDictionaryMapper
     {
-        public static IDictionary<string, object> ToDictionary(this object source)
+        public static Dictionary<string, object> ToDictionary(this object source)
         {
             return source.ToDictionary<object>();
         }
 
-        public static IDictionary<string, T> ToDictionary<T>(this object source)
+        public static Dictionary<string, T> ToDictionary<T>(this object source)
         {
             if (source == null)
                 ThrowExceptionWhenSourceArgumentIsNull();
@@ -20,6 +20,12 @@ namespace Utility.Helpers
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(source))
                 AddPropertyToDictionary(property, source!, dictionary);
             return dictionary;
+
+
+            static void ThrowExceptionWhenSourceArgumentIsNull()
+            {
+                throw new ArgumentNullException("source", "Unable to convert object to a dictionary. The source object is null.");
+            }
         }
 
         private static void AddPropertyToDictionary<T>(PropertyDescriptor property, object source, Dictionary<string, T> dictionary)
@@ -34,9 +40,21 @@ namespace Utility.Helpers
             return value is T;
         }
 
-        private static void ThrowExceptionWhenSourceArgumentIsNull()
+        public static object ToObject(this Dictionary<string, object> dict, Type type)
         {
-            throw new ArgumentNullException("source", "Unable to convert object to a dictionary. The source object is null.");
+            var obj = Activator.CreateInstance(type);
+            foreach (var kv in dict)
+            {
+                if (kv.Value != null)
+                    PropertyHelper.SetValue(obj, kv.Key, kv.Value);
+            }
+            return obj;
         }
+
+        public static T ToObject<T>(this Dictionary<string, object> dict)
+        {
+            return (T)ToObject(dict, typeof(T));
+        }
+
     }
 }
