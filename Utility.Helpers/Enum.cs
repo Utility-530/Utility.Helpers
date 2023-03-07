@@ -158,6 +158,15 @@ namespace Utility.Helpers
             return (T)Enum.ToObject(typeof(T), lValue);
         }
 
+        public static Enum CombineFlags(this IEnumerable<Enum> flags, Type type)
+        {
+            long lValue = flags
+                .Select(flag => Convert.ToInt64(flag))
+                .Aggregate<long, long>(0, (current, lFlag) => current | lFlag);
+
+            return (Enum)Enum.ToObject(type, lValue);
+        }
+
         public static bool IsEqualToDefault(this Enum value)
         {
             var type = value.GetType();
