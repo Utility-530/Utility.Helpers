@@ -123,12 +123,22 @@ namespace Utility.Helpers
             return (lValue & lFlag) != 0;
         }
 
+        [Obsolete("Use 'SeparateFlag'")]
         public static IEnumerable<T> GetFlags<T>(this T value) where T : Enum
         {
             return from enm in Enum.GetValues(typeof(T)).Cast<T>()
                    where value.IsFlagSet(enm)
                    select enm;
         }
+
+
+        public static IEnumerable<T> SeparateFlag<T>(this T value) where T : Enum
+        {
+            return from enm in Enum.GetValues(typeof(T)).Cast<T>()
+                   where value.IsFlagSet(enm)
+                   select enm;
+        }
+             
 
         public static T SetFlags<T>(this T value, T flags, bool on) where T : Enum
         {
@@ -149,19 +159,29 @@ namespace Utility.Helpers
 
         public static T ClearFlags<T>(this T value, T flags) where T : Enum => value.SetFlags(flags, false);
 
+
+
+        public static T CombineFlags<T>() where T : struct, Enum
+        {
+            var x = Enum.GetValues(typeof(T)).Cast<T>().Select(a => Convert.ToInt64(a));
+            return (T)x.CombineFlags(typeof(T));
+        }
+
+
         public static T CombineFlags<T>(this IEnumerable<T> flags) where T : Enum
         {
-            long lValue = flags
-                .Select(flag => Convert.ToInt64(flag))
-                .Aggregate<long, long>(0, (current, lFlag) => current | lFlag);
-
-            return (T)Enum.ToObject(typeof(T), lValue);
+            return (T)CombineFlags(flags    .Select(flag => Convert.ToInt64(flag)), typeof(T));
         }
 
         public static Enum CombineFlags(this IEnumerable<Enum> flags, Type type)
         {
+            return CombineFlags(flags
+                .Select(flag => Convert.ToInt64(flag)), type);
+        }
+
+        public static Enum CombineFlags(this IEnumerable<long> flags, Type type)
+        {
             long lValue = flags
-                .Select(flag => Convert.ToInt64(flag))
                 .Aggregate<long, long>(0, (current, lFlag) => current | lFlag);
 
             return (Enum)Enum.ToObject(type, lValue);
