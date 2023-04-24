@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 
 namespace Utility.Helpers
@@ -7,7 +9,7 @@ namespace Utility.Helpers
     /// <a href="https://wiert.me/2009/09/14/netc-exceptioncatcher-and-exceptionhelper-gems/"/></a>
     /// </summary>
 
-    public class ExceptionHelper
+    public static class ExceptionHelper
     {
         public static ExceptionCatcher Catch(SendOrPostCallback codeBlock)
         {
@@ -28,6 +30,42 @@ namespace Utility.Helpers
             ExceptionCatcher exceptionCatcher = new ExceptionCatcher();
             bool result = exceptionCatcher.Succeeded(codeBlock);
             return result;
+        }
+
+        public static string CombineMessages(this Exception exception)
+        {
+            return exception.CombineMessages(Environment.NewLine);
+        }
+
+        public static string CombineMessages(this System.Exception exception, string separator)
+        {
+            if (exception == null)
+            {
+                return null;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            AppendMessages(sb, exception, separator);
+            return sb.ToString().Replace("..", ".");
+        }
+
+        private static void AppendMessages(StringBuilder sb, Exception e, string separator)
+        {
+            if (e == null)
+            {
+                return;
+            }
+
+            // this one is not interesting...
+            if (!(e is TargetInvocationException))
+            {
+                if (sb.Length > 0)
+                {
+                    sb.Append(separator);
+                }
+                sb.Append(e.Message);
+            }
+            AppendMessages(sb, e.InnerException, separator);
         }
     }
 
@@ -84,5 +122,7 @@ namespace Utility.Helpers
                 exceptionString = string.Empty;
             return result;
         }
+
+
     }
 }

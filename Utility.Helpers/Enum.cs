@@ -8,6 +8,36 @@ namespace Utility.Helpers
 {
     public static class EnumHelper
     {
+        public static bool IsEnumOrNullableEnum(this Type type, out Type enumType, out bool nullable)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            nullable = false;
+            if (type.IsEnum)
+            {
+                enumType = type;
+                return true;
+            }
+
+            if (type.Name == typeof(Nullable<>).Name)
+            {
+                Type[] args = type.GetGenericArguments();
+                if (args.Length == 1 && args[0].IsEnum)
+                {
+                    enumType = args[0];
+                    nullable = true;
+                    return true;
+                }
+            }
+
+            enumType = null;
+            return false;
+        }
+
+
         public static T MatchByName<T>(Enum r) where T : struct
         {
             var name = r.ToString().ToLowerInvariant().Remove("_");

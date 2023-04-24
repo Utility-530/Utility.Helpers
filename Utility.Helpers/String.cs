@@ -531,5 +531,52 @@ namespace Utility.Helpers
 
             return trimmed;
         }
+
+
+        public static string Nullify(this string thisString)
+        {
+            return thisString.Nullify(true);
+        }
+
+        public static string Nullify(this string thisString, bool trim)
+        {
+            if (string.IsNullOrWhiteSpace(thisString))
+            {
+                return null;
+            }
+
+            return trim ? thisString.Trim() : thisString;
+        }
+
+        public static bool EqualsIgnoreCase(this string thisString, string text)
+        {
+            return thisString.EqualsIgnoreCase(text, false);
+        }
+
+        public static bool EqualsIgnoreCase(this string thisString, string text, bool trim)
+        {
+            if (trim)
+            {
+                thisString = thisString.Nullify(true);
+                text = text.Nullify(true);
+            }
+
+            if (thisString == null)
+            {
+                return text == null;
+            }
+
+            if (text == null)
+            {
+                return false;
+            }
+
+            if (thisString.Length != text.Length)
+            {
+                return false;
+            }
+
+            return string.Compare(thisString, text, StringComparison.OrdinalIgnoreCase) == 0;
+        }
     }
 }

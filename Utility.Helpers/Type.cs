@@ -214,5 +214,114 @@ namespace Utility.Helpers
                 .Cast<object>()
                 .Select(a => a.GetType())
                 .All(a => a.IsClass == false);
+
+
+        public static Type GetElementType(this Type collectionType)
+        {
+            if (collectionType == null)
+            {
+                throw new ArgumentNullException("collectionType");
+            }
+
+            foreach (Type iface in collectionType.GetInterfaces())
+            {
+                if (!iface.IsGenericType)
+                {
+                    continue;
+                }
+
+                if (iface.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+                {
+                    return iface.GetGenericArguments()[1];
+                }
+
+                if (iface.GetGenericTypeDefinition() == typeof(IList<>))
+                {
+                    return iface.GetGenericArguments()[0];
+                }
+
+                if (iface.GetGenericTypeDefinition() == typeof(ICollection<>))
+                {
+                    return iface.GetGenericArguments()[0];
+                }
+
+                if (iface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    return iface.GetGenericArguments()[0];
+                }
+            }
+            return typeof(object);
+        }
+
+        public static int GetEnumMaxPower(this Type enumType)
+        {
+            if (enumType == null)
+            {
+                throw new ArgumentNullException("enumType");
+            }
+
+            if (!enumType.IsEnum)
+            {
+                throw new ArgumentException(null, "enumType");
+            }
+
+            Type utype = Enum.GetUnderlyingType(enumType);
+            return GetEnumUnderlyingTypeMaxPower(utype);
+        }
+
+        public static int GetEnumUnderlyingTypeMaxPower(this Type underlyingType)
+        {
+            if (underlyingType == null)
+            {
+                throw new ArgumentNullException("underlyingType");
+            }
+
+            if (underlyingType == typeof(long) || underlyingType == typeof(ulong))
+            {
+                return 64;
+            }
+
+            if (underlyingType == typeof(int) || underlyingType == typeof(uint))
+            {
+                return 32;
+            }
+
+            if (underlyingType == typeof(short) || underlyingType == typeof(ushort))
+            {
+                return 16;
+            }
+
+            if (underlyingType == typeof(byte) || underlyingType == typeof(sbyte))
+            {
+                return 8;
+            }
+
+            throw new ArgumentException(null, "underlyingType");
+        }
+
+        public static bool IsFlagsEnum(this Type type)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            if (!type.IsEnum)
+            {
+                return false;
+            }
+
+            return type.IsDefined(typeof(FlagsAttribute), true);
+        }
+
+        public static bool IsNullable(this Type type)
+        {
+            if (type == null)
+            {
+                return false;
+            }
+
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
     }
 }

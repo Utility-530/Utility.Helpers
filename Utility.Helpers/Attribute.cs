@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security;
 
 namespace Utility.Helpers
 {
@@ -73,5 +75,73 @@ namespace Utility.Helpers
                 return ca == null ? false :
                 ((CategoryAttribute)ca).Category.Equals(category, StringComparison.OrdinalIgnoreCase);
             });
+
+
+
+        public static T GetAttribute<T>(this ICustomAttributeProvider provider) where T : Attribute
+        {
+            if (provider == null)
+            {
+                return null;
+            }
+
+            object[] o = provider.GetCustomAttributes(typeof(T), true);
+            if (o == null || o.Length == 0)
+            {
+                return null;
+            }
+
+            return (T)o[0];
+        }
+
+        public static string ConvertToUnsecureString(this SecureString securePassword)
+        {
+            if (securePassword == null)
+                throw new ArgumentNullException("securePassword");
+
+            IntPtr unmanagedString = IntPtr.Zero;
+            try
+            {
+                unmanagedString = Marshal.SecureStringToGlobalAllocUnicode(securePassword);
+                return Marshal.PtrToStringUni(unmanagedString);
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
+            }
+        }
+
+        public static T GetAttribute<T>(this MemberDescriptor descriptor) where T : Attribute
+        {
+            if (descriptor == null)
+            {
+                return null;
+            }
+
+            return descriptor.Attributes.GetAttribute<T>();
+        }
+
+        public static T GetAttribute<T>(this AttributeCollection attributes) where T : Attribute
+        {
+            if (attributes == null)
+            {
+                return null;
+            }
+
+            foreach (object att in attributes)
+            {
+                if (typeof(T).IsAssignableFrom(att.GetType()))
+                {
+                    return (T)att;
+                }
+            }
+            return null;
+        }
+
+        public static IEnumerable<T> GetAttributes<T>(this MemberInfo element) where T : Attribute
+        {
+            return (IEnumerable<T>)Attribute.GetCustomAttributes(element, typeof(T));
+        }
+
     }
 }
