@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<Nullable>enable</Nullable>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Authors>Declan Taylor</Authors>
 
 		<Company />
@@ -40,6 +40,12 @@
 		<AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
 		<InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Deprecated\**" />
+	  <EmbeddedResource Remove="Deprecated\**" />
+	  <None Remove="Deprecated\**" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Remove=".gitattributes" />
