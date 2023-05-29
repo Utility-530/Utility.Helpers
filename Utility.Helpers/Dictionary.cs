@@ -16,7 +16,7 @@ namespace Utility.Helpers
         /// <param name="dic">The dictionary to call this method on.</param>
         /// <param name="key">The key to look up.</param>
         /// <returns>The key value. null if this key is not in the dictionary.</returns>
-        public static TValue GetValueOrNew<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key) where TValue : new()
+        public static TValue GetValueOrNew<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key) where TValue : new()
         {
             TValue result;
             var x = dic.TryGetValue(key, out result) ? result : new TValue();
@@ -34,7 +34,7 @@ namespace Utility.Helpers
         /// <param name="dic">The dictionary to call this method on.</param>
         /// <param name="key">The key to look up.</param>
         /// <returns>The key value. null if this key is not in the dictionary.</returns>
-        public static TValue GetValueOrNew<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue value)
+        public static TValue GetValueOrNew<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, TValue value)
         {
             TValue result;
             var x = dic.TryGetValue(key, out result) ? result : value;
@@ -44,7 +44,9 @@ namespace Utility.Helpers
             return x;
         }
 
-        public static void AddRange<K, V>(this IDictionary<K, V> me, params IDictionary<K, V>[] others)
+
+
+            public static void AddRange<K, V>(this IDictionary<K, V> me, params IDictionary<K, V>[] others)
         {
             foreach (IDictionary<K, V> src in others)
             {
@@ -65,7 +67,7 @@ namespace Utility.Helpers
         /// <param name="D1">System.Collections.Generic.Dictionary 1</param>
         /// <param name="D2">System.Collections.Generic.Dictionary 2</param>
         /// <returns>The combined dictionaries.</returns>
-        public static Dictionary<T1, T2> UnionDictionaries<T1, T2>(Dictionary<T1, T2> D1, Dictionary<T1, T2> D2) where T2 : notnull
+        public static Dictionary<T1, T2> UnionDictionaries<T1, T2>(IDictionary<T1, T2> D1, IDictionary<T1, T2> D2) where T2 : notnull
         {
             Dictionary<T1, T2> rd = new Dictionary<T1, T2>(D1);
             foreach (var key in D2.Keys)
@@ -104,7 +106,7 @@ namespace Utility.Helpers
             });
         }
 
-        public static dynamic ToDynamic<T>(this Dictionary<string, T> dict)
+        public static dynamic ToDynamic<T>(this IDictionary<string, T> dict)
         {
             IDictionary<string, object?> eo = new System.Dynamic.ExpandoObject();
             foreach (KeyValuePair<string, T> kvp in dict)
