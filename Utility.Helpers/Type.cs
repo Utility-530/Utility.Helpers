@@ -10,6 +10,20 @@ namespace Utility.Helpers
 {
     public static class TypeHelper
     {
+        public static Type[] GenericTypes(this Type? type)
+        {
+            if (type == null)
+                return Array.Empty<Type>();
+
+            if (type?.IsGenericType == true)
+            {
+                return type.GetGenericArguments();
+            }
+            else
+                return GenericTypes(type?.BaseType);
+
+        }
+
         public static Type ToType(string assemblyName, string nameSpace, string name)
         {
             Type your = Type.GetType(nameSpace + "." + name + ", " + assemblyName);
