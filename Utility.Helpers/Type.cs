@@ -10,7 +10,7 @@ namespace Utility.Helpers
 {
     public static class TypeHelper
     {
-        public static Type[] GenericTypes(this Type? type)
+        public static Type[] GenericTypeArguments(this Type? type)
         {
             if (type == null)
                 return Array.Empty<Type>();
@@ -20,7 +20,7 @@ namespace Utility.Helpers
                 return type.GetGenericArguments();
             }
             else
-                return GenericTypes(type?.BaseType);
+                return GenericTypeArguments(type?.BaseType);
 
         }
 
