@@ -162,7 +162,7 @@ namespace Utility.Helpers
         }
 
 
-        public static IEnumerable<T> SeparateFlag<T>(this T value) where T : Enum
+        public static IEnumerable<T> SeparateFlags<T>(this T value) where T : Enum
         {
             return from enm in Enum.GetValues(typeof(T)).Cast<T>()
                    where value.IsFlagSet(enm)

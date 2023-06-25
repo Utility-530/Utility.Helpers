@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Utility.Helpers
 {
@@ -47,17 +48,17 @@ namespace Utility.Helpers
 
         public static string RemoveLineEndings(this string value)
         {
-            if (String.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
                 return value;
             }
             string lineSeparator = ((char)0x2028).ToString();
             string paragraphSeparator = ((char)0x2029).ToString();
 
-            return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("\t", String.Empty);
+            return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("\t", string.Empty);
         }
 
-        public static String ReduceWhitespace(this String value)
+        public static string ReduceWhitespace(this string value)
         {
             var newString = new StringBuilder();
             bool previousIsWhitespace = false;
@@ -448,7 +449,7 @@ namespace Utility.Helpers
         /// <param name="replace"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public static string RemoveAtPosition(this string text, string search, int index) => ReplaceAtPosition(text, search, String.Empty, index);
+        public static string RemoveAtPosition(this string text, string search, int index) => ReplaceAtPosition(text, search, string.Empty, index);
 
         /// <summary>
         /// Remove the digits from start of input.
@@ -577,6 +578,11 @@ namespace Utility.Helpers
             }
 
             return string.Compare(thisString, text, StringComparison.OrdinalIgnoreCase) == 0;
+        }
+
+        public static string TakeLast(this string mystring, int N)
+        {
+            return mystring.Substring(mystring.Length - N);
         }
     }
 }
