@@ -24,10 +24,23 @@ namespace Utility.Helpers
 
         }
 
+        public static string AsString(string assemblyName, string nameSpace, string name)
+        {
+            return nameSpace + "." + name + ", " + assemblyName;
+        }
         public static Type ToType(string assemblyName, string nameSpace, string name)
         {
-            Type your = Type.GetType(nameSpace + "." + name + ", " + assemblyName);
-            return your;
+            return Type.GetType(AsString(assemblyName, nameSpace, name));
+        }
+
+        public static string AsString(this Type type)
+        {
+            return AsString(type.Assembly.ToString(), type.Namespace, type.Name);
+        }
+
+        public static (string? assembly, string? @namespace, string name) AsTuple(this Type type)
+        {
+            return (type.Assembly.FullName, type.Namespace, type.Name);
         }
 
         public static T? OfType<T>(object value, Type? type = null)
@@ -87,10 +100,6 @@ namespace Utility.Helpers
             }
         }
 
-        public static string[] AsString(this Type type)
-        {
-            return new[] { type.Assembly.FullName, type.Namespace, type.Name };
-        }
 
         public static IEnumerable<Type> Filter<T>() => Filter(typeof(T));
 
