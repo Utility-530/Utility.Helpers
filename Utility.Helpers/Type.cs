@@ -206,24 +206,11 @@ namespace Utility.Helpers
 
         public static bool IsNumericType(this Type o)
         {
-            switch (Type.GetTypeCode(o))
+            return Type.GetTypeCode(o) switch
             {
-                case TypeCode.Byte:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Single:
-                    return true;
-
-                default:
-                    return false;
-            }
+                TypeCode.Byte or TypeCode.SByte or TypeCode.UInt16 or TypeCode.UInt32 or TypeCode.UInt64 or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 or TypeCode.Decimal or TypeCode.Double or TypeCode.Single => true,
+                _ => false,
+            };
         }
 
         public static bool OfClassType(this IEnumerable enumerable) =>
@@ -346,5 +333,49 @@ namespace Utility.Helpers
 
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
+
+        public static bool IsDerivedFrom<T>(this Type type)
+        {
+            return typeof(T).IsAssignableFrom(type);
+        }
+
+        public static IEnumerable<Type> GetTypesFromTheSameAssembly(this IEnumerable<Type> types, Predicate<Type>? predicate = default)
+        {
+            return types.SelectMany(a => a.Assembly.GetTypes()).Where(a => predicate?.Invoke(a) ?? true);
+        }
+
+
+        /// <summary>
+        /// Checks whether all types in an enumerable are the same.
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <returns></returns>
+        public static bool OfSameType(this IEnumerable enumerable) => OfSameType(enumerable, out Type _);
+
+        /// <summary>
+        /// Checks whether all types in an enumerable are the same.
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool OfSameType(this IEnumerable enumerable, out Type type)
+        {
+            var (t, sameType) =
+                enumerable
+                    .Cast<object>()
+                    .Select(a => a.GetType())
+                    .AggregateUntil(
+                        (type: default(Type), sameType: true),
+                        (a, b) => (b, a.type == null || a.type == b),
+                        a => !a.sameType);
+            type = t!;
+            return sameType;
+        }
+
+        public static bool IsDerivedFromGenericType(this Type type, Type interfaceType)
+        {
+            return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
+        }
     }
+
 }
