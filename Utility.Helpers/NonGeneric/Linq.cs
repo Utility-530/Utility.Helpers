@@ -34,6 +34,31 @@ namespace Utility.Helpers.NonGeneric
             return c;
         }
 
+        public static object? ElementAt(this IEnumerable source, int index)
+        {
+            if (source is Array col)
+                return col.GetValue(index);
+
+            int c = 0;
+            var e = source.GetEnumerator();
+            object? element = null;
+
+            DynamicUsing(e, () =>
+            {
+                while (e.MoveNext())
+                {
+                    if (c == index)
+                    {
+                        element = e.Current;
+                        break;
+                    }
+                    c++;
+                }
+            });
+
+            return element;
+        }
+
         //public static int Count(this IEnumerable enumerable)
         //{
         //    IEnumerator enumerator = enumerable.GetEnumerator();

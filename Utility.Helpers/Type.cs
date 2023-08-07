@@ -5,10 +5,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Utility.Helpers
 {
-    public static class TypeHelper
+    public static partial class TypeHelper
     {
         public static Type[] GenericTypeArguments(this Type? type)
         {
@@ -20,7 +21,7 @@ namespace Utility.Helpers
                 return type.GetGenericArguments();
             }
             else
-                return GenericTypeArguments(type?.BaseType);
+                return (type?.BaseType).GenericTypeArguments();
 
         }
 
@@ -31,6 +32,24 @@ namespace Utility.Helpers
         public static Type ToType(string assemblyName, string nameSpace, string name)
         {
             return Type.GetType(AsString(assemblyName, nameSpace, name));
+        }
+
+        public static Type FromString(this string typeSerialised)
+        {
+            //Regex.Match(typeSerialised, "(.*)\\.(.*), (.*)");
+            return Type.GetType(typeSerialised);
+        }
+        public static string ToName(this string typeSerialised)
+        {  
+            return MyRegex().Match(typeSerialised).Groups[1].Value;
+        }
+        public static string ToNameSpace(this string typeSerialised)
+        {
+            return MyRegex().Match(typeSerialised).Groups[0].Value;
+        }
+        public static Assembly ToAssembly(this string typeSerialised)
+        {
+            return Assembly.LoadFrom(MyRegex().Match(typeSerialised).Groups[2].Value);
         }
 
         public static string AsString(this Type type)
@@ -105,14 +124,14 @@ namespace Utility.Helpers
 
         public static IEnumerable<Type> Filter(Type type) =>
 
-        from domainAssembly in System.AppDomain.CurrentDomain.GetAssemblies()
+        from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
         from assemblyType in domainAssembly.GetTypes()
-        where type.IsAssignableFrom(assemblyType) && type != (assemblyType)
+        where type.IsAssignableFrom(assemblyType) && type != assemblyType
         select assemblyType;
 
         public static string GetDescription<T>()
         {
-            return GetDescription(typeof(T));
+            return typeof(T).GetDescription();
         }
 
         public static string GetDescription(this Type type)
@@ -200,30 +219,17 @@ namespace Utility.Helpers
 
         public static Type[] GetTypesByAssembly(this Type t) => t.Assembly.GetTypes();
 
-        public static bool IsNullableType(System.Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
+        public static bool IsNullableType(Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
 
         public static IEnumerable<KeyValuePair<string, Type>> ToKeyValuePairs(IEnumerable<Type> types) => types.Select(a => new KeyValuePair<string, Type>(a.ToString(), a));
 
         public static bool IsNumericType(this Type o)
         {
-            switch (Type.GetTypeCode(o))
+            return Type.GetTypeCode(o) switch
             {
-                case TypeCode.Byte:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Single:
-                    return true;
-
-                default:
-                    return false;
-            }
+                TypeCode.Byte or TypeCode.SByte or TypeCode.UInt16 or TypeCode.UInt32 or TypeCode.UInt64 or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 or TypeCode.Decimal or TypeCode.Double or TypeCode.Single => true,
+                _ => false,
+            };
         }
 
         public static bool OfClassType(this IEnumerable enumerable) =>
@@ -289,7 +295,7 @@ namespace Utility.Helpers
             }
 
             Type utype = Enum.GetUnderlyingType(enumType);
-            return GetEnumUnderlyingTypeMaxPower(utype);
+            return utype.GetEnumUnderlyingTypeMaxPower();
         }
 
         public static int GetEnumUnderlyingTypeMaxPower(this Type underlyingType)
@@ -346,5 +352,52 @@ namespace Utility.Helpers
 
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
+
+        public static bool IsDerivedFrom<T>(this Type type)
+        {
+            return typeof(T).IsAssignableFrom(type);
+        }
+
+        public static IEnumerable<Type> GetTypesFromTheSameAssembly(this IEnumerable<Type> types, Predicate<Type>? predicate = default)
+        {
+            return types.SelectMany(a => a.Assembly.GetTypes()).Where(a => predicate?.Invoke(a) ?? true);
+        }
+
+
+        /// <summary>
+        /// Checks whether all types in an enumerable are the same.
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <returns></returns>
+        public static bool OfSameType(this IEnumerable enumerable) => enumerable.OfSameType(out Type _);
+
+        /// <summary>
+        /// Checks whether all types in an enumerable are the same.
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool OfSameType(this IEnumerable enumerable, out Type type)
+        {
+            var (t, sameType) =
+                enumerable
+                    .Cast<object>()
+                    .Select(a => a.GetType())
+                    .AggregateUntil(
+                        (type: default(Type), sameType: true),
+                        (a, b) => (b, a.type == null || a.type == b),
+                        a => !a.sameType);
+            type = t!;
+            return sameType;
+        }
+
+        public static bool IsDerivedFromGenericType(this Type type, Type interfaceType)
+        {
+            return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
+        }
+
+        [GeneratedRegex("(.*)\\.(.*), (.*)")]
+        private static partial Regex MyRegex();
     }
+
 }
