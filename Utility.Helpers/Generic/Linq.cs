@@ -11,7 +11,16 @@ namespace Utility.Helpers.Generic
             return items.Where(pss => f(pss) < dt).MaxBy(ps => f(ps)).First();
         }
 
-        public static void RemoveLast<T>(this ICollection<T> collection, int n)
+        public static void RemoveFirst<T>(this ICollection<T> collection, int n = 1)
+        {
+            var x = collection.Take(n);
+            foreach (var y in x)
+            {
+                collection.Remove(y);
+            }
+        }
+
+        public static void RemoveLast<T>(this ICollection<T> collection, int n = 1)
         {
             var x = collection.TakeLast(n);
             foreach (var y in x)
@@ -129,14 +138,6 @@ params System.Collections.IEnumerable[] itemCollections)
             }
         }
 
-        public static void RemoveFirst<T>(this ICollection<T> collection, int n)
-        {
-            var x = collection.Take(n);
-            foreach (var y in x)
-            {
-                collection.Remove(y);
-            }
-        }
 
         // From MoreLinq
         public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey>? comparer = null)
