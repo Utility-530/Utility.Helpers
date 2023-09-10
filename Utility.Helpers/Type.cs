@@ -40,7 +40,7 @@ namespace Utility.Helpers
             return Type.GetType(typeSerialised);
         }
         public static string ToName(this string typeSerialised)
-        {  
+        {
             return MyRegex().Match(typeSerialised).Groups[1].Value;
         }
         public static string ToNameSpace(this string typeSerialised)
@@ -396,8 +396,73 @@ namespace Utility.Helpers
             return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
         }
 
+
+
         [GeneratedRegex("(.*)\\.(.*), (.*)")]
         private static partial Regex MyRegex();
     }
 
+
+    namespace Types
+    {
+        public static class InheritanceHelper
+        {
+
+            public static IEnumerable<Type> Ancestors(this Type type, bool includeInitial = true)
+            {
+                if (type == null)
+                {
+                    throw new ArgumentException("Tklokuk");
+                }
+                if (type == typeof(object))
+                {
+                    if (includeInitial)
+                    {
+                        yield return type;
+                    }
+
+                    yield break;
+                }
+
+                yield return type;
+
+                foreach (Type itemType in Ancestors(type.BaseType))
+                {
+                    yield return itemType;
+                }
+            }
+
+            /// <summary>
+            /// <a href="https://stackoverflow.com/questions/67394080/how-to-compute-the-level-of-inheritance-for-two-types"></a>
+            /// </summary>
+            public static int CompareLevel(this Type baseType, Type derivedType)
+            {
+                if (baseType == derivedType)
+                {
+                    return 0;
+                }
+
+                if (derivedType == typeof(object) || derivedType == null)
+                {
+                    throw new ArgumentException("The two types are not related by inheritance!");
+                }
+                return 1 + CompareLevel(baseType, derivedType.BaseType);
+            }
+
+            public static int CountLevels(this Type type)
+            {
+                if (type == null)
+                {
+                    throw new ArgumentException("Tklokuk");
+                }
+                if (type == typeof(object))
+                {
+                    return 0;
+                }
+
+                return 1 + CountLevels(type.BaseType);
+            }
+
+        }
+    }
 }
