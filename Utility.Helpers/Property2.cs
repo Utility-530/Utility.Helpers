@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace Utility.Helpers
 {
@@ -12,6 +10,19 @@ namespace Utility.Helpers
     /// </summary>
     public static class PropertyHelper2
     {
+
+        //public static PropertyDescriptor GetPropertyDescriptor(PropertyInfo PropertyInfo)
+        //{
+        //    return TypeDescriptor.GetProperties(PropertyInfo.DeclaringType).Item(PropertyInfo.Name);
+        //}
+        public static PropertyDescriptor ToPropertyDescriptor(this PropertyInfo propertyInfo)
+        { 
+            return TypeDescriptor.GetProperties(propertyInfo.DeclaringType)[propertyInfo.Name];
+        }
+
+        public static PropertyDescriptor? PropertyDescriptor(this object target, [CallerMemberName] string propertyName = "") =>
+            TypeDescriptor.GetProperties(target.GetType()).Find(propertyName, ignoreCase: false);
+
         /// <summary>
         /// Returns a _private_ Property Value from a given Object. Uses Reflection.
         /// Throws a ArgumentOutOfRangeException if the Property is not found.
