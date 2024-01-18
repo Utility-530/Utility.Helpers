@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Utility.Helpers
@@ -11,18 +12,27 @@ namespace Utility.Helpers
             return Guid.NewGuid().ToString().Remove(removeAfter);
         }
 
-        public static Guid ToGuid(this string input)
+        //public static Guid ToGuid(this string input)
+        //{
+        //    string text = input.TrimEnd();
+
+        //    if (text.Length <= 16)
+        //    {
+        //        text += new string(Enumerable.Range(0, 16 - text.Length).Select(_ => ' ').ToArray());
+        //        byte[] hash = Encoding.Default.GetBytes(text);
+        //        return new Guid(hash);
+        //    }
+
+        //    return new Guid(text);
+        //}
+
+        public static Guid ToGuid(this string value)
         {
-            string text = input.TrimEnd();
-
-            if (text.Length <= 16)
-            {
-                text += new string(Enumerable.Range(0, 16 - text.Length).Select(_ => ' ').ToArray());
-                byte[] hash = Encoding.Default.GetBytes(text);
-                return new Guid(hash);
-            }
-
-            return new Guid(text);
+            // Create a new instance of the MD5CryptoServiceProvider object.
+            MD5 md5Hasher = MD5.Create();
+            // Convert the input string to a byte array and compute the hash.
+            byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(value));
+            return new Guid(data);
         }
 
         public static Guid ToGuid(this long input)
