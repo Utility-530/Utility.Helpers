@@ -37,6 +37,11 @@ namespace Utility.Helpers
             return false;
         }
 
+        public static bool IsNullableEnum(this Type t)
+        {
+            Type u = Nullable.GetUnderlyingType(t);
+            return (u != null) && u.IsEnum;
+        }
 
         public static T MatchByName<T>(Enum r) where T : struct
         {
