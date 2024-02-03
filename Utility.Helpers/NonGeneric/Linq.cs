@@ -76,6 +76,12 @@ namespace Utility.Helpers.NonGeneric
         //    enumerator.MoveNext();
         //    return enumerator.Current;
         //}
+        public static bool Any(this IEnumerable enumerable)
+        {
+            IEnumerator enumerator = enumerable.GetEnumerator();            
+            return enumerator.MoveNext();
+        }
+
 
         public static object First(this IEnumerable enumerable)
         {
