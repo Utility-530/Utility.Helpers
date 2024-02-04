@@ -39,7 +39,7 @@ namespace Utility.Helpers.NonGeneric
             if (source is Array col)
                 return col.GetValue(index);
 
-            int c = 0;
+            int i = 0;
             var e = source.GetEnumerator();
             object? element = null;
 
@@ -47,16 +47,38 @@ namespace Utility.Helpers.NonGeneric
             {
                 while (e.MoveNext())
                 {
-                    if (c == index)
+                    if (i == index)
                     {
                         element = e.Current;
                         break;
                     }
-                    c++;
+                    i++;
                 }
             });
 
             return element;
+        }
+
+        public static int IndexOf(this IEnumerable source, Func<object, object> keySelector, object key)
+        {
+            int i = 0;
+            int index = -1;
+            var e = source.GetEnumerator();
+
+            DynamicUsing(e, () =>
+            {
+                while (e.MoveNext())
+                {
+                    if (keySelector(e.Current) == key)
+                    {
+                        index = i;
+                        break;
+                    }
+                    i++;
+                }
+            });
+
+            return index;
         }
 
         //public static int Count(this IEnumerable enumerable)
@@ -78,7 +100,7 @@ namespace Utility.Helpers.NonGeneric
         //}
         public static bool Any(this IEnumerable enumerable)
         {
-            IEnumerator enumerator = enumerable.GetEnumerator();            
+            IEnumerator enumerator = enumerable.GetEnumerator();
             return enumerator.MoveNext();
         }
 
