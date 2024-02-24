@@ -11,6 +11,12 @@ namespace Utility.Helpers
 {
     public static partial class TypeHelper
     {
+        public static bool IsValueOrString(this Type type)
+        {
+            return type?.IsValueType == true || type == typeof(string);
+        }
+
+
         public static Type[] GenericTypeArguments(this Type? type)
         {
             if (type == null)
