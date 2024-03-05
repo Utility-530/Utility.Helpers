@@ -35,6 +35,8 @@ namespace Utility.Helpers
         {
             return nameSpace + "." + name + ", " + assemblyName;
         }
+
+
         public static Type ToType(string assemblyName, string nameSpace, string name)
         {
             return Type.GetType(AsString(assemblyName, nameSpace, name));
@@ -61,6 +63,19 @@ namespace Utility.Helpers
         public static string AsString(this Type type)
         {
             return AsString(type.Assembly.ToString(), type.Namespace, type.Name);
+        }
+
+        public static string Serialise(this MethodInfo methodInfo)
+        {
+
+            return AsString(methodInfo.DeclaringType) + " - " + methodInfo.Name;
+        }
+        
+        public static MethodInfo DeserialiseMethod(this string methodInfo)
+        {
+            var regex = new Regex("(.*) - (.*)");
+            var match = regex.Match(methodInfo);
+            return FromString(match.Groups[1].Value).GetMethod(match.Groups[2].Value);
         }
 
         public static (string? assembly, string? @namespace, string name) AsTuple(this Type type)
