@@ -71,11 +71,15 @@ namespace Utility.Helpers
             return AsString(methodInfo.DeclaringType) + " - " + methodInfo.Name;
         }
         
-        public static MethodInfo DeserialiseMethod(this string methodInfo)
+        public static MethodInfo? DeserialiseMethod(this string methodInfo)
         {
-            var regex = new Regex("(.*) - (.*)");
+            Regex regex = new ("(.*) - (.*)");
             var match = regex.Match(methodInfo);
-            return FromString(match.Groups[1].Value).GetMethod(match.Groups[2].Value);
+            if (match.Success)
+            {
+                return FromString(match.Groups[1].Value).GetMethod(match.Groups[2].Value);
+            }
+            return null;
         }
 
         public static (string? assembly, string? @namespace, string name) AsTuple(this Type type)
