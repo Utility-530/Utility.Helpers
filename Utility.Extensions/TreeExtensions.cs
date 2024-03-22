@@ -5,7 +5,6 @@
     using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using Utility.Changes;
-    using Utility.Helpers.NonGeneric;
     using Utility.Interfaces.NonGeneric;
     using Utility.Trees;
     using Utility.Trees.Abstractions;
@@ -40,12 +39,7 @@
                 return disposables;
             });
         }
-        public static IEnumerable<ITree<T>> ToTree<T, K>(this IEnumerable<T> collection, Func<T, K> id_selector, Func<T, K> parent_id_selector, K? root_id = default)
-        {
-            return ToTree(collection, id_selector, parent_id_selector, a => (ITree<T>)new Tree<T>(a), root_id);
 
-        }
-        
         public static IEnumerable<TTree> ToTree<T, K, TTree>(this IEnumerable<T> collection, Func<T, K> id_selector, Func<T, K> parent_id_selector, Func<T, TTree> conversion, K? root_id = default) where TTree : Utility.Interfaces.Generic.IAdd<TTree>
         {
 
@@ -96,25 +90,131 @@
               );
             return disposable;
         }
-
-        public static void Visit<T>(this ITree<T> tree, Action<ITree<T>> action)
+        public static ITree Create(object data)
         {
-            action(tree);
-            foreach (var item in (tree as IEnumerable<ITree<T>>))
-                Visit(item, action);
+            return new Tree(data);
         }
 
-        public static void Visit<T>(this T tree, Func<T, IEnumerable<T>> children, Action<T> action)
+        public static ITree Create(object data, params ITree[] items)
         {
-            action(tree);
-            foreach (var item in children(tree))
-                Visit(item, children, action);
+            return new Tree(data, items);
         }
 
-        public static bool IsRoot<T>(this ITree<T> tree) => tree.Parent == null;
+        public static ITree Create(object data, params object[] items)
+        {
+            return new Tree(data, items);
+        }
 
-        public static bool IsLeaf<T>(this ITree<T> tree) => tree.Count() == 0;
+        public static void Visit(this ITree tree, Action<ITree> action)
+        {
+            action(tree);
+            if (tree.HasItems)
+                foreach (var item in tree)
+                    Visit(item, action);
+        }
 
-        public static int Level<T>(this ITree<T> tree) => tree.IsRoot() ? 0 : tree.Parent.Level() + 1;
+        public static void VisitAncestors(this ITree tree, Action<ITree> action)
+        {
+            action(tree);
+            if (tree.Parent is ITree parent)
+                parent.VisitAncestors(action);
+        }
+
+
+        public static void VisitDescendants(this IReadOnlyTree tree, Action<IReadOnlyTree> action)
+        {
+            action(tree);
+
+            foreach (var item in tree.Items)
+            {
+                if (item is IReadOnlyTree t)
+                    t.VisitDescendants(action);
+            }
+        }
+
+
+        public static IReadOnlyTree? MatchAncestor(this IReadOnlyTree tree, Predicate<IReadOnlyTree> action)
+        {
+            if (action(tree))
+            {
+                return tree;
+            }
+
+            if (tree.Parent is IReadOnlyTree parent)
+            {
+                return parent.MatchAncestor(action);
+            }
+
+
+            return null;
+        }
+
+
+        public static IReadOnlyTree? MatchDescendant(this IReadOnlyTree tree, Predicate<IReadOnlyTree> action)
+        {
+            if (action(tree))
+            {
+                return tree;
+            }
+            List<IReadOnlyTree> trees = new();
+            var items = tree.Items;
+            while (tree is ITree { HasMoreChildren: true })
+            {
+
+            }
+            foreach (var child in tree.Items)
+                if (child is IReadOnlyTree tChild)
+                {
+                    if (action(tChild))
+                    {
+                        return tChild;
+                    }
+                    else
+                        trees.Add(tChild);
+                }
+                else
+                    throw new Exception("c 333211");
+
+
+            foreach (var c in trees)
+            {
+                if (c.MatchDescendant(action) is { } match)
+                    return match;
+            }
+            return null;
+        }
+
+        public static bool IsRoot(this ITree tree)
+        {
+            return tree.Index.IsEmpty;
+        }
+
+        public static IEnumerable<IReadOnlyTree> Ancestors(this IReadOnlyTree tree)
+        {
+            IReadOnlyTree parent = tree.Parent;
+            while (parent != null)
+            {
+                yield return parent;
+                parent = parent.Parent;
+            }
+        }
+
+        public static IEnumerable<IReadOnlyTree> MatchAncestors(this IReadOnlyTree tree, Predicate<IReadOnlyTree> predicate)
+        {
+            if (predicate(tree))
+            {
+                yield return tree;
+            }
+            IReadOnlyTree parent = tree.Parent;
+            while (parent != null)
+            {
+                if (predicate(parent))
+                    yield return parent;
+                parent = parent.Parent;
+            }
+        }
+
+
+
     }
 }
