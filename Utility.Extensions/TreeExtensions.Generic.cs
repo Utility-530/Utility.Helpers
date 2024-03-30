@@ -1,4 +1,5 @@
-﻿using Utility.Helpers.NonGeneric;
+﻿using Utility.Helpers.Generic;
+using Utility.Helpers.NonGeneric;
 using Utility.Trees;
 using Utility.Trees.Abstractions;
 
@@ -8,9 +9,19 @@ namespace Utility.Extensions
     {
         public static IEnumerable<ITree<T>> ToTree<T, K>(this IEnumerable<T> collection, Func<T, K> id_selector, Func<T, K> parent_id_selector, K? root_id = default)
         {
-            return TreeExtensions.ToTree(collection, id_selector, parent_id_selector, a => (ITree<T>)new Tree<T>(a), root_id);
+            return ToTree(collection, id_selector, parent_id_selector, a => (ITree<T>)new Tree<T>(a), root_id);
         }
 
+        public static IEnumerable<TTree> ToTree<T, K, TTree>(this IEnumerable<T> collection, Func<T, K> id_selector, Func<T, K> parent_id_selector, Func<T, TTree> conversion, K? root_id = default) where TTree : Utility.Interfaces.Generic.IAdd<TTree>
+        {
+
+            foreach (var item in collection.Where(c => EqualityComparer<K>.Default.Equals(parent_id_selector(c), root_id)))
+            {
+                var tree = conversion(item);
+                yield return tree;
+                ToTree(collection, id_selector, parent_id_selector, conversion, id_selector(item)).ForEach(tree.Add);
+            }
+        }
         public static void Visit<T>(this T tree, Func<T, IEnumerable<T>> children, Action<T> action)
         {
             action(tree);
@@ -22,7 +33,7 @@ namespace Utility.Extensions
 
         public static bool IsLeaf<T>(this ITree<T> tree) => tree.Count() == 0;
 
-        public static int Level<T>(this ITree<T> tree) => tree.IsRoot() ? 0 : tree.Parent.Level() + 1;
+        //public static int Level<T>(this ITree<T> tree) => tree.IsRoot() ? 0 : tree.Parent.Level() + 1;
 
         public static void Add<T>(this ITree<T> tree, T data)
         {

@@ -40,30 +40,19 @@
             });
         }
 
-        public static IEnumerable<TTree> ToTree<T, K, TTree>(this IEnumerable<T> collection, Func<T, K> id_selector, Func<T, K> parent_id_selector, Func<T, TTree> conversion, K? root_id = default) where TTree : Utility.Interfaces.Generic.IAdd<TTree>
-        {
-
-            foreach (var item in collection.Where(c => EqualityComparer<K>.Default.Equals(parent_id_selector(c), root_id)))
-            {
-                var tree = conversion(item);
-                yield return tree;
-                ToTree(collection, id_selector, parent_id_selector, conversion, id_selector(item)).ForEach(tree.Add);
-            }
-        }
-
-        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property) where TR : IReadOnlyTree, IEquatable
+        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property) where TR : IItems
         {
             return ExploreTree(items, funcAdd, funcRemove, funcClear, property, (TR a) => true);
         }
 
-        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Predicate<TR> predicate) where TR : IReadOnlyTree, IEquatable
+        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Predicate<TR> predicate) where TR : IItems
         {
             return ExploreTree(items, funcAdd, funcRemove, funcClear, property, a => a.Items.Changes<TR>(), predicate);
         }
 
-        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Func<TR, IObservable<Set<TR>>> func, Predicate<TR> predicate) where TR : IEquatable
+        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Func<TR, IObservable<Set<TR>>> func, Predicate<TR> funcPredicate) 
         {
-            if (predicate(property) == false)
+            if (funcPredicate(property) == false)
                 return Disposable.Empty;
 
             items = funcAdd(items, property);
@@ -74,7 +63,7 @@
                     foreach (var item in args)
                     {
                         if (item is Change { Type: Type.Add, Value: TR value })
-                            _ = ExploreTree(items, funcAdd, funcRemove, funcClear, value, func, predicate);
+                            _ = ExploreTree(items, funcAdd, funcRemove, funcClear, value, func, funcPredicate);
                         else if (item is Change { Type: Type.Remove, Value: TR _value })
                             funcRemove(items, _value);
                         else if (item is Change { Type: Type.Reset })
@@ -90,6 +79,9 @@
               );
             return disposable;
         }
+
+
+
         public static ITree Create(object data)
         {
             return new Tree(data);
@@ -112,8 +104,15 @@
                 foreach (var item in tree)
                     Visit(item, action);
         }
-
-        public static void VisitAncestors(this ITree tree, Action<ITree> action)
+        
+        public static void Visit<T>(this T tree, Func<T, IEnumerable<T>> children, Action<T> action)
+        { 
+            action(tree);
+            foreach (var item in children(tree))
+                Visit(item, children, action);
+        }
+        
+        public static void VisitAncestors(this IReadOnlyTree tree, Action<IReadOnlyTree> action)
         {
             action(tree);
             if (tree.Parent is ITree parent)
@@ -182,6 +181,40 @@
                     return match;
             }
             return null;
+        }
+
+
+        public static IEnumerable<IReadOnlyTree> MatchDescendants(this IReadOnlyTree tree, Predicate<IReadOnlyTree> action)
+        {
+            if (action(tree))
+            {
+                yield return tree;
+            }
+            List<IReadOnlyTree> trees = new();
+            var items = tree.Items;
+            while (tree is ITree { HasMoreChildren: true })
+            {
+
+            }
+            foreach (var child in tree.Items)
+                if (child is IReadOnlyTree tChild)
+                {
+                    if (action(tChild))
+                    {
+                        yield return tChild;
+                    }
+                    else
+                        trees.Add(tChild);
+                }
+                else
+                    throw new Exception("c 333211");
+
+
+            foreach (var c in trees)
+            {
+               foreach(var match in c.MatchDescendants(action))
+                    yield return match;
+            }
         }
 
         public static bool IsRoot(this ITree tree)
