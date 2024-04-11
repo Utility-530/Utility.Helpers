@@ -6,6 +6,27 @@ namespace Utility.Helpers.NonGeneric
 {
     public static class Linq
     {
+
+        public static IEnumerable ForEach(this IEnumerable collection, Action<object> action)
+        {
+            if (collection is IList list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    action(list[i]);
+                }
+            }
+            else
+            {
+                foreach (var item in collection)
+                {
+                    action(item);
+                }
+            }
+
+            return collection;
+        }
+
         public static void DynamicUsing(object resource, Action action)
         {
             try
@@ -110,6 +131,23 @@ namespace Utility.Helpers.NonGeneric
             IEnumerator enumerator = enumerable.GetEnumerator();
             enumerator.MoveNext();
             return enumerator.Current;
+        }
+
+
+        public static object? FirstOrDefault(this IEnumerable enumerable, Predicate<object> predicate)
+        {
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext())
+                if (predicate(enumerator.Current))
+                    return enumerator.Current;
+            return null;
+        }
+        public static IEnumerable Where(this IEnumerable enumerable, Predicate<object> predicate)
+        {
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext())
+                if (predicate(enumerator.Current))
+                    yield return enumerator.Current;
         }
 
         public static IEnumerable<bool> MoveAll(this IEnumerable<IEnumerator> enumerators)

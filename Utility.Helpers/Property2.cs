@@ -16,7 +16,7 @@ namespace Utility.Helpers
         //    return TypeDescriptor.GetProperties(PropertyInfo.DeclaringType).Item(PropertyInfo.Name);
         //}
         public static PropertyDescriptor ToPropertyDescriptor(this PropertyInfo propertyInfo)
-        { 
+        {
             return TypeDescriptor.GetProperties(propertyInfo.DeclaringType)[propertyInfo.Name];
         }
 
@@ -136,21 +136,26 @@ namespace Utility.Helpers
         /// <param name="propName">Field name as string.</param>
         /// <param name="val">the value to set</param>
         /// <exception cref="ArgumentOutOfRangeException">if the Property is not found</exception>
-        public static void SetPrivateFieldValue<T>(this object obj, string propName, T val)
+        public static bool SetPrivateFieldValue<T>(this object obj, string fieldName, T val)
         {
             if (obj == null) throw new ArgumentNullException("obj");
             Type t = obj.GetType();
             FieldInfo fi = null;
             while (fi == null && t != null)
             {
-                fi = t.GetField(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                fi = t.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 t = t.BaseType;
             }
             if (fi == null)
                 throw new ArgumentOutOfRangeException("propName",
-                                                      string.Format("Field {0} was not found in Type {1}", propName,
+                                                      string.Format("Field {0} was not found in Type {1}", fieldName,
                                                                     obj.GetType().FullName));
-            fi.SetValue(obj, val);
+            if (fi.GetValue(obj)?.Equals(val) == false)
+            {
+                fi.SetValue(obj, val);
+                return true;
+            }
+            return false;
         }
     }
 
