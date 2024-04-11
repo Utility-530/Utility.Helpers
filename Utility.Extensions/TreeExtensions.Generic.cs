@@ -29,7 +29,7 @@ namespace Utility.Extensions
                 Visit(item, children, action);
         }
 
-        public static bool IsRoot<T>(this ITree<T> tree) => tree.Parent == null;
+        public static bool IsRoot(this IReadOnlyTree tree)  => tree.Parent == null;
 
         public static bool IsLeaf<T>(this ITree<T> tree) => tree.Count() == 0;
 

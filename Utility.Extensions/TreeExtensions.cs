@@ -81,6 +81,17 @@
         }
 
 
+        public static int IndexOf(this IReadOnlyTree tree, IReadOnlyTree _item)
+        {
+            int i = 0;
+            foreach (var item in tree.Items)
+            {
+                if (item.Equals(_item))
+                    return i;
+                i++;
+            }
+            return -1;
+        }
 
         public static ITree Create(object data)
         {
