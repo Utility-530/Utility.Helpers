@@ -139,6 +139,7 @@ namespace Utility.Helpers
         public static bool SetPrivateFieldValue<T>(this object obj, string fieldName, T val)
         {
             if (obj == null) throw new ArgumentNullException("obj");
+            if (val == null) throw new ArgumentNullException("value is null");
             Type t = obj.GetType();
             FieldInfo fi = null;
             while (fi == null && t != null)
@@ -150,7 +151,7 @@ namespace Utility.Helpers
                 throw new ArgumentOutOfRangeException("propName",
                                                       string.Format("Field {0} was not found in Type {1}", fieldName,
                                                                     obj.GetType().FullName));
-            if (fi.GetValue(obj)?.Equals(val) == false)
+            if (fi.GetValue(obj)?.Equals(val) != true)
             {
                 fi.SetValue(obj, val);
                 return true;
