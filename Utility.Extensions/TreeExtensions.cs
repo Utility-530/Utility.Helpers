@@ -163,10 +163,10 @@
             }
             List<IReadOnlyTree> trees = new();
             var items = tree.Items;
-            while (tree is ITree { HasMoreChildren: true })
-            {
+            //while (tree is ITree { HasMoreChildren: true })
+            //{
 
-            }
+            //}
             foreach (var child in tree.Items)
                 if (child is IReadOnlyTree tChild)
                 {
@@ -198,10 +198,10 @@
             }
             List<IReadOnlyTree> trees = new();
             var items = tree.Items;
-            while (tree is ITree { HasMoreChildren: true })
-            {
+            //while (tree is ITree { HasMoreChildren: true })
+            //{
 
-            }
+            //}
             foreach (var child in tree.Items)
                 if (child is IReadOnlyTree tChild)
                 {
