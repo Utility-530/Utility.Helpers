@@ -17,7 +17,7 @@
         ///// <typeparam name="T">Custom data type to associate with tree node.</typeparam>
         ///// <param name="items">The collection items.</param>
         ///// <param name="parentSelector">Expression to select parent.</param>
-        public static IObservable<ITree<T>> ToTree<T, K>(this IObservable<T> collection, Func<T, K> id_selector, Func<T, K> parent_id_selector, K? root_id = default)
+        public static IObservable<ITree<T>> ToTree<T, K>(this IObservable<T> collection, Func<T, K> id_selector, Func<T, K> parent_id_selector, K? root_id = default, Func<T, ITree<T>>? func = null)
         {
             return Observable.Create<ITree<T>>(observer =>
             {
@@ -26,7 +26,7 @@
                             .Where(c => EqualityComparer<K>.Default.Equals(parent_id_selector(c), root_id))
                             .Subscribe(a =>
                             {
-                                var tree = new Tree<T>(a);
+                                var tree = func?.Invoke(a) ?? new Tree<T>(a);
                                 observer.OnNext(tree);
                                 var _dis = ToTree(collection, id_selector, parent_id_selector, id_selector(a))
                                      .Subscribe(a =>
@@ -40,19 +40,14 @@
             });
         }
 
-        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property) where TR : IItems
+        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Predicate<TR>? predicate = default) where TR : IItems
         {
-            return ExploreTree(items, funcAdd, funcRemove, funcClear, property, (TR a) => true);
+            return ExploreTree(items, funcAdd, funcRemove, funcClear, property, a => a.Items.Changes<TR>(), predicate ??= (TR a) => true);
         }
 
-        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Predicate<TR> predicate) where TR : IItems
+        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Func<TR, IObservable<Changes.Set<TR>>> func, Predicate<TR>? funcPredicate = null)
         {
-            return ExploreTree(items, funcAdd, funcRemove, funcClear, property, a => a.Items.Changes<TR>(), predicate);
-        }
-
-        public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Func<TR, IObservable<Set<TR>>> func, Predicate<TR> funcPredicate) 
-        {
-            if (funcPredicate(property) == false)
+            if (funcPredicate?.Invoke(property) == false)
                 return Disposable.Empty;
 
             items = funcAdd(items, property);
@@ -115,14 +110,14 @@
                 foreach (var item in tree)
                     Visit(item, action);
         }
-        
+
         public static void Visit<T>(this T tree, Func<T, IEnumerable<T>> children, Action<T> action)
-        { 
+        {
             action(tree);
             foreach (var item in children(tree))
                 Visit(item, children, action);
         }
-        
+
         public static void VisitAncestors(this IReadOnlyTree tree, Action<IReadOnlyTree> action)
         {
             action(tree);
@@ -223,7 +218,7 @@
 
             foreach (var c in trees)
             {
-               foreach(var match in c.MatchDescendants(action))
+                foreach (var match in c.MatchDescendants(action))
                     yield return match;
             }
         }
