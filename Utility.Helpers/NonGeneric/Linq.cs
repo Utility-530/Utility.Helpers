@@ -39,21 +39,7 @@ namespace Utility.Helpers.NonGeneric
             }
         }
 
-        public static int Count(this IEnumerable source)
-        {
-            if (source is ICollection col)
-                return col.Count;
 
-            int c = 0;
-            var e = source.GetEnumerator();
-            DynamicUsing(e, () =>
-            {
-                while (e.MoveNext())
-                    c++;
-            });
-
-            return c;
-        }
 
         public static object? ElementAt(this IEnumerable source, int index)
         {
@@ -82,6 +68,11 @@ namespace Utility.Helpers.NonGeneric
 
         public static int IndexOf(this IEnumerable source, Func<object, object> keySelector, object key)
         {
+            return IndexOf(source, a => keySelector(a).Equals(key));
+        }
+
+        public static int IndexOf(this IEnumerable source, Predicate<object> predicate )
+        {
             int i = 0;
             int index = -1;
             var e = source.GetEnumerator();
@@ -90,7 +81,7 @@ namespace Utility.Helpers.NonGeneric
             {
                 while (e.MoveNext())
                 {
-                    if (keySelector(e.Current) == key)
+                    if (predicate(e.Current))
                     {
                         index = i;
                         break;
@@ -102,49 +93,58 @@ namespace Utility.Helpers.NonGeneric
             return index;
         }
 
-        //public static int Count(this IEnumerable enumerable)
-        //{
-        //    IEnumerator enumerator = enumerable.GetEnumerator();
-        //    int i = 0;
-        //    while (enumerator.MoveNext())
-        //    {
-        //        i++;
-        //    }
-        //    return i;
-        //}
+        public static int Count(this IEnumerable source, Predicate<object>? predicate = null)
+        {
+            if (source is ICollection col)
+                return col.Count;
+            predicate ??= new Predicate<object>(a => true);
+            int count = 0;
+            var enumerator = source.GetEnumerator();
+            DynamicUsing(enumerator, () =>
+            {
+                while (enumerator.MoveNext())
+                    if (predicate(enumerator.Current))
+                        count++;
+            });
 
-        //public static object First(this IEnumerable enumerable)
-        //{
-        //    IEnumerator enumerator = enumerable.GetEnumerator();
-        //    enumerator.MoveNext();
-        //    return enumerator.Current;
-        //}
-        public static bool Any(this IEnumerable enumerable)
+            return count;
+        }
+
+        public static bool Any(this IEnumerable enumerable, Predicate<object>? predicate = null)
         {
             IEnumerator enumerator = enumerable.GetEnumerator();
-            return enumerator.MoveNext();
+            predicate ??= new Predicate<object>(a => true);
+            while (enumerator.MoveNext())
+                if (predicate(enumerator.Current))
+                    return true;
+            return false;
         }
 
 
-        public static object First(this IEnumerable enumerable)
+        public static object First(this IEnumerable enumerable, Predicate<object>? predicate = null)
         {
             IEnumerator enumerator = enumerable.GetEnumerator();
-            enumerator.MoveNext();
-            return enumerator.Current;
+            predicate ??= new Predicate<object>(a => true);
+            while (enumerator.MoveNext())
+                if (predicate(enumerator.Current))
+                    return enumerator.Current;
+            throw new Exception(" rr3423322222");
         }
 
-
-        public static object? FirstOrDefault(this IEnumerable enumerable, Predicate<object> predicate)
+        public static object? FirstOrDefault(this IEnumerable enumerable, Predicate<object>? predicate = null)
         {
             IEnumerator enumerator = enumerable.GetEnumerator();
+            predicate ??= new Predicate<object>(a => true);
             while (enumerator.MoveNext())
                 if (predicate(enumerator.Current))
                     return enumerator.Current;
             return null;
         }
-        public static IEnumerable Where(this IEnumerable enumerable, Predicate<object> predicate)
+
+        public static IEnumerable Where(this IEnumerable enumerable, Predicate<object>? predicate = null)
         {
             IEnumerator enumerator = enumerable.GetEnumerator();
+            predicate ??= new Predicate<object>(a => true);
             while (enumerator.MoveNext())
                 if (predicate(enumerator.Current))
                     yield return enumerator.Current;
@@ -166,7 +166,7 @@ namespace Utility.Helpers.NonGeneric
             }
         }
 
-        public static IEnumerable[] SplitInTwo(this IEnumerable collection, double ratio)
+        public static IEnumerable[] SplitInTwo(this IEnumerable collection, double ratio = 0.5)
         {
             int chunkCount = (int)(collection.Count() * ratio);
 
