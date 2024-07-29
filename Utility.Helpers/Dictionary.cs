@@ -54,6 +54,14 @@ namespace Utility.Helpers
             return dic[key] = createValue();
         }
 
+        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, Func<TKey, TValue> createValue)
+        {
+            if (dic.TryGetValue(key, out TValue result))
+                return result;
+            return dic[key] = createValue(key);
+        }
+
+
         public static void AddRange<K, V>(this IDictionary<K, V> me, params IDictionary<K, V>[] others)
         {
             foreach (IDictionary<K, V> src in others)
