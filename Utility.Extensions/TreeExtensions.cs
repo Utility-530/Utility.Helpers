@@ -274,6 +274,9 @@
             }
         }
 
+        public static IReadOnlyTree? Root(this IReadOnlyTree tree) => MatchAncestors(tree, t => t.IsRoot()).SingleOrDefault();
+      
+
         public static IEnumerable<IReadOnlyTree> MatchAncestors(this IReadOnlyTree tree, Predicate<IReadOnlyTree> predicate)
         {
             if (predicate(tree))
