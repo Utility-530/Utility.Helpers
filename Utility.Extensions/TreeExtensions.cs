@@ -191,6 +191,54 @@
         }
 
 
+        public static IObservable<IReadOnlyTree?> MatchDescendant(this ObservableTree tree, Predicate<IReadOnlyTree> action)
+        {
+            return Observable.Create<IReadOnlyTree?>(observer =>
+            {
+                if (action(tree))
+                {
+                    observer.OnNext(tree);
+                    observer.OnCompleted();
+                    return Disposable.Empty;
+                }
+                List<IReadOnlyTree> trees = new();
+                var items = tree.Items;
+
+                return tree.Subscribe(a =>
+                {
+
+                    if (a.Type == Type.Add)
+                    {
+
+                        if (a.Value is IReadOnlyTree tChild)
+                        {
+                            if (action(tChild))
+                            {
+                                observer.OnNext(tChild);
+                                return;
+                            }
+                            //else
+                            //    trees.Add(tChild);
+                        }
+                        else
+                            throw new Exception("c 333211");
+
+                        if (tChild is ObservableTree oTree)
+                            oTree.MatchDescendant(action).Subscribe(observer);
+                        else
+                            observer.OnNext(tChild.MatchDescendant(action));
+            
+                            //if (c.MatchDescendant(action) is { } match)
+                            //    observer.OnNext(match);
+                        
+                    }
+                });
+
+            });
+        }
+
+
+
         public static IReadOnlyTree? MatchDescendant(this IReadOnlyTree tree, Predicate<IReadOnlyTree> action)
         {
             if (action(tree))
