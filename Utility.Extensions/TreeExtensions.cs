@@ -42,12 +42,12 @@
 
         public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Predicate<TR>? predicate = default) where TR : IItems
         {
-            return ExploreTree(items, funcAdd, funcRemove, funcClear, property, a => a.Items.Changes<TR>(), predicate ??= (TR a) => true);
+            return ExploreTree(items, funcAdd, funcRemove, funcClear, property, a => a.Items.AndChanges<TR>(), predicate ??= (TR a) => true);
         }
 
         public static IDisposable ExploreTree<T, TR, TS>(TS item, Func<TS, T> funcItems, Func<T, TR, TS, TS> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Predicate<TR>? predicate = default) where TR : IItems
         {
-            return ExploreTree(item, funcItems, funcAdd, funcRemove, funcClear, property, a => a.Items.Changes<TR>(), predicate ??= (TR a) => true);
+            return ExploreTree(item, funcItems, funcAdd, funcRemove, funcClear, property, a => a.Items.AndChanges<TR>(), predicate ??= (TR a) => true);
         }
 
         public static IDisposable ExploreTree<T, TR>(T items, Func<T, TR, T> funcAdd, Action<T, TR> funcRemove, Action<T> funcClear, TR property, Func<TR, IObservable<Changes.Set<TR>>> func, Predicate<TR>? funcPredicate = null)
