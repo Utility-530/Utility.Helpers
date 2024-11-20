@@ -311,6 +311,14 @@ params System.Collections.IEnumerable[] itemCollections)
             if (haveLast)
                 yield return new GroupOfAdjacent<TSource, TKey>(list, last!);
         }
+
+        public static ICollection<T> RemoveBy<T>(this IList<T> collection, Predicate<T> search)
+        {
+            foreach (var x in collection.Where(a => search(a)).ToArray())
+                collection.Remove(x);
+
+            return collection;
+        }
     }
 
     public class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>
