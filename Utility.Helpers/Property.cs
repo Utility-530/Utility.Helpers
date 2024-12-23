@@ -359,6 +359,27 @@ namespace Utility.Helpers
 
             return response;
         }
+        public static Type[] ValueTypes = new[]{
+             typeof(decimal),
+        typeof(double),
+        typeof(float),
+        typeof(ulong),
+        typeof(long),
+        typeof(uint),
+        typeof(int),
+        typeof(ushort),
+                typeof(short), typeof(byte), typeof(char), typeof(bool)};
+
+        public static Type[] NumberTypes = new[]{
+             typeof(decimal),
+        typeof(double),
+        typeof(float),
+        typeof(ulong),
+        typeof(long),
+        typeof(uint),
+        typeof(int),
+        typeof(ushort),
+                typeof(short), typeof(byte)};
 
         private static Dictionary<Type, List<Type>> dict = new Dictionary<Type, List<Type>>() {
              { typeof(decimal), new List<Type> { typeof(sbyte), typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(char) } },
