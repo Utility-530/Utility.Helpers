@@ -66,6 +66,41 @@ namespace Utility.Helpers.NonGeneric
             return element;
         }
 
+        public static IEnumerable WhereNotAt(this IEnumerable source, int index)
+        {      
+            int i = 0;
+            var e = source.GetEnumerator();
+            ArrayList arrayList = new();
+            DynamicUsing(e, () =>
+            {
+                while (e.MoveNext())
+                {
+                    if (i == index)
+                    {
+             
+                    }
+                    else
+                    {                        
+                        arrayList.Add(e.Current);
+                    }
+                    i++;
+                }
+            });
+            return arrayList;
+ 
+        }
+
+        public static void RemoveAt(this IEnumerable source, int index)
+        {
+            if(source is IList list)
+            {
+                list.RemoveAt(index);
+                return;
+            }
+            throw new Exception("2 2£ £");
+        }
+
+
         public static int IndexOf(this IEnumerable source, Func<object, object> keySelector, object key)
         {
             return IndexOf(source, a => keySelector(a).Equals(key));
