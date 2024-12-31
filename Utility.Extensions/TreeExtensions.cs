@@ -10,11 +10,13 @@
     using Utility.Trees.Abstractions;
     using Utility.Reactives;
     using Type = Changes.Type;
+    using Utility.PropertyNotifications;
+    using System.ComponentModel;
 
     public static partial class TreeExtensions
     {
         ///// <summary> Converts given collection to tree. </summary>
-        ///// <typeparam name="T">Custom data type to associate with tree node.</typeparam>
+        ///// <typeparam name="T">Custom data type to associate with tree ITree.</typeparam>
         ///// <param name="items">The collection items.</param>
         ///// <param name="parentSelector">Expression to select parent.</param>
         public static IObservable<ITree<T>> ToTree<T, K>(this IObservable<T> collection, Func<T, K> id_selector, Func<T, K> parent_id_selector, K? root_id = default, Func<T, ITree<T>>? func = null)
@@ -111,6 +113,29 @@
             return disposable;
         }
 
+        public static int Level(this IReadOnlyTree IReadOnlyTree)
+        {
+            int i = 0;
+            while (IReadOnlyTree.Parent != null)
+            {
+                i++;
+                IReadOnlyTree = IReadOnlyTree.Parent;
+            }
+            return i;
+        }
+
+        public static int Level(this IReadOnlyTree IReadOnlyTree, IReadOnlyTree parent)
+        {
+            int i = 0;
+            while (IReadOnlyTree.Parent != parent)
+            {
+                i++;
+                IReadOnlyTree = IReadOnlyTree.Parent;
+                if (IReadOnlyTree == null)
+                    throw new Exception("FD 444");
+            }
+            return i;
+        }
 
         public static int IndexOf(this IReadOnlyTree tree, IReadOnlyTree _item)
         {
@@ -342,5 +367,193 @@
 
 
 
+        public static IEnumerable<ITree> SelfAndDescendants(this ITree tree, Predicate<(ITree, int)>? action = null, int level = 0)
+        {
+            action ??= n => true;
+            if (action((tree, level)))
+            {
+                yield return tree;
+            }
+            level++;
+            foreach (ITree item in tree.Items)
+                foreach (var x in SelfAndDescendants(item, action, level))
+                    yield return x;
+        }
+
+
+        public static IEnumerable<ITree> Descendants(this ITree tree, Predicate<(ITree, int)>? action = null)
+        {
+            foreach (ITree item in tree.Items)
+                foreach (var d in SelfAndDescendants(item, action))
+                {
+                    yield return d;
+                }
+        }
+
+
+        public static IObservable<IReadOnlyTree> SelfAndAncestorsAsync(this IReadOnlyTree tree, Predicate<(IReadOnlyTree, int)>? action = null, int level = 0)
+        {
+            return Observable.Create<IReadOnlyTree>(observer =>
+            {
+                CompositeDisposable disposables = new();
+                action ??= n => true;
+                if (action((tree, level)))
+                {
+                    observer.OnNext(tree);
+                }
+
+                if (tree?.Parent is ITree parent)
+                {
+                    return SelfAndAncestorsAsync(parent, action, level++)
+                        .Subscribe(a => observer.OnNext(a))
+                        .DisposeWith(disposables);
+                }
+                else
+                {
+                    if(tree is Tree changed)
+                    return changed.WithChangesTo(a => a.Parent)
+                    .Where(a => a != null)
+                    .Subscribe(p =>
+                    {
+                        SelfAndAncestorsAsync(p, action, level++)
+                        .Subscribe(a =>
+                        observer.OnNext(a))
+                        .DisposeWith(disposables);
+                    })
+                    .DisposeWith(disposables);
+                    else if(tree.Parent!=null)
+                    {
+                        return SelfAndAncestorsAsync(tree.Parent, action, level++)
+                      .Subscribe(a =>
+                      observer.OnNext(a)); 
+                    }
+                    else
+                    {
+                        throw new Exception("SD 333333 9d");
+                    }
+                }
+            });
+        }
+
+        public static IEnumerable<IReadOnlyTree> SelfAndAncestors(this IReadOnlyTree tree, Predicate<(IReadOnlyTree, int)>? action = null, int level = 0)
+        {
+            action ??= n => true;
+            if (action((tree, level)))
+            {
+                yield return tree;
+            }
+
+            if (tree?.Parent is IReadOnlyTree parent)
+            {
+                foreach (var x in SelfAndAncestors(parent, action, level++))
+                    yield return x;
+            }
+        }
+
+        public static IEnumerable<IReadOnlyTree> Ancestors(this IReadOnlyTree tree, Predicate<(IReadOnlyTree, int)>? action = null)
+        {
+            return SelfAndAncestors(tree.Parent, action);
+        }
+
+        public static IEnumerable<IReadOnlyTree> SelfAndDescendants(this IReadOnlyTree tree, Predicate<(IReadOnlyTree, int)>? action = null, int level = 0)
+        {
+            action ??= n => true;
+            if (action((tree, level)))
+            {
+                yield return tree;
+            }
+            level++;
+            foreach (IReadOnlyTree item in tree.Items)
+                foreach (var x in SelfAndDescendants(item, action, level))
+                    yield return x;
+        }
+
+
+        public static IEnumerable<IReadOnlyTree> Descendants(this IReadOnlyTree tree, Predicate<(IReadOnlyTree, int)>? action = null)
+        {
+            foreach (IReadOnlyTree item in tree.Items)
+                foreach (var d in SelfAndDescendants(item, action))
+                {
+                    yield return d;
+                }
+        }
+
+
+
+        public static IObservable<TreeChange<ITree>> SelfAndDescendantsAsync(this ITree tree, Predicate<(ITree, int)>? action = null, int level = 0)
+        {
+            return Observable.Create<TreeChange<ITree>>(observer =>
+            {
+                CompositeDisposable disposables = new CompositeDisposable();
+                action ??= n => true;
+                if (action((tree, level)))
+                {
+                    observer.OnNext(new(tree, null, Type.Add, level));
+                }
+                else
+                {
+
+                }
+                level++;
+
+                tree.Items.AndAdditions<ITree>()
+                .Subscribe(item =>
+                {
+                    SelfAndDescendantsAsync(item, action, level)
+                    .Subscribe(x =>
+                    {
+                        observer.OnNext(x);
+                    }).DisposeWith(disposables);
+
+                }).DisposeWith(disposables);
+
+
+                tree.Items.Subtractions<ITree>()
+                .Subscribe(item =>
+                {
+                    observer.OnNext(new(item, null, Type.Remove, level));
+                }).DisposeWith(disposables);
+
+
+                return disposables;
+            });
+        }
+
+
+
+        public static IObservable<TreeChange<ITree>> DescendantsAsync(this ITree tree, Predicate<(ITree, int)>? action = null)
+        {
+            return Observable.Create<TreeChange<ITree>>(observer =>
+            {
+                CompositeDisposable disposables = [];
+                tree.Items.AndAdditions<ITree>()
+                .Subscribe(item =>
+                {
+                    SelfAndDescendantsAsync(item, action, 1)
+                    .Subscribe(x =>
+                    {
+                        observer.OnNext(x);
+                    }).DisposeWith(disposables);
+                }).DisposeWith(disposables);
+
+                return disposables;
+            });
+        }
+
+        public static ITree? MatchAncestor(this ITree tree, Predicate<ITree> action)
+        {
+            if (action(tree))
+            {
+                return tree;
+            }
+
+            if (tree.Parent is ITree parent)
+            {
+                return parent.MatchAncestor(action);
+            }
+
+
+            return null;
+        }
     }
 }
