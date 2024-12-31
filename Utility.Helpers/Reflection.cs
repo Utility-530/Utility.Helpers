@@ -61,6 +61,13 @@ namespace Utility.Helpers
                         .Select(m => (m.GetDescription(), new Func<object?>(() => m.Invoke(null, parameters))));
         }
 
+        public static IEnumerable<(string, MethodInfo)> StaticMethods(this Type t)
+        {
+            return t
+                    .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .Select(m => (m.GetDescription(), m));
+        }
+
         public static IEnumerable<(string, Func<object?>)> GetMethods(this object instance, params object[] parameters)
         {
             return instance.GetType()
