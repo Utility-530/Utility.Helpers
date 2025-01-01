@@ -12,6 +12,7 @@
     using Type = Changes.Type;
     using Utility.PropertyNotifications;
     using System.ComponentModel;
+    using System.Collections;
 
     public static partial class TreeExtensions
     {
@@ -111,6 +112,33 @@
                 }
               );
             return disposable;
+        }
+        public static void Foreach(Action<IReadOnlyTree, int> action, IEnumerable collection, int level = 0)
+        {
+            foreach (IReadOnlyTree item in collection)
+            {
+                action(item, level);
+                Foreach(action, item.Items, ++level);
+            }
+        }
+
+        public static void Foreach(this IReadOnlyTree parent, Action<IReadOnlyTree, int> action, int level = 0)
+        {
+            action(parent, level);
+            ++level;
+            foreach (IReadOnlyTree item in parent.Items)
+            {
+                item.Foreach(action, level);
+            }
+        }
+
+        public static void Foreach<T>(Func<T, IReadOnlyTree, int, T> action, IEnumerable collection, T parent, int level = 0)
+        {
+            foreach (IReadOnlyTree item in collection)
+            {
+                var newTtem = action(parent, item, level);
+                Foreach(action, item.Items, newTtem, ++level);
+            }
         }
 
         public static int Level(this IReadOnlyTree IReadOnlyTree)
@@ -529,7 +557,7 @@
                 tree.Items.AndAdditions<ITree>()
                 .Subscribe(item =>
                 {
-                    SelfAndDescendantsAsync(item, action, 1)
+                    SelfAndDescendantsAsync(item, action, 1) 
                     .Subscribe(x =>
                     {
                         observer.OnNext(x);
@@ -538,6 +566,11 @@
 
                 return disposables;
             });
+        }
+
+        public static IObservable<TreeChange<ITree>> DescendantAsync(this ITree tree, Predicate<(ITree, int)>? action = null)
+        {
+            return DescendantsAsync(tree, action).Take(1);
         }
 
         public static ITree? MatchAncestor(this ITree tree, Predicate<ITree> action)
