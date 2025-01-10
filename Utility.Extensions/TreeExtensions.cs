@@ -508,9 +508,9 @@
 
 
 
-        public static IObservable<TreeChange<ITree>> SelfAndDescendantsAsync(this ITree tree, Predicate<(ITree, int)>? action = null, int level = 0)
+        public static IObservable<TreeChange<IReadOnlyTree>> SelfAndDescendantsAsync(this IReadOnlyTree tree, Predicate<(IReadOnlyTree, int)>? action = null, int level = 0)
         {
-            return Observable.Create<TreeChange<ITree>>(observer =>
+            return Observable.Create<TreeChange<IReadOnlyTree>>(observer =>
             {
                 CompositeDisposable disposables = new CompositeDisposable();
                 action ??= n => true;
@@ -549,9 +549,9 @@
 
 
 
-        public static IObservable<TreeChange<ITree>> DescendantsAsync(this ITree tree, Predicate<(ITree, int)>? action = null)
+        public static IObservable<TreeChange<IReadOnlyTree>> DescendantsAsync(this IReadOnlyTree tree, Predicate<(IReadOnlyTree, int)>? action = null)
         {
-            return Observable.Create<TreeChange<ITree>>(observer =>
+            return Observable.Create<TreeChange<IReadOnlyTree>>(observer =>
             {
                 CompositeDisposable disposables = [];
                 tree.Items.AndAdditions<ITree>()
@@ -568,7 +568,7 @@
             });
         }
 
-        public static IObservable<TreeChange<ITree>> DescendantAsync(this ITree tree, Predicate<(ITree, int)>? action = null)
+        public static IObservable<TreeChange<IReadOnlyTree>> DescendantAsync(this IReadOnlyTree tree, Predicate<(IReadOnlyTree, int)>? action = null)
         {
             return DescendantsAsync(tree, action).Take(1);
         }
