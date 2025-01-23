@@ -6,6 +6,7 @@ using Utility.Reactives;
 using Utility.Trees;
 using System.Reactive.Disposables;
 using Utility.Interfaces.NonGeneric;
+using Utility.PropertyNotifications;
 
 namespace Utility.Extensions
 {
@@ -41,9 +42,9 @@ namespace Utility.Extensions
         /// <returns></returns>
         public static Node Abstract(this Node tree)
         {
-            var data = (tree.Data is IName { Name: { } name }) ? name : tree.Data.ToString();
-
-            var clone = new Node(data) { Key = tree.Key, AddCommand = tree.AddCommand, RemoveCommand = tree.RemoveCommand };
+            var _name = (tree.Data is IName { Name: { } name }) ? name : tree.Data.ToString();          
+            var clone = new Node(new Abstract { Name = _name }) { Key = tree.Key, AddCommand = tree.AddCommand, RemoveCommand = tree.RemoveCommand, Removed = tree.Removed };
+            tree.WithChangesTo(a => a.Removed).Subscribe(a => clone.Removed = a);
 
             CompositeDisposable disposables = new();
             tree.AndAdditions<Node>().Subscribe(async item =>
@@ -54,5 +55,17 @@ namespace Utility.Extensions
             });
             return clone;
         }
+    }
+
+    public class Abstract
+    {
+        public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+
+
     }
 }
