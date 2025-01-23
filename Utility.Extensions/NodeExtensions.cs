@@ -1,6 +1,11 @@
 ﻿using System.Reflection;
 using Utility.Trees.Abstractions;
 using Utility.Nodes;
+using Utility.Models.Trees;
+using Utility.Reactives;
+using Utility.Trees;
+using System.Reactive.Disposables;
+using Utility.Interfaces.NonGeneric;
 
 namespace Utility.Extensions
 {
@@ -8,17 +13,17 @@ namespace Utility.Extensions
     {
         public static ITree ToTree(Assembly[] assemblies, Predicate<Type>? typePredicate = null)
         {
-            ViewModelTree t_tree = new("root", "root");
+            ViewModelTree t_tree = new("root");
 
             foreach (var assembly in assemblies)
             {
-                ViewModelTree tree = new(assembly.GetName().Name, assembly);
+                ViewModelTree tree = new(new AssemblyModel { Name = assembly.GetName().Name, Assembly = assembly });
 
                 foreach (var type in assembly.GetTypes())
                 {
                     if (typePredicate?.Invoke(type) == false)
                         continue;
-                    var _tree = new ViewModelTree(type.Name, type)
+                    var _tree = new ViewModelTree(new TypeModel { Name = type.Name, Type = type })
                     {
                         Parent = tree
                     };
@@ -27,6 +32,27 @@ namespace Utility.Extensions
                 t_tree.Add(tree);
             }
             return t_tree;
-        }    
+        }
+
+        /// <summary>
+        /// Creates a basic copy of <see cref="tree"/> with commands of the copy linked to the original
+        /// </summary>
+        /// <param name="tree"></param>
+        /// <returns></returns>
+        public static Node Abstract(this Node tree)
+        {
+            var data = (tree.Data is IName { Name: { } name }) ? name : tree.Data.ToString();
+
+            var clone = new Node(data) { Key = tree.Key, AddCommand = tree.AddCommand, RemoveCommand = tree.RemoveCommand };
+
+            CompositeDisposable disposables = new();
+            tree.AndAdditions<Node>().Subscribe(async item =>
+            {
+                var childClone = (ITree)(item.Abstract());
+                childClone.Parent = clone;
+                clone.Add(childClone);
+            });
+            return clone;
+        }
     }
 }
