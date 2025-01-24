@@ -12,7 +12,7 @@ namespace Utility.Extensions
 {
     public static class NodeExtensions
     {
-        public static ITree ToTree(Assembly[] assemblies, Predicate<Type>? typePredicate = null)
+        public static ITree ToViewModelTree(this Assembly[] assemblies, Predicate<Type>? typePredicate = null)
         {
             ViewModelTree t_tree = new("root");
 
