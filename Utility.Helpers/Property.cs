@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using Utility.Helpers.NonGeneric;
@@ -31,6 +32,29 @@ namespace Utility.Helpers
 
     public static class PropertyHelper
     {
+        public static ICollection<PropertyInfo> PublicInstanceProperties(this Type type, HashSet<Type>? types = null, HashSet<PropertyInfo>? propertyInfos = null)
+        {
+            propertyInfos ??= [];
+
+            if (type.IsInterface)
+            {
+                foreach (var subInterface in type.GetInterfaces())
+                {
+                    if ((types ??= []).Add(subInterface))
+                        PublicInstanceProperties(subInterface, types, propertyInfos);
+                }
+            }
+
+
+            foreach (var property in type.GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance))
+            {
+                propertyInfos.Add(property);
+            }
+
+            return propertyInfos;
+        }
+
+
         public static T? GetPropertyValue<T>(this object obj, string name, Type? type = null) where T : struct => GetPropertyValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
 
         public static T? GetPropertyRefValue<T>(this object obj, string name, Type? type = null) where T : class => GetPropertyRefValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
