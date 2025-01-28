@@ -7,6 +7,7 @@ using Utility.Trees;
 using System.Reactive.Disposables;
 using Utility.Interfaces.NonGeneric;
 using Utility.PropertyNotifications;
+using Utility.Interfaces.Exs;
 
 namespace Utility.Extensions
 {
@@ -40,7 +41,7 @@ namespace Utility.Extensions
         /// </summary>
         /// <param name="tree"></param>
         /// <returns></returns>
-        public static Node Abstract(this Node tree)
+        public static INode Abstract(this INode tree)
         {
             var _name = (tree.Data is IName { Name: { } name }) ? name : tree.Data.ToString();          
             var clone = new Node(new Abstract { Name = _name }) { Key = tree.Key, AddCommand = tree.AddCommand, RemoveCommand = tree.RemoveCommand, Removed = tree.Removed };
