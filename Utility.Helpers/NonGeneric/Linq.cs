@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Utility.Helpers.NonGeneric
 {
@@ -230,6 +231,17 @@ namespace Utility.Helpers.NonGeneric
                     yield return enumerator.Current;
                 i++;
             }
+        }
+
+        public static Collection<T> ToCollection<T>(this IEnumerable enumerable)
+        {
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            var collection = new Collection<T>();
+            while (enumerator.MoveNext())
+            {
+                collection.Add((T)enumerator.Current);
+            }
+            return collection;
         }
     }
 }
