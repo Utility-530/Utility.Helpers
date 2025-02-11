@@ -19,7 +19,8 @@ namespace Utility.Extensions
 
             foreach (var assembly in assemblies)
             {
-                ViewModelTree tree = new(new AssemblyModel { Name = assembly.FullName });
+
+                ViewModelTree tree = new(AssemblyModel.Create(assembly));
 
                 foreach (var type in assembly.GetTypes())
                 {
