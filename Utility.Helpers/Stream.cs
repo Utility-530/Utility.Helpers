@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Utility.Helpers
 {
@@ -36,7 +37,16 @@ namespace Utility.Helpers
             return stream;
         }
 
+        [Obsolete("too easily confused with other methods. Use AsString")]
         public static string ToString(this Stream stream)
+        {
+            stream.Position = 0;
+            StreamReader reader = new StreamReader(stream);
+            string text = reader.ReadToEnd();
+            return text;
+        }     
+        
+        public static string AsString(this Stream stream)
         {
             stream.Position = 0;
             StreamReader reader = new StreamReader(stream);

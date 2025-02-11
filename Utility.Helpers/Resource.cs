@@ -10,8 +10,8 @@ namespace Utility.Helpers
         {
             assembly ??= Assembly.GetEntryAssembly();
 
-            string resourceName = assembly.GetManifestResourceNames()
-                .First(str => str.EndsWith(endsWith));
+            var names = assembly.GetManifestResourceNames();
+            string resourceName = names.First(str => str.EndsWith(endsWith));
             Stream stream = assembly.GetManifestResourceStream(resourceName);
 
             return stream;
