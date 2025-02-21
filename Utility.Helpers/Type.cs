@@ -70,10 +70,10 @@ namespace Utility.Helpers
 
             return AsString(methodInfo.DeclaringType) + " - " + methodInfo.Name;
         }
-        
+
         public static MethodInfo? DeserialiseMethod(this string methodInfo)
         {
-            Regex regex = new ("(.*) - (.*)");
+            Regex regex = new("(.*) - (.*)");
             var match = regex.Match(methodInfo);
             if (match.Success)
             {
@@ -223,6 +223,59 @@ namespace Utility.Helpers
             if (typeof(IEnumerable).IsAssignableFrom(type))
                 return typeof(object);
             return null;
+        }
+
+        /// <summary>
+        /// <a href="https://stackoverflow.com/questions/353430/easiest-way-to-get-a-common-base-class-from-a-collection-of-types"></a>
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public static Type CommonBaseClass(params Type[] types)
+        {
+            if (types.Length == 0)
+                return typeof(object);
+
+            Type ret = types[0];
+
+            for (int i = 1; i < types.Length; ++i)
+            {
+                if (types[i].IsAssignableFrom(ret))
+                    ret = types[i];
+                else
+                {
+                    // This will always terminate when ret == typeof(object)
+                    while (!ret.IsAssignableFrom(types[i]))
+                        ret = ret.BaseType;
+                }
+            }
+
+            return ret;
+        }
+
+        public static Type? CommonBaseClass(this IEnumerable collection)
+        {
+            var enumr = collection.GetEnumerator();
+            {
+                if (enumr.MoveNext() == false)
+                    return null;
+
+                Type ret = enumr.Current.GetType();
+
+                while (enumr.MoveNext())
+                {
+                    var next = enumr.Current.GetType();
+                    if (next.IsAssignableFrom(ret))
+                        ret = next;
+                    else
+                    {
+                        // This will always terminate when ret == typeof(object)
+                        while (!ret.IsAssignableFrom(next))
+                            ret = ret.BaseType;
+                    }
+                }
+
+                return ret;
+            }
         }
 
         public static IEnumerable<Type> Filter<T>() => Filter(typeof(T));

@@ -35,13 +35,14 @@ namespace Utility.Helpers.Generic
                 yield return f(item);
         }
 
-        public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
-        {
-            foreach (T item in enumeration)
-            {
-                action(item);
-            }
-        }
+        // duplicate
+        //public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
+        //{
+        //    foreach (T item in enumeration)
+        //    {
+        //        action(item);
+        //    }
+        //}
 
         public static void ForEach<T>(this IEnumerable<T> sequence, Action<T, int> action)
         {
