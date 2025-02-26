@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Utility.Helpers
 {
-    public class DirectoryHelper
+    public static class DirectoryHelper
     {
         public static string GetProjectPath()
         {
@@ -194,6 +194,11 @@ namespace Utility.Helpers
                 Directory
                     .GetParent(projectFilePath)
                     .GetDirectories("bin\\" + folderName, SearchOption.AllDirectories);
+        }
+
+        public static FileInfo And(this System.IO.DirectoryInfo directoryInfo, string name)
+        {
+            return new FileInfo(Path.Combine(directoryInfo.FullName, name));
         }
     }
 }

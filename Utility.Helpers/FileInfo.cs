@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Utility.Helpers
 {
@@ -35,6 +36,29 @@ namespace Utility.Helpers
             string file = Path.GetFileNameWithoutExtension(fileInfo.FullName);
             string path = fileInfo.FullName.Replace(file, file + appendage);
             return new FileInfo(path);
+        }
+
+        public static void OverWrite(this FileInfo fileInfo, string contents)
+        {
+            using FileStream fileStream = fileInfo.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            using MemoryStream memoryStream = contents.ToMemoryStream();
+            fileStream.SetLength(0);
+            memoryStream.CopyTo(fileStream);
+        }
+
+        public static string Read(this FileInfo fileInfo)
+        {
+            if (fileInfo.Exists)
+            {
+                using FileStream fs = fileInfo.OpenRead();
+                using StreamReader reader = new(fs);
+                string fileContent = reader.ReadToEnd();
+                return fileContent;
+            }
+            else
+            {
+                throw new Exception($"The file {fileInfo.FullName} does not exist.");
+            }
         }
     }
 }
