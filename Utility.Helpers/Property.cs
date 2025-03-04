@@ -54,6 +54,16 @@ namespace Utility.Helpers
             return propertyInfos;
         }
 
+        public static IEnumerable<PropertyInfo> TopLevelPublicInstanceProperties(this Type type)
+        {
+
+            foreach (var property in type.GetProperties(BindingFlags.DeclaredOnly|  BindingFlags.Public | BindingFlags.Instance))
+            {
+                yield return (property);
+            }
+
+        }
+
 
         public static T? GetPropertyValue<T>(this object obj, string name, Type? type = null) where T : struct => GetPropertyValue<T>(obj, (type ?? obj.GetType()).GetProperty(name));
 
