@@ -17,7 +17,7 @@ namespace Utility.Extensions
             }
             else
             {
-                context.UI(action);
+                context.UI.Post(a => action(), null);
             }
 
         }
