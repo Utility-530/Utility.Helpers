@@ -9,8 +9,10 @@ using System.Text.RegularExpressions;
 
 namespace Utility.Helpers
 {
-    public static partial class TypeHelper
+    public static class TypeHelper
     {
+        const string myRegex = "(.*)\\.(.*), (.*)";
+
         public static bool IsValueOrString(this Type type)
         {
             return type?.IsValueType == true || type == typeof(string);
@@ -49,15 +51,15 @@ namespace Utility.Helpers
         }
         public static string ToName(this string typeSerialised)
         {
-            return MyRegex().Match(typeSerialised).Groups[1].Value;
+            return Regex.Match(typeSerialised, myRegex).Groups[1].Value;
         }
         public static string ToNameSpace(this string typeSerialised)
         {
-            return MyRegex().Match(typeSerialised).Groups[0].Value;
+            return Regex.Match(typeSerialised, myRegex).Groups[0].Value;
         }
         public static Assembly ToAssembly(this string typeSerialised)
         {
-            return Assembly.LoadFrom(MyRegex().Match(typeSerialised).Groups[2].Value);
+            return Assembly.LoadFrom(Regex.Match(typeSerialised, myRegex).Groups[2].Value);
         }
 
         public static string AsString(this Type type)
@@ -554,10 +556,6 @@ namespace Utility.Helpers
             return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
         }
 
-
-
-        [GeneratedRegex("(.*)\\.(.*), (.*)")]
-        private static partial Regex MyRegex();
     }
 
 

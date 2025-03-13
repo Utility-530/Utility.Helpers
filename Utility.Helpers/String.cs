@@ -13,11 +13,11 @@ namespace Utility.Helpers
     {
         public static string Join(this string value, string seperator) => string.Join(seperator, value);
 
-        public static string Join(this string value, char seperator) => string.Join(seperator, value);
+        //public static string Join(this string value, char seperator) => string.Join(seperator, value);
 
         public static string Join(this IEnumerable<string> value, string seperator) => string.Join(seperator, value);
 
-        public static string Join(this IEnumerable<string> value, char seperator) => string.Join(seperator, value);
+        //public static string Join(this IEnumerable<string> value, char seperator) => string.Join(seperator, value);
 
         public static Stream ToStream(this string[] str)
         {

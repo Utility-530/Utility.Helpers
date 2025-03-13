@@ -42,7 +42,7 @@ namespace Utility.Helpers.NonGeneric
 
         public static ICollection RemoveBy(this IList collection, Predicate<object> search)
         {
-            IList list = new Collection();
+            IList list = new List<object>();
             foreach (var x in collection.Where(search))
             {
                 list.Add(x);
