@@ -11,6 +11,15 @@ namespace Utility.Helpers
 {
     public static class ReflectionHelper
     {
+        public static FieldInfo GetField(this Type type, string name)
+        {
+            return type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic) ?? GetField(type.BaseType ?? throw new Exception("ubn 43"), name);
+        }
+        public static void SetField(this object instance,string name, object value)
+        {
+            GetField(instance.GetType(), name).SetValue(instance, value);
+        }
+
         public static IEnumerable<string> SelectPropertyNamesOfDeclaringType<T>()
 
            => typeof(T).GetProperties()
