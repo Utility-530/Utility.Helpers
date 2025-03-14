@@ -15,9 +15,15 @@ namespace Utility.Helpers
         {
             return type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic) ?? GetField(type.BaseType ?? throw new Exception("ubn 43"), name);
         }
-        public static void SetField(this object instance,string name, object value)
+
+        public static void SetFieldValue(this object instance, string name, object value)
         {
             GetField(instance.GetType(), name).SetValue(instance, value);
+        }
+
+        public static void SetFieldValue(this object instance, string name, object value, ref FieldInfo fieldInfo)
+        {
+            (fieldInfo ??= GetField(instance.GetType(), name)).SetValue(instance, value);
         }
 
         public static IEnumerable<string> SelectPropertyNamesOfDeclaringType<T>()
