@@ -27,6 +27,25 @@ namespace Utility.Helpers.NonGeneric
 
             return collection;
         }
+                
+        public static void ForEach<T>(this IEnumerable collection, Action<T> action)
+        {
+            if (collection is IList list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    action((T)list[i]);
+                }
+            }
+            else
+            {
+                foreach (T item in collection)
+                {
+                    action(item);         
+                }
+            }
+
+        }
 
         public static void DynamicUsing(object resource, Action action)
         {
