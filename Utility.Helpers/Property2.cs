@@ -86,23 +86,27 @@ namespace Utility.Helpers
                                                              obj.GetType().FullName));
         }
 
-
         public static bool TryGetPrivateFieldValue(this object obj, string propName, out object? output)
+        {
+            return TryGetPrivateFieldValue(obj, propName, out  output, out _); 
+        }
+
+        public static bool TryGetPrivateFieldValue(this object obj, string propName, out object? output, out FieldInfo? fieldInfo)
         {
             if (obj == null) throw new ArgumentNullException("obj");
             Type t = obj.GetType();
-            FieldInfo fi = null;
-            while (fi == null && t != null)
+            fieldInfo = null;
+            while (fieldInfo == null && t != null)
             {
-                fi = t.GetField(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                fieldInfo = t.GetField(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 t = t.BaseType;
             }
-            if (fi == null)
+            if (fieldInfo == null)
             {
                 output = default;
                 return false;
             }
-            output = fi.GetValue(obj);
+            output = fieldInfo.GetValue(obj);
             return true;
         }
 

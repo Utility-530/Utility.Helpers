@@ -173,7 +173,7 @@ namespace Utility.Helpers
         /// <param name="type">The type to query</param>
         /// <returns>The element type of the collection or null if the type was not a collection
         /// </returns>
-        public static Type GetCollectionElementType(this Type type)
+        public static Type ElementType(this Type type)
         {
             if (null == type)
                 throw new ArgumentNullException("type");
