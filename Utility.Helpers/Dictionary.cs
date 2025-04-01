@@ -54,11 +54,11 @@ namespace Utility.Helpers
             return dic[key] = createValue();
         }
 
-        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, Func<TKey, TValue> createValue)
+        public static TValue? Get<TKey, TValue>(this IDictionary<TKey, TValue?> dic, TKey key, Func<TKey, TValue>? createValue = null)
         {
-            if (dic.TryGetValue(key, out TValue result))
-                return result;
-            return dic[key] = createValue(key);
+            return dic.TryGetValue(key, out var result)
+                ? result
+                : (dic[key] = createValue != default ? createValue.Invoke(key) : default);
         }
 
 
