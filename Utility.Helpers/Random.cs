@@ -18,6 +18,12 @@ namespace Utility.Helpers
             return source.NextDouble() > 0.5;
         }
 
+        public static int NextInteger(this Random source, int min = 0, int max = 100)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            return source.Next(min, max);
+        }
+
         private static string[] consonants = { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z" };
         private static string[] vowels = { "a", "e", "i", "o", "u" };
 
