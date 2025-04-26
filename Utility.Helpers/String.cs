@@ -583,5 +583,10 @@ namespace Utility.Helpers
         {
             return mystring.Substring(mystring.Length - N);
         }
+
+        public static string Capitalise(this string word, bool lowerRemaineder = true)
+        {
+            return word.Substring(0, 1).ToUpper() + (lowerRemaineder ? word.Substring(1).ToLower() : word.Substring(1));
+        }
     }
 }
