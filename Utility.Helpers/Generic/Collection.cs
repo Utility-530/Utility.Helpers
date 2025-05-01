@@ -29,50 +29,7 @@ namespace Utility.Helpers.Generic
             }
 
             return condition;
-        }
-
-        public static T SingleOrAdd<T>(this ICollection<T> query, T x) where T : new()
-        {
-            var xd = query.SingleOrDefault(null);
-            if (xd == null) query.Add(x);
-
-            return xd;
-        }
-
-        public static ICollection<T> AddRange<T>(this ICollection<T> collection, IEnumerable<T> values)
-        {
-            values.ForEach(collection.Add);
-            return collection;
-        }
-
-        public static ICollection<T> RemoveRange<T>(this ICollection<T> collection, IEnumerable<T> values)
-        {
-            values.ForEach(v => collection.Remove(v));
-            return collection;
-        }
-
-        public static ICollection<T> RemoveOne<T>(this ICollection<T> collection, Func<T, bool> search)
-        {
-            if (collection.FirstOrDefault(search) is { } x)
-            {
-                collection.Remove(x);
-            }
-            return collection;
-        }
-
-        public static ICollection<T> RemoveBy<T>(this ICollection<T> collection, Func<T, bool> search)
-        {
-            List<T> list = new();
-            foreach (var x in collection.Where(search))
-            {
-                list.Add(x);
-            }
-
-            foreach (var x in list)
-                collection.Remove(x);
-
-            return collection;
-        }
+        }            
 
         public static SortedList<DateTime, double> MovingAverage(this SortedList<DateTime, double> series, int period)
         {

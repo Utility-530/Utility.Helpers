@@ -66,6 +66,35 @@ namespace Utility.Helpers.Generic
             source.ActionBy(keySelector, key, (a, b) => a.Remove(b));
         }
 
+        public static T SingleOrAdd<T>(this ICollection<T> query, T x) where T : new()
+        {
+            var xd = query.SingleOrDefault(null);
+            if (xd == null) query.Add(x);
+
+            return xd;
+        }
+
+        public static ICollection<T> AddRange<T>(this ICollection<T> collection, IEnumerable<T> values)
+        {
+            values.ForEach(collection.Add);
+            return collection;
+        }
+
+        public static ICollection<T> RemoveRange<T>(this ICollection<T> collection, IEnumerable<T> values)
+        {
+            values.ForEach(v => collection.Remove(v));
+            return collection;
+        }
+
+        public static ICollection<T> RemoveOne<T>(this ICollection<T> collection, Func<T, bool> search)
+        {
+            if (collection.FirstOrDefault(search) is { } x)
+            {
+                collection.Remove(x);
+            }
+            return collection;
+        }
+
         public static void ActionBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TKey key, Action<ICollection<TSource>, TSource> action)
         {
             if (!source.IsEmpty())
@@ -313,13 +342,43 @@ params System.Collections.IEnumerable[] itemCollections)
                 yield return new GroupOfAdjacent<TSource, TKey>(list, last!);
         }
 
-        public static ICollection<T> RemoveBy<T>(this IList<T> collection, Predicate<T> search)
+        public static ICollection<T> RemoveTypeOf<TR, T>(this ICollection<T> collection)
         {
-            foreach (var x in collection.Where(a => search(a)).ToArray())
-                collection.Remove(x);
+            return RemoveBy(collection, a => a is TR);
+        }
 
+        public static ICollection<T> RemoveBy<T>(this ICollection<T> collection, Predicate<T> search)
+        {
+            RemoveWhere(collection, a => search(a));
             return collection;
         }
+
+
+        public static void RemoveWhere<T>(this ICollection<T> collection, Func<T, bool> predicate)
+        {
+            if (collection is IList<T> list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (predicate(list[i]))
+                    {
+                        list.RemoveAt(i--);
+                    }
+                }
+            }
+            T element;
+
+            for (int i = 0; i < collection.Count; i++)
+            {
+                element = collection.ElementAt(i);
+                if (predicate(element))
+                {
+                    collection.Remove(element);
+                    i--;
+                }
+            }
+        }
+
     }
 
     public class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>

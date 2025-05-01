@@ -27,7 +27,7 @@ namespace Utility.Helpers.NonGeneric
 
             return collection;
         }
-                
+
         public static void ForEach<T>(this IEnumerable collection, Action<T> action)
         {
             if (collection is IList list)
@@ -41,7 +41,7 @@ namespace Utility.Helpers.NonGeneric
             {
                 foreach (T item in collection)
                 {
-                    action(item);         
+                    action(item);
                 }
             }
 
@@ -87,7 +87,7 @@ namespace Utility.Helpers.NonGeneric
         }
 
         public static IEnumerable WhereNotAt(this IEnumerable source, int index)
-        {      
+        {
             int i = 0;
             var e = source.GetEnumerator();
             ArrayList arrayList = new();
@@ -97,22 +97,22 @@ namespace Utility.Helpers.NonGeneric
                 {
                     if (i == index)
                     {
-             
+
                     }
                     else
-                    {                        
+                    {
                         arrayList.Add(e.Current);
                     }
                     i++;
                 }
             });
             return arrayList;
- 
+
         }
 
         public static void RemoveAt(this IEnumerable source, int index)
         {
-            if(source is IList list)
+            if (source is IList list)
             {
                 list.RemoveAt(index);
                 return;
@@ -120,13 +120,43 @@ namespace Utility.Helpers.NonGeneric
             throw new Exception("2 2£ £");
         }
 
+        public static void Remove<T>(this IEnumerable source)
+        {
+            source.RemoveWhere(x => x is T);
+        }
+
+
+
+        public static IEnumerable RemoveWhere(this IEnumerable collection, Predicate<object> predicate)
+        {
+            if (collection is IList list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (predicate(list[i]))
+                    {
+                        list.RemoveAt(i--);
+                    }
+                    else
+                        yield return list[i];
+                }
+            }
+
+            foreach (var e in collection)
+            {
+                if (predicate(e))
+                {
+                    yield return e;
+                }
+            }
+        }
 
         public static int IndexOf(this IEnumerable source, Func<object, object> keySelector, object key)
         {
             return IndexOf(source, a => keySelector(a).Equals(key));
         }
 
-        public static int IndexOf(this IEnumerable source, Predicate<object> predicate )
+        public static int IndexOf(this IEnumerable source, Predicate<object> predicate)
         {
             int i = 0;
             int index = -1;
