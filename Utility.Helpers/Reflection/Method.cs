@@ -1,75 +1,56 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace Utility.Helpers
+namespace Utility.Helpers.Reflection
 {
-    public static class ReflectionHelper
+    public record struct PropResult(string Name, object Value, Type Type);
+
+    public static class MethodHelpers
     {
-        public static FieldInfo GetField(this Type type, string name)
+
+        private static Dictionary<object, Delegate> _cache4GetExpressionValueAsMethodCallExpression = new Dictionary<object, Delegate>();
+        private static Dictionary<object, Delegate> _cache4GetExpressionValueAsUnaryExpression = new Dictionary<object, Delegate>();
+        private static Dictionary<Type, Dictionary<PropertyInfo, Delegate>> _cache4FastGetters = new Dictionary<Type, Dictionary<PropertyInfo, Delegate>>();
+
+
+        public static PropResult GetExpressionValue<TSource, TProperty>(this TSource source, Expression<Func<TSource, TProperty>> exp)
         {
-            return type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic) ?? GetField(type.BaseType ?? throw new Exception("ubn 43"), name);
-        }
+            Type type = typeof(TSource);
 
-        public static void SetFieldValue(this object instance, string name, object value)
-        {
-            GetField(instance.GetType(), name).SetValue(instance, value);
-        }
-
-        public static void SetFieldValue(this object instance, string name, object value, ref FieldInfo fieldInfo)
-        {
-            (fieldInfo ??= GetField(instance.GetType(), name)).SetValue(instance, value);
-        }
-
-        public static IEnumerable<string> SelectPropertyNamesOfDeclaringType<T>()
-
-           => typeof(T).GetProperties()
-              .Where(x => x.DeclaringType == typeof(T))
-              .Select(info => info.Name);
-
-        public static bool IsReadOnly(this PropertyInfo prop)
-        {
-            ReadOnlyAttribute? attrib = Attribute.GetCustomAttribute(prop, typeof(ReadOnlyAttribute)) as ReadOnlyAttribute;
-            bool ro = !prop.CanWrite || (attrib != null && attrib.IsReadOnly);
-            return ro;
-        }
-
-        public static IEnumerable<T?> TypesOf<T>(this IEnumerable<Assembly> assemblies) where T : class
-        {
-            return from type in assemblies.AllTypes()
-                   where typeof(T).IsAssignableFrom(type) && !type.IsAbstract
-                   select Activator.CreateInstance(type) as T;
-        }
-
-        public static IEnumerable<TypeInfo> AllTypes(this IEnumerable<Assembly> assembliesToScan)
-        {
-            return assembliesToScan
-                .SelectMany(a => a.DefinedTypes);
-        }
-
-        public static IEnumerable RecursivePropertyValues(object e, string path)
-        {
-            List<IEnumerable> lst = new List<IEnumerable>();
-            lst.Add(new[] { e });
-            try
+            if (exp.Body is MethodCallExpression)
             {
-                var xx = PropertyHelper.GetPropertyRefValue<IEnumerable>(e, path);
-                foreach (var x in xx)
-                    lst.Add(RecursivePropertyValues(x, path));
+                var member = exp.Body as MethodCallExpression;
+                //var methodResult = compiledLambda.DynamicInvoke(source);
+                var methodResult = _cache4GetExpressionValueAsMethodCallExpression.Get(exp, e => Expression.Lambda(member, exp.Parameters.ToArray()).Compile()).DynamicInvoke(source);
+                return new PropResult(member.ToString(), methodResult, source.GetType());
             }
-            catch (Exception ex)
+
+            if (exp.Body is UnaryExpression)
             {
-                //
+                var member = exp.Body as UnaryExpression;
+                //var methodResult = compiledLambda.DynamicInvoke(source);
+                var methodResult = _cache4GetExpressionValueAsUnaryExpression.Get(exp, e => Expression.Lambda(member, exp.Parameters.ToArray()).Compile()).DynamicInvoke(source);
+                return new PropResult(member.ToString(), methodResult, source.GetType()); ;
             }
-            return lst.SelectMany(a => a.Cast<object>());
+
+            if (exp.Body is MemberExpression)
+            {
+                var member = exp.Body as MemberExpression;
+                var propInfo = member.Member as PropertyInfo;
+                //methodResult = propInfo.GetValue(source, null);
+                var value = _cache4FastGetters.Get(type, _ => new()).Get(propInfo, p => p.ToGetter<TSource>()).DynamicInvoke(source);
+                return new PropResult(propInfo.Name, value, source.GetType());
+            }
+
+            throw new NotImplementedException("GetExpressionValue");
         }
 
-        public static IEnumerable<(string, Func<object?>)> GetStaticMethods(this Type t, params object[] parameters)
+        public static IEnumerable<(string, Func<object?>)> StaticMethodValues(this Type t, params object[] parameters)
         {
             return t
                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -83,14 +64,15 @@ namespace Utility.Helpers
                         .Select(m => (m.GetDescription(), m));
         }
 
-        public static IEnumerable<(string, Func<object?>)> GetMethods(this object instance, params object[] parameters)
+        public static IEnumerable<(string, Func<object?>)> MethodValues(this object instance, params object[] parameters)
         {
             return instance.GetType()
                     .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                         .Select(m => (m.GetDescription(), new Func<object?>(() => m.Invoke(instance, parameters))));
         }
 
-        public static string GetDescription(this MethodInfo methodInfo)
+
+        public static string Description(this MethodInfo methodInfo)
         {
             try
             {
@@ -107,42 +89,6 @@ namespace Utility.Helpers
             }
             return methodInfo.Name;
         }
-
-        ///<summary>
-        /// <a href="https://dotnetcoretutorials.com/2020/07/03/getting-assemblies-is-harder-than-you-think-in-c/"></a>
-        /// </summary>
-        public static IEnumerable<Assembly> GetAssemblies(Predicate<AssemblyName>? predicate = null)
-        {
-            var loadedAssemblies = new HashSet<string>();
-            var assembliesToCheck = new Queue<Assembly>();
-
-            if (Assembly.GetEntryAssembly() is { } ass)
-            {
-                assembliesToCheck.Enqueue(ass);
-            }
-
-            while (assembliesToCheck.Any())
-            {
-                foreach (var (reference, assembly) in from reference in assembliesToCheck.Dequeue().GetReferencedAssemblies()
-                                                      where (predicate?.Invoke(reference) ?? true) && loadedAssemblies.Contains(reference.FullName) == false
-                                                      let assembly = Assembly.Load(reference)
-                                                      select (reference, assembly))
-                {
-                    assembliesToCheck.Enqueue(assembly);
-                    loadedAssemblies.Add(reference.FullName);
-                    yield return assembly;
-                }
-            }
-        }
-
-        public static IEnumerable<Assembly> GetSolutionAssemblies()
-        {
-            var assemblies = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll")
-                                .Select(x => Assembly.Load(AssemblyName.GetAssemblyName(x)));
-            return assemblies;
-        }
-
-
 
         public static string AsString(this MethodInfo mi)
         {

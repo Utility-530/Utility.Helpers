@@ -13,6 +13,23 @@ namespace Utility.Helpers
     {
         const string myRegex = "(.*)\\.(.*), (.*)";
 
+        public static IEnumerable<TypeInfo> AllTypes(this IEnumerable<Assembly> assembliesToScan)
+        {
+            return assembliesToScan
+                .SelectMany(a => a.DefinedTypes);
+        }
+
+        public static IEnumerable<T?> TypesOf<T>(this IEnumerable<Assembly> assemblies) where T : class
+        {
+            return from type in assemblies.AllTypes()
+                   where typeof(T).IsAssignableFrom(type) && !type.IsAbstract
+                   select Activator.CreateInstance(type) as T;
+        }
+
+        public static IEnumerable<string> SelectPropertyNamesOfDeclaringType<T>()
+            => typeof(T).GetProperties()
+            .Where(x => x.DeclaringType == typeof(T))
+            .Select(info => info.Name);
         public static bool IsValueOrString(this Type type)
         {
             return type?.IsValueType == true || type == typeof(string);
