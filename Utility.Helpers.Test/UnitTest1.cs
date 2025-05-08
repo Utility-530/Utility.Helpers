@@ -3,8 +3,9 @@ using System;
 using System.Collections;
 using System.Data;
 using System.Linq;
-using UtilityHelper.Generic;
-using UtilityHelper.NonGeneric;
+using Utility.Helpers;
+using Utility.Helpers.Generic;
+using Utility.Helpers.NonGeneric;
 using Xunit;
 
 namespace UtilityHelper.Test
@@ -16,8 +17,8 @@ namespace UtilityHelper.Test
         {
             var type = typeof(TimeSpanHelper);
 
-            var stringArray = TypeHelper.AsString(type);
-            var newType = TypeHelper.ToType(stringArray[0], stringArray[1], stringArray[2]);
+            var stringArray = TypeHelper.AsTuple(type);
+            var newType = TypeHelper.ToType(stringArray.assembly, stringArray.@namespace, stringArray.name);
 
             Assert.Equal(type, newType);
         }
@@ -77,7 +78,7 @@ namespace UtilityHelper.Test
         public void TestMethodToCsvString()
         {
             var fixture = new AutoFixture.Fixture();
-            var xx = UtilityHelper.CsvHelper.ToCSVString(fixture.CreateMany<FL_insurance_sample>(10));
+            var xx = CsvHelper.ToCSVString(fixture.CreateMany<FL_insurance_sample>(10));
             var tempfn = System.IO.Path.GetTempFileName();
             System.IO.File.WriteAllText(tempfn, xx);
             var xc = CsvHelper.ReadFromCsv<FL_insurance_sample>(tempfn).ToArray();
@@ -87,7 +88,7 @@ namespace UtilityHelper.Test
         public void TestMethodToCsvString2()
         {
             var fixture = new AutoFixture.Fixture();
-            var xx = UtilityHelper.CsvHelper.ToCSVString(fixture.CreateMany<FL_insurance_sample>(10) as IEnumerable);
+            var xx = CsvHelper.ToCSVString(fixture.CreateMany<FL_insurance_sample>(10) as IEnumerable);
             var tempfn = System.IO.Path.GetTempFileName();
             System.IO.File.WriteAllText(tempfn, xx);
             var xc = CsvHelper.ReadFromCsv<FL_insurance_sample>(tempfn).ToArray();
