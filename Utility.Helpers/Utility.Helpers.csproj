@@ -8,9 +8,8 @@
 
 		<Company />
 		<Product />
-		<Description>
-Array,Assembly, Combinatorics,CSV,DataTable,DateRange, DateTime, Dictionary,Directory,Download,Enum,FileInfo, GZip, HashCode, Linq,List, Object, Property, Random, Recursive, Regex, String,Type, Url			helper classes
-		</Description>
+		<Description>Array,Assembly, Combinatorics,CSV,DataTable,DateRange, DateTime, Dictionary,Directory,Download,Enum,FileInfo, GZip, HashCode, Linq,List, Object, Property, Random, Recursive, Regex, String,Type, Url			
+helper classes	</Description>
 		<NeutralLanguage />
 		<PackageTags>utility helpers extensions</PackageTags>
 		<PackageId>Utility.Help-ers</PackageId>
@@ -46,19 +45,6 @@ Array,Assembly, Combinatorics,CSV,DataTable,DateRange, DateTime, Dictionary,Dire
 	<ItemGroup>
 		<None Remove=".gitattributes" />
 		<None Remove=".gitignore" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <Content Include="utility_helpers.ico" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <None Include="..\Resources\utility_helpers.png">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
 	</ItemGroup>
 
 
