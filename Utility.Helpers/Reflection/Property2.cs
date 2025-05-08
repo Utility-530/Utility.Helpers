@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace Utility.Helpers
 {
@@ -12,6 +10,19 @@ namespace Utility.Helpers
     /// </summary>
     public static class PropertyHelper2
     {
+
+        //public static PropertyDescriptor GetPropertyDescriptor(PropertyInfo PropertyInfo)
+        //{
+        //    return TypeDescriptor.GetProperties(PropertyInfo.DeclaringType).Item(PropertyInfo.Name);
+        //}
+        public static PropertyDescriptor ToPropertyDescriptor(this PropertyInfo propertyInfo)
+        {
+            return TypeDescriptor.GetProperties(propertyInfo.DeclaringType)[propertyInfo.Name];
+        }
+
+        public static PropertyDescriptor? PropertyDescriptor(this object target, [CallerMemberName] string propertyName = "") =>
+            TypeDescriptor.GetProperties(target.GetType()).Find(propertyName, ignoreCase: false);
+
         /// <summary>
         /// Returns a _private_ Property Value from a given Object. Uses Reflection.
         /// Throws a ArgumentOutOfRangeException if the Property is not found.
@@ -75,23 +86,27 @@ namespace Utility.Helpers
                                                              obj.GetType().FullName));
         }
 
-
         public static bool TryGetPrivateFieldValue(this object obj, string propName, out object? output)
+        {
+            return TryGetPrivateFieldValue(obj, propName, out  output, out _); 
+        }
+
+        public static bool TryGetPrivateFieldValue(this object obj, string propName, out object? output, out FieldInfo? fieldInfo)
         {
             if (obj == null) throw new ArgumentNullException("obj");
             Type t = obj.GetType();
-            FieldInfo fi = null;
-            while (fi == null && t != null)
+            fieldInfo = null;
+            while (fieldInfo == null && t != null)
             {
-                fi = t.GetField(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                fieldInfo = t.GetField(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 t = t.BaseType;
             }
-            if (fi == null)
+            if (fieldInfo == null)
             {
                 output = default;
                 return false;
             }
-            output = fi.GetValue(obj);
+            output = fieldInfo.GetValue(obj);
             return true;
         }
 
@@ -125,21 +140,27 @@ namespace Utility.Helpers
         /// <param name="propName">Field name as string.</param>
         /// <param name="val">the value to set</param>
         /// <exception cref="ArgumentOutOfRangeException">if the Property is not found</exception>
-        public static void SetPrivateFieldValue<T>(this object obj, string propName, T val)
+        public static bool SetPrivateFieldValue<T>(this object obj, string fieldName, T val)
         {
             if (obj == null) throw new ArgumentNullException("obj");
+            if (val == null) throw new ArgumentNullException("value is null");
             Type t = obj.GetType();
             FieldInfo fi = null;
             while (fi == null && t != null)
             {
-                fi = t.GetField(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                fi = t.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 t = t.BaseType;
             }
             if (fi == null)
                 throw new ArgumentOutOfRangeException("propName",
-                                                      string.Format("Field {0} was not found in Type {1}", propName,
+                                                      string.Format("Field {0} was not found in Type {1}", fieldName,
                                                                     obj.GetType().FullName));
-            fi.SetValue(obj, val);
+            if (fi.GetValue(obj)?.Equals(val) != true)
+            {
+                fi.SetValue(obj, val);
+                return true;
+            }
+            return false;
         }
     }
 

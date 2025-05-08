@@ -11,7 +11,16 @@ namespace Utility.Helpers.Generic
             return items.Where(pss => f(pss) < dt).MaxBy(ps => f(ps)).First();
         }
 
-        public static void RemoveLast<T>(this ICollection<T> collection, int n)
+        public static void RemoveFirst<T>(this ICollection<T> collection, int n = 1)
+        {
+            var x = collection.Take(n);
+            foreach (var y in x)
+            {
+                collection.Remove(y);
+            }
+        }
+
+        public static void RemoveLast<T>(this ICollection<T> collection, int n = 1)
         {
             var x = collection.TakeLast(n);
             foreach (var y in x)
@@ -26,13 +35,14 @@ namespace Utility.Helpers.Generic
                 yield return f(item);
         }
 
-        public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
-        {
-            foreach (T item in enumeration)
-            {
-                action(item);
-            }
-        }
+        // duplicate
+        //public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
+        //{
+        //    foreach (T item in enumeration)
+        //    {
+        //        action(item);
+        //    }
+        //}
 
         public static void ForEach<T>(this IEnumerable<T> sequence, Action<T, int> action)
         {
@@ -54,6 +64,35 @@ namespace Utility.Helpers.Generic
         public static void RemoveBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TKey key)
         {
             source.ActionBy(keySelector, key, (a, b) => a.Remove(b));
+        }
+
+        public static T SingleOrAdd<T>(this ICollection<T> query, T x) where T : new()
+        {
+            var xd = query.SingleOrDefault(null);
+            if (xd == null) query.Add(x);
+
+            return xd;
+        }
+
+        public static ICollection<T> AddRange<T>(this ICollection<T> collection, IEnumerable<T> values)
+        {
+            values.ForEach(collection.Add);
+            return collection;
+        }
+
+        public static ICollection<T> RemoveRange<T>(this ICollection<T> collection, IEnumerable<T> values)
+        {
+            values.ForEach(v => collection.Remove(v));
+            return collection;
+        }
+
+        public static ICollection<T> RemoveOne<T>(this ICollection<T> collection, Func<T, bool> search)
+        {
+            if (collection.FirstOrDefault(search) is { } x)
+            {
+                collection.Remove(x);
+            }
+            return collection;
         }
 
         public static void ActionBy<TSource, TKey>(this ICollection<TSource> source, Func<TSource, TKey> keySelector, TKey key, Action<ICollection<TSource>, TSource> action)
@@ -129,14 +168,6 @@ params System.Collections.IEnumerable[] itemCollections)
             }
         }
 
-        public static void RemoveFirst<T>(this ICollection<T> collection, int n)
-        {
-            var x = collection.Take(n);
-            foreach (var y in x)
-            {
-                collection.Remove(y);
-            }
-        }
 
         // From MoreLinq
         public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey>? comparer = null)
@@ -310,6 +341,44 @@ params System.Collections.IEnumerable[] itemCollections)
             if (haveLast)
                 yield return new GroupOfAdjacent<TSource, TKey>(list, last!);
         }
+
+        public static ICollection<T> RemoveTypeOf<TR, T>(this ICollection<T> collection)
+        {
+            return RemoveBy(collection, a => a is TR);
+        }
+
+        public static ICollection<T> RemoveBy<T>(this ICollection<T> collection, Predicate<T> search)
+        {
+            RemoveWhere(collection, a => search(a));
+            return collection;
+        }
+
+
+        public static void RemoveWhere<T>(this ICollection<T> collection, Func<T, bool> predicate)
+        {
+            if (collection is IList<T> list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (predicate(list[i]))
+                    {
+                        list.RemoveAt(i--);
+                    }
+                }
+            }
+            T element;
+
+            for (int i = 0; i < collection.Count; i++)
+            {
+                element = collection.ElementAt(i);
+                if (predicate(element))
+                {
+                    collection.Remove(element);
+                    i--;
+                }
+            }
+        }
+
     }
 
     public class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>

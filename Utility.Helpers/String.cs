@@ -13,11 +13,11 @@ namespace Utility.Helpers
     {
         public static string Join(this string value, string seperator) => string.Join(seperator, value);
 
-        public static string Join(this string value, char seperator) => string.Join(seperator, value);
+        //public static string Join(this string value, char seperator) => string.Join(seperator, value);
 
         public static string Join(this IEnumerable<string> value, string seperator) => string.Join(seperator, value);
 
-        public static string Join(this IEnumerable<string> value, char seperator) => string.Join(seperator, value);
+        //public static string Join(this IEnumerable<string> value, char seperator) => string.Join(seperator, value);
 
         public static Stream ToStream(this string[] str)
         {
@@ -47,17 +47,17 @@ namespace Utility.Helpers
 
         public static string RemoveLineEndings(this string value)
         {
-            if (String.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
                 return value;
             }
             string lineSeparator = ((char)0x2028).ToString();
             string paragraphSeparator = ((char)0x2029).ToString();
 
-            return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("\t", String.Empty);
+            return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("\t", string.Empty);
         }
 
-        public static String ReduceWhitespace(this String value)
+        public static string ReduceWhitespace(this string value)
         {
             var newString = new StringBuilder();
             bool previousIsWhitespace = false;
@@ -448,7 +448,7 @@ namespace Utility.Helpers
         /// <param name="replace"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public static string RemoveAtPosition(this string text, string search, int index) => ReplaceAtPosition(text, search, String.Empty, index);
+        public static string RemoveAtPosition(this string text, string search, int index) => ReplaceAtPosition(text, search, string.Empty, index);
 
         /// <summary>
         /// Remove the digits from start of input.
@@ -577,6 +577,16 @@ namespace Utility.Helpers
             }
 
             return string.Compare(thisString, text, StringComparison.OrdinalIgnoreCase) == 0;
+        }
+
+        public static string TakeLast(this string mystring, int N)
+        {
+            return mystring.Substring(mystring.Length - N);
+        }
+
+        public static string Capitalise(this string word, bool lowerRemaineder = true)
+        {
+            return word.Substring(0, 1).ToUpper() + (lowerRemaineder ? word.Substring(1).ToLower() : word.Substring(1));
         }
     }
 }

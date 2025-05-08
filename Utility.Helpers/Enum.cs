@@ -37,6 +37,11 @@ namespace Utility.Helpers
             return false;
         }
 
+        public static bool IsNullableEnum(this Type t)
+        {
+            Type u = Nullable.GetUnderlyingType(t);
+            return (u != null) && u.IsEnum;
+        }
 
         public static T MatchByName<T>(Enum r) where T : struct
         {
@@ -162,7 +167,7 @@ namespace Utility.Helpers
         }
 
 
-        public static IEnumerable<T> SeparateFlag<T>(this T value) where T : Enum
+        public static IEnumerable<T> SeparateFlags<T>(this T value) where T : Enum
         {
             return from enm in Enum.GetValues(typeof(T)).Cast<T>()
                    where value.IsFlagSet(enm)

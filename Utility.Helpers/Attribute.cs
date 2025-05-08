@@ -42,6 +42,14 @@ namespace Utility.Helpers
             return attributes?.Length > 0 ? (true, attributes[0]) : (false, default)!;
         }
 
+        public static TR? GetAttributePropertySafe<T, TR>(this MemberInfo value, Func<T, TR> propertyFunc) where T : Attribute
+        {
+            T[] attributes = (T[])value.GetCustomAttributes(typeof(T), false);
+
+            return attributes?.Length > 0 ? propertyFunc(attributes[0]) : default;
+        }
+
+
         public static (bool success, object? attribute) GetAttributeSafe(this MemberInfo value, Type type)
         {
             object[] attributes = value.GetCustomAttributes(type, false);

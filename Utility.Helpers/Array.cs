@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,13 @@ namespace Utility.Helpers
 {
     public static class ArrayHelper
     {
+        public static IEnumerable<T> Select<T>(this ArrayList list, Func<object, T> map)
+        {
+            foreach (var x in list)
+            {
+                yield return map(x);
+            }
+        }
         public static T[] To1dArray<T>(T[][] arr2d)
         {
             int width = arr2d[0].Length;

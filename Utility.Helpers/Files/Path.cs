@@ -50,5 +50,12 @@ namespace Utility.Helpers
                 return new Uri(uri);
             return null;
         }
+
+        public static string ChangeFilename(string filepath, string newFilename)
+        {
+            string dir = Path.GetDirectoryName(filepath);    // @"photo\myFolder"
+            string ext = Path.GetExtension(filepath);        // @".jpg"
+            return Path.Combine(dir, newFilename + ext); // @"photo\myFolder\image-resize.jpg"
+        }
     }
 }
