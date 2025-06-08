@@ -63,6 +63,10 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
+	</ItemGroup>
+
 
 	<!--   <ItemGroup>
         <MySourceFiles Include="..\..\..\$(PackageId).*.nupkg"/>

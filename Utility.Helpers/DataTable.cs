@@ -7,8 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-//using LumenWorks.Framework.IO.Csv;
-
 namespace Utility.Helpers
 {
     public static class DataTableHelper
@@ -229,7 +227,7 @@ namespace Utility.Helpers
 
             //Convert.ChangeType does not handle conversion to nullable types
             //if the property type is nullable, we need to get the underlying type of the property
-            var targetType = TypeHelper.IsNullableType(propertyInfo.PropertyType) ? Nullable.GetUnderlyingType(propertyInfo.PropertyType) : propertyInfo.PropertyType;
+            var targetType = Reflection.TypeHelper.IsNullableType(propertyInfo.PropertyType) ? Nullable.GetUnderlyingType(propertyInfo.PropertyType) : propertyInfo.PropertyType;
 
             //Returns an System.Object with the specified System.Type and whose value is
             //equivalent to the specified object.

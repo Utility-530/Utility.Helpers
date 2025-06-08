@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace Utility.Helpers
+namespace Utility.Helpers.Reflection
 {
     public static class AttributeHelper
     {
@@ -22,9 +22,9 @@ namespace Utility.Helpers
 
         public static string GetDescription(this MemberInfo type) => type.GetAttributeProperty<DescriptionAttribute, string>(a => a.Description);
 
-        public static string GetAttributeProperty<T>(this MemberInfo value, Func<T, string> func) where T : Attribute => GetAttributeProperty<T, string>(value, func);
+        public static string GetAttributeProperty<T>(this MemberInfo value, Func<T, string> func) where T : Attribute => value.GetAttributeProperty<T, string>(func);
 
-        public static TR GetAttributeProperty<T, TR>(this MemberInfo value, Func<T, TR> func) where T : Attribute => func(GetAttribute<T>(value));
+        public static TR GetAttributeProperty<T, TR>(this MemberInfo value, Func<T, TR> func) where T : Attribute => func(value.GetAttribute<T>());
 
         public static T GetAttribute<T>(this MemberInfo value) where T : Attribute
         {
@@ -68,15 +68,15 @@ namespace Utility.Helpers
 
         public static string GetAttributeStringPropertySafe<T>(this MemberInfo value, Func<T, string> func) where T : Attribute
         {
-            return GetAttributeSafe<T>(value) is (bool success, T t) && success ? func(t) : value.ToString();
+            return value.GetAttributeSafe<T>() is (bool success, T t) && success ? func(t) : value.ToString();
         }
 
         public static string GetAttributeStringPropertySafe(this MemberInfo value, Func<object, string> func, Type type)
         {
-            return GetAttributeSafe(value, type) is (bool success, object t) && success ? func(t) : value.ToString();
+            return value.GetAttributeSafe(type) is (bool success, object t) && success ? func(t) : value.ToString();
         }
 
-        public static IEnumerable<Type> FilterByCategoryAttribute(this System.Type[] types, string category) =>
+        public static IEnumerable<Type> FilterByCategoryAttribute(this Type[] types, string category) =>
             types.Where(type =>
             {
                 var ca = type.GetCustomAttributes(typeof(CategoryAttribute), false).FirstOrDefault();

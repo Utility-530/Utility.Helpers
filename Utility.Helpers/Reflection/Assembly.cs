@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using Utility.Helpers;
 
-namespace Utility.Helpers
+namespace Utility.Helpers.Reflection
 {
     public static class AssemblyHelper
     {
-        public static IEnumerable<Type> GetTypesInNamespace(this Assembly assembly, string nameSpace) => from t in assembly.GetTypes()
-                                                                                                         where String.Equals(t.Namespace, nameSpace, StringComparison.Ordinal)
+        public static IEnumerable<Type> TypesInNamespace(this Assembly assembly, string nameSpace) => from t in assembly.GetTypes()
+                                                                                                         where string.Equals(t.Namespace, nameSpace, StringComparison.Ordinal)
                                                                                                          select t;
 
         public static IEnumerable<KeyValuePair<string, object>> CreateNonSystemTypesByInterface(params Type[] interfaceTypes) => CreateTypesByInterface(GetNonSystemAssemblies().ToArray(), interfaceTypes);
@@ -45,7 +47,7 @@ namespace Utility.Helpers
                                                                                              && assembly.FullName.IndexOf("CppCodeProvider") == -1
                                                                                              && assembly.FullName.IndexOf("WebMatrix") == -1
                                                                                              && assembly.FullName.IndexOf("SMDiagnostics") == -1
-                                                                                             && !String.IsNullOrEmpty(assembly.Location);
+                                                                                             && !string.IsNullOrEmpty(assembly.Location);
 
         public static bool FullNameCheck(string assemblyFullName) =>
     !assemblyFullName.StartsWith("System")
@@ -55,10 +57,33 @@ namespace Utility.Helpers
     && assemblyFullName.IndexOf("WebMatrix") == -1
     && assemblyFullName.IndexOf("SMDiagnostics") == -1;
 
-        public static bool LocationCheck(string assemblyLocation) => !String.IsNullOrEmpty(assemblyLocation) &&
+        public static bool LocationCheck(string assemblyLocation) => !string.IsNullOrEmpty(assemblyLocation) &&
             assemblyLocation.IndexOf("App_Web") == -1 &&
             assemblyLocation.IndexOf("App_global") == -1;
 
         public static bool ManifestModuleCheck(string assemblyManifestModuleName) => assemblyManifestModuleName != "<In Memory Module>";
+
+
+        public static Assembly ToAssembly(this string typeSerialised)
+        {
+            return Assembly.LoadFrom(Regex.Match(typeSerialised, TypeHelper.myRegex).Groups[2].Value);
+        }
+        public static IEnumerable<TypeInfo> AllTypes(this IEnumerable<Assembly> assembliesToScan)
+        {
+            return assembliesToScan
+                .SelectMany(a => a.DefinedTypes);
+        }
+
+        public static IEnumerable<T?> TypesOf<T>(this IEnumerable<Assembly> assemblies) where T : class
+        {
+            return from type in assemblies.AllTypes()
+                   where typeof(T).IsAssignableFrom(type) && !type.IsAbstract
+                   select Activator.CreateInstance(type) as T;
+        }
+
+        public static IEnumerable<Type> TypesByAttribute<TA>(this Assembly assembly) where TA : Attribute =>
+               assembly
+               .GetTypes()
+               .Where(t => t.GetCustomAttribute<TA>() != null);
     }
 }

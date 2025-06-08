@@ -7,24 +7,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Utility.Helpers
+namespace Utility.Helpers.Reflection
 {
     public static class TypeHelper
     {
-        const string myRegex = "(.*)\\.(.*), (.*)";
+        public const string myRegex = "(.*)\\.(.*), (.*)";
 
-        public static IEnumerable<TypeInfo> AllTypes(this IEnumerable<Assembly> assembliesToScan)
-        {
-            return assembliesToScan
-                .SelectMany(a => a.DefinedTypes);
-        }
-
-        public static IEnumerable<T?> TypesOf<T>(this IEnumerable<Assembly> assemblies) where T : class
-        {
-            return from type in assemblies.AllTypes()
-                   where typeof(T).IsAssignableFrom(type) && !type.IsAbstract
-                   select Activator.CreateInstance(type) as T;
-        }
 
         public static IEnumerable<string> SelectPropertyNamesOfDeclaringType<T>()
             => typeof(T).GetProperties()
@@ -73,10 +61,6 @@ namespace Utility.Helpers
         public static string ToNameSpace(this string typeSerialised)
         {
             return Regex.Match(typeSerialised, myRegex).Groups[0].Value;
-        }
-        public static Assembly ToAssembly(this string typeSerialised)
-        {
-            return Assembly.LoadFrom(Regex.Match(typeSerialised, myRegex).Groups[2].Value);
         }
 
         public static string AsString(this Type type)
@@ -373,6 +357,27 @@ namespace Utility.Helpers
         public static IEnumerable<MethodInfo> GetMethodsByAttribute(Type t, Type attribute) =>
             t.GetMethods().Where(
                     method => Attribute.IsDefined(method, attribute));
+
+
+
+        public static IEnumerable<MethodInfo> GetStaticMethods(this Type t, params object[] parameters)
+        {
+            return t
+                    .GetMethods(BindingFlags.Public | BindingFlags.Static);
+        }
+
+        public static IEnumerable<MethodInfo> GetInstanceMethods(this Type t, params object[] parameters)
+        {
+            return t
+                    .GetMethods(BindingFlags.Public | BindingFlags.Instance);
+        }
+
+        public static IEnumerable<MethodInfo> GetMethods(this Type t, params object[] parameters)
+        {
+            return GetInstanceMethods(t, parameters).Concat(GetStaticMethods(t, parameters));
+        }
+
+
 
         public static Func<T, R> GetInstanceMethod<T, R>(MethodInfo method)
         {
