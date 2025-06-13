@@ -61,6 +61,11 @@ namespace Utility.Helpers
                 : (dic[key] = createValue != default ? createValue.Invoke(key) : default);
         }
 
+        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key) where TValue : new()
+        {
+            return dic.TryGetValue(key, out var result) ? result : (dic[key] = new());
+        }
+
 
         public static void AddRange<K, V>(this IDictionary<K, V> me, params IDictionary<K, V>[] others)
         {

@@ -64,10 +64,20 @@ namespace Utility.Helpers.Reflection
                         .Select(m => (m.GetDescription(), m));
         }
 
+        public static IEnumerable<MethodInfo> InstantMethods(this Type instance)
+        {
+            return instance
+                    .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                    .Where(m => !m.IsSpecialName);
+                 
+        }
+
+
         public static IEnumerable<(string, Func<object?>)> MethodValues(this object instance, params object[] parameters)
         {
             return instance.GetType()
                     .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                    .Where(m => !m.IsSpecialName)   
                         .Select(m => (m.GetDescription(), new Func<object?>(() => m.Invoke(instance, parameters))));
         }
 
