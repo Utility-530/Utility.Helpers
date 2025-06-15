@@ -525,15 +525,6 @@ namespace Utility.Helpers.Reflection
             return type.IsDefined(typeof(FlagsAttribute), true);
         }
 
-        public static bool IsNullable(this Type type)
-        {
-            if (type == null)
-            {
-                return false;
-            }
-
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
 
         public static bool IsDerivedFrom<T>(this Type type)
         {
