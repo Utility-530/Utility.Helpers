@@ -2,7 +2,7 @@
 
 namespace Utility.Helpers
 {
-    public static class DirectoryInfo
+    public static class DirectoryInfoHelpers
     {
         public static FileInfo Combine(this System.IO.DirectoryInfo directoryInfo, FileInfo fileInfo)
         {
