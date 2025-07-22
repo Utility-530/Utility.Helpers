@@ -167,13 +167,22 @@ namespace Utility.Helpers
         }
 
 
+        static bool IsCombination<T>(T value)
+        {
+            // Count how many bits are set to 1
+            int intValue = (int)(object)value;
+            return intValue != 0 && (intValue & (intValue - 1)) != 0;
+        }
+
         public static IEnumerable<T> SeparateFlags<T>(this T value) where T : Enum
         {
+            if (IsCombination<T>(value) == false)
+                return [value];
             return from enm in Enum.GetValues(typeof(T)).Cast<T>()
                    where value.IsFlagSet(enm)
                    select enm;
         }
-             
+
 
         public static T SetFlags<T>(this T value, T flags, bool on) where T : Enum
         {
@@ -205,7 +214,7 @@ namespace Utility.Helpers
 
         public static T CombineFlags<T>(this IEnumerable<T> flags) where T : Enum
         {
-            return (T)CombineFlags(flags    .Select(flag => Convert.ToInt64(flag)), typeof(T));
+            return (T)CombineFlags(flags.Select(flag => Convert.ToInt64(flag)), typeof(T));
         }
 
         public static Enum CombineFlags(this IEnumerable<Enum> flags, Type type)

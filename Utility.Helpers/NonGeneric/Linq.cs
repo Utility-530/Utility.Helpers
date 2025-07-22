@@ -8,6 +8,7 @@ namespace Utility.Helpers.NonGeneric
     public static class Linq
     {
 
+
         public static IEnumerable ForEach(this IEnumerable collection, Action<object> action)
         {
             if (collection is IList list)
@@ -149,6 +150,12 @@ namespace Utility.Helpers.NonGeneric
                     yield return e;
                 }
             }
+        }
+
+        public static int IndexOf(this IEnumerable source, object value, IEqualityComparer? comparer = null)
+        {
+            comparer ??= EqualityComparer<object>.Default;
+            return IndexOf(source, a => comparer.Equals(value, a));
         }
 
         public static int IndexOf(this IEnumerable source, Func<object, object> keySelector, object key)

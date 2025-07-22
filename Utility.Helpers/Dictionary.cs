@@ -16,11 +16,9 @@ namespace Utility.Helpers
         /// <param name="dic">The dictionary to call this method on.</param>
         /// <param name="key">The key to look up.</param>
         /// <returns>The key value. null if this key is not in the dictionary.</returns>
-        public static TValue GetValueOrNew<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key) where TValue : new()
+        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, bool setValue = true) where TValue : new()
         {
-            if (dic.TryGetValue(key, out TValue result))
-                return result;
-            return dic[key] = new TValue(); ;
+            return Get(dic, key, () => new(), setValue);
         }
 
         /// <summary>
@@ -31,11 +29,12 @@ namespace Utility.Helpers
         /// <param name="dic">The dictionary to call this method on.</param>
         /// <param name="key">The key to look up.</param>
         /// <returns>The key value. null if this key is not in the dictionary.</returns>
-        public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, TValue value)
+        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, TValue value, bool setValue = true)
         {
+            Func<TValue, TValue> func = setValue ? new Func<TValue, TValue>(a => dic[key] = a) : a => a;
             if (dic.TryGetValue(key, out TValue result))
                 return result;
-            return dic[key] = value;
+            return func(value);
         }
 
 
@@ -47,23 +46,20 @@ namespace Utility.Helpers
         /// <param name="dic">The dictionary to call this method on.</param>
         /// <param name="key">The key to look up.</param>
         /// <returns>The key value. null if this key is not in the dictionary.</returns>
-        public static TValue GetValueOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, Func<TValue> createValue)
+        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, Func<TValue> createValue, bool setValue = true)
         {
+            Func<TValue, TValue> func = setValue ? new Func<TValue, TValue>(a => dic[key] = a) : a => a;
             if (dic.TryGetValue(key, out TValue result))
                 return result;
-            return dic[key] = createValue();
+            return func(createValue());
         }
 
-        public static TValue? Get<TKey, TValue>(this IDictionary<TKey, TValue?> dic, TKey key, Func<TKey, TValue>? createValue = null)
+        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, Func<TKey, TValue> createValue, bool setValue = true)
         {
+            Func<TValue, TValue> func = setValue ? a => dic[key] = a : a => a;
             return dic.TryGetValue(key, out var result)
                 ? result
-                : (dic[key] = createValue != default ? createValue.Invoke(key) : default);
-        }
-
-        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key) where TValue : new()
-        {
-            return dic.TryGetValue(key, out var result) ? result : (dic[key] = new());
+                : func(createValue.Invoke(key));
         }
 
 
