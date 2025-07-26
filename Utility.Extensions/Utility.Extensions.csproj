@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\Packages\Utility.Packages\Utility.Packages.csproj" />
     <ProjectReference Include="..\..\Reactives\Utility.Reactives\Utility.Reactives.csproj" />
     <ProjectReference Include="..\..\Trees\Utility.Trees\Utility.Trees.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Utility.Globals\Utility.Globals.csproj" />
   </ItemGroup>
 
 </Project>
