@@ -1,7 +1,6 @@
 ﻿using Splat;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Linq;
-using Utility.Helpers;
 using Utility.Interfaces.Exs;
 using Utility.Interfaces.NonGeneric;
 using Utility.Models;
@@ -15,21 +14,23 @@ namespace Utility.Extensions
     {
         public static void Observe<TParam>(this IServiceResolver serviceResolver, IValueModel tModel) where TParam : IMethodParameter
         {
-            var observable = tModel.WhenReceivedFrom(a => (a as IValue).Value, includeNulls: false)
-                .Merge(tModel.WithChangesTo(a => (a as IValue).Value, includeNulls: false))
-                .DistinctUntilChanged(new EqualityComparer());
+            var observable = new Reactives.Observable<object>(
+                [tModel.WhenReceivedFrom(a => (a as IValue).Value, includeNulls: false),
+            tModel.WithChangesTo(a => (a as IValue).Value, includeNulls: false)]);
+
+
             if (tModel is not IGetName name)
             {
                 throw new Exception("f 333333");
             }
             serviceResolver.Observe<TParam>(observable);
         }
-        
+
         public static void ReactTo<TParam>(this IServiceResolver serviceResolver, IValueModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null) where TParam : IMethodParameter
         {
             setAction ??= (a) => (tModel as ISetValue).Value = a;
 
-            var observer = new Reactives.Observer<object>(a => setAction(transformation != null ? transformation.Invoke(a) : a), e => { }, () => { });
+            var observer = new Reactives.Observer<object>(a => setAction(transformation != null ? transformation.Invoke(a) : a), e => { }, () => { }) { Reference = tModel };
             if (tModel is not IGetName name)
             {
                 throw new Exception("f 333333");
