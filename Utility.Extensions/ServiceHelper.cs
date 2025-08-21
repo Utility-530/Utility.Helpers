@@ -16,7 +16,7 @@ namespace Utility.Extensions
         {
             var observable = new Reactives.Observable<object>(
                 [tModel.WhenReceivedFrom(a => (a as IValue).Value, includeNulls: false),
-            tModel.WithChangesTo(a => (a as IValue).Value, includeNulls: false)]);
+            tModel.WithChangesTo(a => (a as IValue).Value, includeNulls: false, includeInitialValue: false)]);
 
 
             if (tModel is not IGetName name)
