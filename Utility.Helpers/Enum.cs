@@ -166,12 +166,11 @@ namespace Utility.Helpers
                    select enm;
         }
 
-
         static bool IsCombination<T>(T value)
         {
             // Count how many bits are set to 1
-            int intValue = (int)(object)value;
-            return intValue != 0 && (intValue & (intValue - 1)) != 0;
+            ulong numericValue = Convert.ToUInt64(value);
+            return numericValue != 0 && (numericValue & (numericValue - 1)) != 0;
         }
 
         public static IEnumerable<T> SeparateFlags<T>(this T value) where T : Enum
