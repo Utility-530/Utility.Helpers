@@ -17,7 +17,6 @@ namespace Utility.Helpers.Reflection
         private static Dictionary<object, Delegate> _cache4GetExpressionValueAsUnaryExpression = new Dictionary<object, Delegate>();
         private static Dictionary<Type, Dictionary<PropertyInfo, Delegate>> _cache4FastGetters = new Dictionary<Type, Dictionary<PropertyInfo, Delegate>>();
 
-
         public static PropResult GetExpressionValue<TSource, TProperty>(this TSource source, Expression<Func<TSource, TProperty>> exp)
         {
             Type type = typeof(TSource);
@@ -69,7 +68,7 @@ namespace Utility.Helpers.Reflection
             return instance
                     .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                     .Where(m => !m.IsSpecialName);
-                 
+
         }
 
 
@@ -77,7 +76,7 @@ namespace Utility.Helpers.Reflection
         {
             return instance.GetType()
                     .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                    .Where(m => !m.IsSpecialName)   
+                    .Where(m => !m.IsSpecialName)
                         .Select(m => (m.GetDescription(), new Func<object?>(() => m.Invoke(instance, parameters))));
         }
 
@@ -100,86 +99,121 @@ namespace Utility.Helpers.Reflection
             return methodInfo.Name;
         }
 
-        public static string AsString(this MethodInfo mi)
+
+        /// <summary>
+        /// Converts a MethodInfo to a string representation for lookup purposes
+        /// Format: TypeName.MethodName(ParameterType1,ParameterType2,...)
+        /// </summary>
+        /// <param name="methodInfo">The MethodInfo to convert</param>
+        /// <returns>String representation of the method</returns>
+        public static string AsString(this MethodInfo methodInfo)
         {
-            StringBuilder sb = new();
-            // Get method body information.
-            //MethodInfo mi = typeof(Example).GetMethod("MethodBodyExample");
-            MethodBody mb = mi.GetMethodBody();
-            sb.AppendLine($"Method: {mi}");
+            if (methodInfo == null)
+                return "null";
 
-            // Display the general information included in the
-            // MethodBody object.
-            sb.AppendLine($"Local variables are initialized: {mb.InitLocals}");
-            sb.AppendLine($"Maximum number of items on the operand stack: {mb.MaxStackSize}");
+            var sb = new StringBuilder();
 
-            // Display information about the local variables in the
-            // method body.
-            sb.AppendLine();
-            foreach (LocalVariableInfo lvi in mb.LocalVariables)
+            // Type name (full name for uniqueness)
+            sb.Append(methodInfo.DeclaringType?.FullName ?? "Unknown");
+            sb.Append(".");
+            sb.Append(methodInfo.Name);
+            sb.Append("(");
+
+            // Parameter types
+            var parameters = methodInfo.GetParameters();
+            for (int i = 0; i < parameters.Length; i++)
             {
-                sb.AppendLine($"Local variable: {lvi}");
+                sb.Append(parameters[i].ParameterType.FullName);
+                if (i < parameters.Length - 1)
+                    sb.Append(",");
             }
 
-            // Display exception handling clauses.
-            sb.AppendLine();
-            foreach (ExceptionHandlingClause ehc in mb.ExceptionHandlingClauses)
-            {
-                sb.AppendLine(ehc.Flags.ToString());
+            sb.Append(")");
 
-                // The FilterOffset property is meaningful only for Filter
-                // clauses. The CatchType property is not meaningful for
-                // Filter or Finally clauses.
-                switch (ehc.Flags)
-                {
-                    case ExceptionHandlingClauseOptions.Filter:
-                        sb.AppendLine($"Filter Offset: {ehc.FilterOffset}"
-                            );
-                        break;
-
-                    case ExceptionHandlingClauseOptions.Finally:
-                        break;
-
-                    default:
-                        sb.AppendLine($"Type of exception: {ehc.CatchType}");
-                        break;
-                }
-
-                sb.AppendLine($"Handler Length: {ehc.HandlerLength}");
-                sb.AppendLine($"Handler Offset: {ehc.HandlerOffset}");
-                sb.AppendLine($"Try Block Length: {ehc.TryLength}");
-                sb.AppendLine($"Try Block Offset: {ehc.TryOffset}");
-            }
             return sb.ToString();
         }
 
-        // This code example produces output similar to the following:
-        //
-        //Method: Void MethodBodyExample(System.Object)
-        //    Local variables are initialized: True
-        //    Maximum number of items on the operand stack: 2
-        //
-        //Local variable: System.Int32 (0)
-        //Local variable: System.String (1)
-        //Local variable: System.Exception (2)
-        //Local variable: System.Boolean (3)
-        //
-        //Filter
-        //      Filter Offset: 71
-        //      Handler Length: 23
-        //      Handler Offset: 116
-        //      Try Block Length: 61
-        //      Try Block Offset: 10
-        //Clause
-        //    Type of exception: System.Exception
-        //       Handler Length: 21
-        //       Handler Offset: 70
-        //     Try Block Length: 61
-        //     Try Block Offset: 9
-        //Finally
-        //       Handler Length: 14
-        //       Handler Offset: 94
-        //     Try Block Length: 85
-        //     Try Block Offset: 9
+        /// <summary>
+        /// Converts a string back to a MethodInfo using reflection
+        /// String format: TypeName.MethodName(ParameterType1,ParameterType2,...)
+        /// </summary>
+        /// <param name="methodString">String representation of the method</param>
+        /// <returns>MethodInfo object or null if not found</returns>
+        public static MethodInfo AsMethodInfo(this string methodString)
+        {
+            if (string.IsNullOrEmpty(methodString) || methodString == "null")
+                return null;
+
+            try
+            {
+                // Parse the string format: TypeName.MethodName(param1,param2,...)
+                int lastDotIndex = methodString.LastIndexOf('.', methodString.IndexOf('('));
+                if (lastDotIndex == -1)
+                    throw new ArgumentException("Invalid method string format");
+
+                string typeName = methodString.Substring(0, lastDotIndex);
+                string methodPart = methodString.Substring(lastDotIndex + 1);
+
+                int parenIndex = methodPart.IndexOf('(');
+                if (parenIndex == -1)
+                    throw new ArgumentException("Invalid method string format");
+
+                string methodName = methodPart.Substring(0, parenIndex);
+                string paramsPart = methodPart.Substring(parenIndex + 1);
+                paramsPart = paramsPart.TrimEnd(')');
+
+                // Get the type
+                Type declaringType = Type.GetType(typeName);
+                if (declaringType == null)
+                {
+                    // Try to find in loaded assemblies
+                    declaringType = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(a => a.GetTypes())
+                        .FirstOrDefault(t => t.FullName == typeName);
+                }
+
+                if (declaringType == null)
+                    throw new TypeLoadException($"Could not load type: {typeName}");
+
+                // Parse parameter types
+                Type[] parameterTypes;
+                if (string.IsNullOrEmpty(paramsPart))
+                {
+                    parameterTypes = new Type[0];
+                }
+                else
+                {
+                    string[] paramTypeNames = paramsPart.Split(',');
+                    parameterTypes = new Type[paramTypeNames.Length];
+
+                    for (int i = 0; i < paramTypeNames.Length; i++)
+                    {
+                        string paramTypeName = paramTypeNames[i].Trim();
+                        Type paramType = Type.GetType(paramTypeName);
+                        if (paramType == null)
+                        {
+                            // Try to find in loaded assemblies
+                            paramType = AppDomain.CurrentDomain.GetAssemblies()
+                                .SelectMany(a => a.GetTypes())
+                                .FirstOrDefault(t => t.FullName == paramTypeName);
+                        }
+
+                        if (paramType == null)
+                            throw new TypeLoadException($"Could not load parameter type: {paramTypeName}");
+
+                        parameterTypes[i] = paramType;
+                    }
+                }
+
+                // Get the method
+                MethodInfo method = declaringType.GetMethod(methodName, parameterTypes);
+                return method;
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Failed to parse method string: {methodString}", ex);
+            }
+        }
     }
 }
+
