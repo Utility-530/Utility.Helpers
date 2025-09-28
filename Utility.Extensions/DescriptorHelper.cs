@@ -48,15 +48,5 @@ namespace Utility.Extensions
 
                 });
         }
-
-        public static T Get<T>(this IGet get)
-        {
-            return (T)get.Get();
-        }
-
-        public static void Set<T>(this ISet get, T t)
-        {
-            get.Set(t);
-        }
     }
 }

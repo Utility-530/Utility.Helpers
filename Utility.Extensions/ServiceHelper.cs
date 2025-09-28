@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Linq;
 using Utility.Interfaces.Exs;
+using Utility.Interfaces.Exs.Diagrams;
 using Utility.Interfaces.NonGeneric;
 using Utility.Models;
 using Utility.Observables.Generic;
@@ -12,21 +13,21 @@ namespace Utility.Extensions
 {
     public static class ServiceHelper
     {
-        public static void Observe<TParam>(this IServiceResolver serviceResolver, IValueModel tModel) where TParam : IMethodParameter
+        public static void Observe<TParam>(this IServiceResolver serviceResolver, INodeViewModel tModel) where TParam : IMethodParameter
         {
-            var observable = new Reactives.Observable<object>(
-                [tModel.WhenReceivedFrom(a => (a as IValue).Value, includeNulls: false),
-            tModel.WithChangesTo(a => (a as IValue).Value, includeNulls: false, includeInitialValue: false)]);
+            //var observable = new Reactives.Observable<object>(
+            //    [tModel.WhenReceivedFrom(a => (a as IGetValue).Value, includeNulls: false),
+            //tModel.WithChangesTo(a => (a as IGetValue).Value, includeNulls: false, includeInitialValue: false)]);
 
 
             if (tModel is not IGetName name)
             {
                 throw new Exception("f 333333");
             }
-            serviceResolver.Observe<TParam>(observable);
+            serviceResolver.Observe<TParam>(tModel.WhenReceivedFrom(a => (a as IGetValue).Value, includeNulls: false));
         }
 
-        public static void ReactTo<TParam>(this IServiceResolver serviceResolver, IValueModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null) where TParam : IMethodParameter
+        public static void ReactTo<TParam>(this IServiceResolver serviceResolver, INodeViewModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null) where TParam : IMethodParameter
         {
             setAction ??= (a) => (tModel as ISetValue).Value = a;
 
@@ -39,9 +40,9 @@ namespace Utility.Extensions
             serviceResolver.ReactTo<TParam>(observer);
         }
 
-        public static IValueModel ToValueModel<T>(this IObservable<T> observable)
+        public static INodeViewModel ToValueModel<T>(this IObservable<T> observable)
         {
-            var valueModel = new ValueModel<T>() { Name = typeof(T).Name };
+            var valueModel = new Model<T>() { Name = typeof(T).Name };
             observable.Subscribe(a => valueModel.Value = a);
             return valueModel;
         }
@@ -52,10 +53,10 @@ namespace Utility.Extensions
             return observable;
         }
 
-        public static void Observe<TParam>(this IValueModel tModel) where TParam : IMethodParameter =>
+        public static void Observe<TParam>(this INodeViewModel tModel) where TParam : IMethodParameter =>
             Utility.Globals.Resolver.Resolve<IServiceResolver>().Observe<TParam>(tModel);
 
-        public static void ReactTo<TParam>(this IValueModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null) where TParam : IMethodParameter =>
+        public static void ReactTo<TParam>(this INodeViewModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null) where TParam : IMethodParameter =>
             Globals.Resolver.Resolve<IServiceResolver>().ReactTo<TParam>(tModel, transformation, setAction);
 
         private class EqualityComparer : IEqualityComparer<object>
