@@ -81,9 +81,12 @@ namespace Utility.Helpers.Reflection
                    select Activator.CreateInstance(type) as T;
         }
 
-        public static IEnumerable<Type> TypesByAttribute<TA>(this Assembly assembly) where TA : Attribute =>
-               assembly
-               .GetTypes()
-               .Where(t => t.GetCustomAttribute<TA>() != null);
+        public static IEnumerable<Type> TypesByAttribute<TA>(this Assembly assembly, Func<TA, int> orderBy) where TA : Attribute =>
+                from t in assembly.GetTypes()
+                let x = t.GetCustomAttribute<TA>()
+                where x != null
+                orderby orderBy(x)
+                select t;
+
     }
 }
