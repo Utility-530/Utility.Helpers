@@ -7,15 +7,15 @@ namespace Utility.Extensions
 {
     public static class DescriptorHelper
     {
-        public static void VisitDescendants(this IChildren tree, Action<IChildren> action)
+        public static void VisitDescendants(this IChanges tree, Action<IChanges> action)
         {
             action(tree);
 
-            tree.Children
+            tree.Changes
                 .Cast<Change<IDescriptor>>()
                 .Subscribe(a =>
                 {
-                    if (a.Type == Changes.Type.Add && a.Value is IChildren children)
+                    if (a.Type == Changes.Type.Add && a.Value is IChanges children)
                     {
                         children.VisitDescendants(action);
                         Trace.WriteLine(a.Value.ParentType + " " + a.Value.Type?.Name + " " + a.Value.Name);
@@ -29,9 +29,9 @@ namespace Utility.Extensions
                 });
         }
 
-        public static void VisitChildren(this IChildren tree, Action<object> action)
+        public static void VisitChildren(this IChanges tree, Action<object> action)
         {
-            tree.Children
+            tree.Changes
                 .Cast<Change<IDescriptor>>()
                 .Subscribe(a =>
                 {
