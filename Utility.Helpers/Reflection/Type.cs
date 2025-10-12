@@ -569,6 +569,23 @@ namespace Utility.Helpers.Reflection
             return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
         }
 
+        public static string ToFriendlyName(this Type type)
+        {
+            if (type.IsGenericType)
+            {
+                var typeName = type.Name;
+                var backtickIndex = typeName.IndexOf('`');
+                if (backtickIndex > 0)
+                    typeName = typeName.Substring(0, backtickIndex);
+
+                var genericArgs = type.GetGenericArguments()
+                                      .Select(t => t.ToFriendlyName());
+
+                return $"{typeName}<{string.Join(", ", genericArgs)}>";
+            }
+
+            return type.Name;
+        }
     }
 
 

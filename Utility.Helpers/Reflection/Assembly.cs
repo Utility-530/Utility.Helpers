@@ -88,5 +88,12 @@ namespace Utility.Helpers.Reflection
                 orderby orderBy(x)
                 select t;
 
+        public static IEnumerable<(Type type, TA attribute)> TypesAndAttributeByAttribute<TA>(this Assembly assembly, Func<TA, int> orderBy) where TA : Attribute =>
+             from t in assembly.GetTypes()
+             let x = t.GetCustomAttribute<TA>()
+             where x != null
+             orderby orderBy(x)
+             select (t,x);
+
     }
 }
