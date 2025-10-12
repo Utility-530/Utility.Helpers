@@ -13,7 +13,7 @@ namespace Utility.Extensions
 {
     public static class ServiceHelper
     {
-        public static void Observe<TParam>(this IServiceResolver serviceResolver, INodeViewModel tModel) where TParam : IMethodParameter
+        public static void Observe<TParam>(this IServiceResolver serviceResolver, INodeViewModel tModel, bool includeInitial = true) where TParam : IMethodParameter
         {
             //var observable = new Reactives.Observable<object>(
             //    [tModel.WhenReceivedFrom(a => (a as IGetValue).Value, includeNulls: false),
@@ -24,7 +24,7 @@ namespace Utility.Extensions
             {
                 throw new Exception("f 333333");
             }
-            serviceResolver.Observe<TParam>(tModel.WhenReceivedFrom(a => (a as IGetValue).Value, includeNulls: false));
+            serviceResolver.Observe<TParam>(tModel.WhenReceivedFrom(a => (a as IGetValue).Value, includeInitialValue: includeInitial, includeNulls: false));
         }
 
         public static void ReactTo<TParam>(this IServiceResolver serviceResolver, INodeViewModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null) where TParam : IMethodParameter
@@ -47,17 +47,17 @@ namespace Utility.Extensions
             return valueModel;
         }
 
-        public static IObservable<T> Observe<TParam, T>(this IObservable<T> observable) where TParam : IMethodParameter
+        public static IObservable<T> Observe<TParam, T>(this IObservable<T> observable, Guid? guid = default) where TParam : IMethodParameter
         {
-            observable.ToValueModel().Observe<TParam>();
+            observable.ToValueModel().Observe<TParam>(guid);
             return observable;
         }
 
-        public static void Observe<TParam>(this INodeViewModel tModel) where TParam : IMethodParameter =>
-            Utility.Globals.Resolver.Resolve<IServiceResolver>().Observe<TParam>(tModel);
+        public static void Observe<TParam>(this INodeViewModel tModel, Guid? guid = default, bool includeInitial = true) where TParam : IMethodParameter =>
+            Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()).Observe<TParam>(tModel, includeInitial: includeInitial);
 
-        public static void ReactTo<TParam>(this INodeViewModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null) where TParam : IMethodParameter =>
-            Globals.Resolver.Resolve<IServiceResolver>().ReactTo<TParam>(tModel, transformation, setAction);
+        public static void ReactTo<TParam>(this INodeViewModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null, Guid? guid = default) where TParam : IMethodParameter =>
+            Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()).ReactTo<TParam>(tModel, transformation, setAction);
 
         private class EqualityComparer : IEqualityComparer<object>
         {
