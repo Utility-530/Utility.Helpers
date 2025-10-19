@@ -1,4 +1,4 @@
-﻿using Utility.Interfaces.Exs;
+﻿using Utility.Interfaces.Methods;
 
 namespace Utility.Extensions
 {
