@@ -1,10 +1,9 @@
-﻿using Splat;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Linq;
 using Utility.Interfaces.Exs;
 using Utility.Interfaces.Exs.Diagrams;
+using Utility.Interfaces.Methods;
 using Utility.Interfaces.NonGeneric;
-using Utility.Models;
 using Utility.Observables.Generic;
 using Utility.PropertyNotifications;
 using Utility.ServiceLocation;
@@ -13,13 +12,8 @@ namespace Utility.Extensions
 {
     public static class ServiceHelper
     {
-        public static void Observe<TParam>(this IServiceResolver serviceResolver, INodeViewModel tModel, bool includeInitial = true) where TParam : IMethodParameter
+        public static void Observe<TParam>(this IServiceResolver serviceResolver, INodeViewModel tModel, bool includeInitial = true) where TParam : IParameter
         {
-            //var observable = new Reactives.Observable<object>(
-            //    [tModel.WhenReceivedFrom(a => (a as IGetValue).Value, includeNulls: false),
-            //tModel.WithChangesTo(a => (a as IGetValue).Value, includeNulls: false, includeInitialValue: false)]);
-
-
             if (tModel is not IGetName name)
             {
                 throw new Exception("f 333333");
@@ -27,37 +21,58 @@ namespace Utility.Extensions
             serviceResolver.Observe<TParam>(tModel.WhenReceivedFrom(a => (a as IGetValue).Value, includeInitialValue: includeInitial, includeNulls: false));
         }
 
-        public static void ReactTo<TParam>(this IServiceResolver serviceResolver, INodeViewModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null) where TParam : IMethodParameter
+        static void reactTo<TParam, TInput, TOutput>(this IServiceResolver serviceResolver, INodeViewModel tModel, Func<TInput, TOutput>? transformation = null, Action<TInput>? setAction = null) where TParam : IParameter
         {
-            setAction ??= (a) => (tModel as ISetValue).Value = a;
+            setAction ??= new Action<TInput>(a =>
+            {
+                TOutput? output = default;
+                if (transformation != null)
+                    output = transformation.Invoke(a);
+                else if (a is TOutput x)
+                    output = x;
+                else if (typeof(TOutput).IsAssignableFrom(typeof(TInput)))
+                {
+                    output = (TOutput)(object)a;
+                }
+                else if (a is IConvertible && typeof(TOutput).IsPrimitive)
+                {
+                    output = (TOutput)Convert.ChangeType(a, typeof(TOutput));
+                }
+                else
+                {
+                    throw new InvalidCastException($"Cannot convert from {typeof(TInput)} to {typeof(TOutput)}");
+                }
 
-            var observer = new Reactives.Observer<object>(a => setAction(transformation != null ? transformation.Invoke(a) : a), e => { }, () => { }) { Reference = tModel };
+
+                (tModel as ISetValue).Value = output;
+                tModel.RaisePropertyChanged(nameof(IGetValue.Value));
+            });
+
+            var observer = new Reactives.Observer<TInput>(async a =>
+            {
+                setAction((TInput)a);
+            }, e => { }, () => { })
+            { Reference = tModel };
             if (tModel is not IGetName name)
             {
                 throw new Exception("f 333333");
             }
 
-            serviceResolver.ReactTo<TParam>(observer);
+            serviceResolver.ReactTo<TParam, TInput>(observer);
+
         }
 
-        public static INodeViewModel ToValueModel<T>(this IObservable<T> observable)
-        {
-            var valueModel = new Model<T>() { Name = typeof(T).Name };
-            observable.Subscribe(a => valueModel.Value = a);
-            return valueModel;
-        }
-
-        public static IObservable<T> Observe<TParam, T>(this IObservable<T> observable, Guid? guid = default) where TParam : IMethodParameter
-        {
-            observable.ToValueModel().Observe<TParam>(guid);
-            return observable;
-        }
-
-        public static void Observe<TParam>(this INodeViewModel tModel, Guid? guid = default, bool includeInitial = true) where TParam : IMethodParameter =>
+        public static void Observe<TParam>(this INodeViewModel tModel, Guid? guid = default, bool includeInitial = true) where TParam : IParameter =>
             Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()).Observe<TParam>(tModel, includeInitial: includeInitial);
+        public static void Observe<TParam, TObs>(this IObservable<TObs> observable, Guid? guid = default) where TParam : IParameter =>
+            Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()).Observe<TParam>(observable.Select(a => (object)a));
 
-        public static void ReactTo<TParam>(this INodeViewModel tModel, Func<object, object>? transformation = null, Action<object>? setAction = null, Guid? guid = default) where TParam : IMethodParameter =>
-            Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()).ReactTo<TParam>(tModel, transformation, setAction);
+        public static void ReactTo<TParam>(this INodeViewModel tModel, Action<object>? setAction = null, Guid? guid = default) where TParam : IParameter =>
+            reactTo<TParam, object, object>(Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()), tModel, a => a, setAction);
+        public static void ReactTo<TParam, TInput>(this INodeViewModel tModel, Action<TInput>? setAction = null, Guid? guid = default) where TParam : IParameter =>
+            reactTo<TParam, object, object>(Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()), tModel, a => a, a => setAction((TInput)a));
+        public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Func<TInput, TOutput>? transformation = null, Action<TInput>? setAction = null, Guid? guid = default) where TParam : IParameter =>
+           reactTo<TParam, TInput, TOutput>(Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()), tModel, transformation, setAction != null ? a => setAction(a) : null);
 
         private class EqualityComparer : IEqualityComparer<object>
         {
