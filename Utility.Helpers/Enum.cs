@@ -120,10 +120,20 @@ namespace Utility.Helpers
 
         public static IEnumerable<ValueDescription<T>> SelectAllValuesAndDescriptions<T>(this Type type) where T : Enum
         {
+            if (!type.IsEnum)
+                throw new ArgumentException($"{nameof(type)} must be an enum type");
+
             return Enum.GetValues(type).Cast<T>()
                 .Where(e => e.GetAttribute<BrowsableAttribute>()?.Browsable ?? true)
                 .Select(e => new ValueDescription<T>(e.GetDescription(type) ?? e.ToString().Replace("_", " "), e))
                 .ToList();
+        }
+        public static T MatchByAttribute<T, TAttribute>(Predicate<TAttribute> predicate) where T : Enum where TAttribute : Attribute
+        {
+            return Enum
+                .GetValues(typeof(T))
+                .Cast<T>()
+                .SingleOrDefault(e => predicate(e.GetAttribute<TAttribute>()));
         }
 
         public static IEnumerable<string?> GetAllDescriptions(Type enumType)
@@ -139,16 +149,16 @@ namespace Utility.Helpers
         /// Gets an attribute on an enum field value
         /// <see href="https://stackoverflow.com/questions/1799370/getting-attributes-of-enums-value"/>
         /// </summary>
-        /// <typeparam name="T">The type of the attribute you want to retrieve</typeparam>
+        /// <typeparam name="TAttribute">The type of the attribute you want to retrieve</typeparam>
         /// <param name="enumVal">The enum value</param>
         /// <returns>The attribute of type T that exists on the enum value</returns>
         /// <example><![CDATA[string desc = myEnumVariable.GetAttributeOfType<DescriptionAttribute>().Description;]]></example>
-        public static T? GetAttribute<T>(this Enum enumVal) where T : Attribute
+        public static TAttribute? GetAttribute<TAttribute>(this Enum enumVal) where TAttribute : Attribute
         {
             var type = enumVal.GetType();
             var memInfo = type.GetMember(enumVal.ToString());
-            var attributes = memInfo[0].GetCustomAttributes(typeof(T), false);
-            return attributes.Length > 0 ? (T)attributes[0] : null;
+            var attributes = memInfo[0].GetCustomAttributes(typeof(TAttribute), false);
+            return attributes.Length > 0 ? (TAttribute)attributes[0] : null;
         }
 
         public static bool IsFlagSet<T>(this T value, T flag) where T : Enum
