@@ -43,15 +43,17 @@ namespace Utility.Extensions
                     throw new InvalidCastException($"Cannot convert from {typeof(TInput)} to {typeof(TOutput)}");
                 }
 
-
                 (tModel as ISetValue).Value = output;
                 tModel.RaisePropertyChanged(nameof(IGetValue.Value));
             });
 
-            var observer = new Reactives.Observer<TInput>(async a =>
+            var observer = new Reactives.Observer<TInput>(a =>
             {
-                setAction((TInput)a);
-            }, e => { }, () => { })
+                Globals.UI.Send((_) =>
+                {
+                    setAction(a);
+                }, null);
+            }, e => { throw e; }, () => { })
             { Reference = tModel };
             if (tModel is not IGetName name)
             {
@@ -59,20 +61,20 @@ namespace Utility.Extensions
             }
 
             serviceResolver.ReactTo<TParam, TInput>(observer);
-
         }
 
         public static void Observe<TParam>(this INodeViewModel tModel, Guid? guid = default, bool includeInitial = true) where TParam : IParameter =>
-            Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()).Observe<TParam>(tModel, includeInitial: includeInitial);
+            resolve(guid).Observe<TParam>(tModel, includeInitial: includeInitial);
         public static void Observe<TParam, TObs>(this IObservable<TObs> observable, Guid? guid = default) where TParam : IParameter =>
-            Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()).Observe<TParam>(observable.Select(a => (object)a));
-
+            resolve(guid).Observe<TParam>(observable.Select(a => (object)a));
         public static void ReactTo<TParam>(this INodeViewModel tModel, Action<object>? setAction = null, Guid? guid = default) where TParam : IParameter =>
-            reactTo<TParam, object, object>(Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()), tModel, a => a, setAction);
-        public static void ReactTo<TParam, TInput>(this INodeViewModel tModel, Action<TInput>? setAction = null, Guid? guid = default) where TParam : IParameter =>
-            reactTo<TParam, object, object>(Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()), tModel, a => a, a => setAction((TInput)a));
+            reactTo<TParam, object, object>(resolve(guid), tModel, a => a, setAction);
+        public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Action<TInputOutput>? setAction = null, Guid? guid = default) where TParam : IParameter =>
+            reactTo<TParam, TInputOutput, TInputOutput>(resolve(guid), tModel, a => a, setAction);
         public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Func<TInput, TOutput>? transformation = null, Action<TInput>? setAction = null, Guid? guid = default) where TParam : IParameter =>
-           reactTo<TParam, TInput, TOutput>(Utility.Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()), tModel, transformation, setAction != null ? a => setAction(a) : null);
+            reactTo<TParam, TInput, TOutput>(resolve(guid), tModel, transformation, setAction);
+
+        private static IServiceResolver resolve(Guid? guid = default) => Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()) ?? throw new Exception("ServiceResolver not found");
 
         private class EqualityComparer : IEqualityComparer<object>
         {
