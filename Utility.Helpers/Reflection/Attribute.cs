@@ -96,7 +96,13 @@ namespace Utility.Helpers.Reflection
                 ((CategoryAttribute)ca).Category.Equals(category, StringComparison.OrdinalIgnoreCase);
             });
 
+        public static PropertyInfo[] FilterPropertiesByAttribute<TAttribute>(Type type)
+            where TAttribute : Attribute => FilterPropertiesByAttribute(type, typeof(TAttribute));
 
+        public static PropertyInfo[] FilterPropertiesByAttribute(Type type, Type AttributeType)          
+        {
+            return [.. type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(prop => Attribute.IsDefined(prop, AttributeType))];
+        }
 
         public static T GetAttribute<T>(this ICustomAttributeProvider provider) where T : Attribute
         {
