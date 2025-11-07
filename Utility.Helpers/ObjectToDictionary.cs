@@ -22,7 +22,6 @@ namespace Utility.Helpers
                 AddPropertyToDictionary(property, source!, dictionary);
             return dictionary;
 
-
             static void ThrowExceptionWhenSourceArgumentIsNull()
             {
                 throw new ArgumentNullException("source", "Unable to convert object to a dictionary. The source object is null.");
@@ -56,6 +55,5 @@ namespace Utility.Helpers
         {
             return (T)ToObject(dict, typeof(T));
         }
-
     }
 }

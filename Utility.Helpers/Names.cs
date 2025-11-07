@@ -1,13 +1,12 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Utility.Helpers
 {
     public static class Names
     {
-        static List<string> strings = new();
+        private static List<string> strings = new();
 
-        public readonly static List<string> Values = new()
+        public static readonly List<string> Values = new()
         {
             "Madeline Haggerty",
             "Eldon Deaver",
@@ -110,7 +109,6 @@ namespace Utility.Helpers
             "Lona Engler",
             "Oren Kesten",
         };
-
 
         public static string Random(this System.Random random)
         {

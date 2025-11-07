@@ -29,7 +29,7 @@ namespace Utility.Helpers.Generic
             }
 
             return condition;
-        }            
+        }
 
         public static SortedList<DateTime, double> MovingAverage(this SortedList<DateTime, double> series, int period)
         {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Utility.Helpers
@@ -13,7 +12,6 @@ namespace Utility.Helpers
                 yield return create();
             }
         }
-
 
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> collection, Action<T> action)
         {
@@ -34,9 +32,5 @@ namespace Utility.Helpers
 
             return collection;
         }
-
-
-
-        
     }
 }

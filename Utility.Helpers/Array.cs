@@ -14,6 +14,7 @@ namespace Utility.Helpers
                 yield return map(x);
             }
         }
+
         public static T[] To1dArray<T>(T[][] arr2d)
         {
             int width = arr2d[0].Length;

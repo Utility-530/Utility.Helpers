@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Utility.Helpers
 {
-    public enum SortOrder { Ascending, Descending }
+    public enum SortOrder
+    { Ascending, Descending }
 
     /// <summary>
     /// Centralized comparer factory with flexible options.
@@ -20,7 +20,7 @@ namespace Utility.Helpers
             IComparer<TKey>? keyComparer = null)
             where TKey : IComparable<TKey>
         {
-            if(keySelector == null) throw new ArgumentNullException(nameof(keySelector));
+            if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
             keyComparer ??= Comparer<TKey>.Default;
 
             return new FuncComparer<T>((x, y) =>

@@ -13,16 +13,15 @@ namespace Utility.Helpers.Reflection
     {
         public const string myRegex = "(.*)\\.(.*), (.*)";
 
-
         public static IEnumerable<string> SelectPropertyNamesOfDeclaringType<T>()
             => typeof(T).GetProperties()
             .Where(x => x.DeclaringType == typeof(T))
             .Select(info => info.Name);
+
         public static bool IsValueOrString(this Type type)
         {
             return type?.IsValueType == true || type == typeof(string);
         }
-
 
         public static Type[] GenericTypeArguments(this Type? type)
         {
@@ -35,14 +34,12 @@ namespace Utility.Helpers.Reflection
             }
             else
                 return (type?.BaseType).GenericTypeArguments();
-
         }
 
         public static string AsString(string assemblyName, string nameSpace, string name)
         {
             return nameSpace + "." + name + ", " + assemblyName;
         }
-
 
         public static Type ToType(string assemblyName, string nameSpace, string name)
         {
@@ -54,10 +51,12 @@ namespace Utility.Helpers.Reflection
             //Regex.Match(typeSerialised, "(.*)\\.(.*), (.*)");
             return Type.GetType(typeSerialised);
         }
+
         public static string ToName(this string typeSerialised)
         {
             return Regex.Match(typeSerialised, myRegex).Groups[1].Value;
         }
+
         public static string ToNameSpace(this string typeSerialised)
         {
             return Regex.Match(typeSerialised, myRegex).Groups[0].Value;
@@ -70,7 +69,6 @@ namespace Utility.Helpers.Reflection
 
         public static string Serialise(this MethodInfo methodInfo)
         {
-
             return AsString(methodInfo.DeclaringType) + " - " + methodInfo.Name;
         }
 
@@ -166,7 +164,6 @@ namespace Utility.Helpers.Reflection
             return false;
         }
 
-
         /// <summary>
         /// Retrieves the collection element type from this type
         /// <a href="https://www.codeproject.com/Tips/5267157/How-to-Get-a-Collection-Element-Type-Using-Reflect#:~:text=For%20getting%20a%20generic%20collection,it%20works%20on%20dictionaries%2C%20too."></a>
@@ -209,7 +206,7 @@ namespace Utility.Helpers.Reflection
                 }
             }
 
-            // if it's a collection, we look for an Add() method whose parameter is 
+            // if it's a collection, we look for an Add() method whose parameter is
             // anything but object
             if (typeof(ICollection).IsAssignableFrom(type))
             {
@@ -358,8 +355,6 @@ namespace Utility.Helpers.Reflection
             t.GetMethods().Where(
                     method => Attribute.IsDefined(method, attribute));
 
-
-
         public static IEnumerable<MethodInfo> GetStaticMethods(this Type t, params object[] parameters)
         {
             return t
@@ -376,8 +371,6 @@ namespace Utility.Helpers.Reflection
         {
             return GetInstanceMethods(t, parameters).Concat(GetStaticMethods(t, parameters));
         }
-
-
 
         public static Func<T, R> GetInstanceMethod<T, R>(MethodInfo method)
         {
@@ -425,7 +418,6 @@ namespace Utility.Helpers.Reflection
                 .Cast<object>()
                 .Select(a => a.GetType())
                 .All(a => a.IsClass == false);
-
 
         public static Type GetElementType(this Type collectionType)
         {
@@ -525,7 +517,6 @@ namespace Utility.Helpers.Reflection
             return type.IsDefined(typeof(FlagsAttribute), true);
         }
 
-
         public static bool IsDerivedFrom<T>(this Type type)
         {
             return typeof(T).IsAssignableFrom(type);
@@ -535,7 +526,6 @@ namespace Utility.Helpers.Reflection
         {
             return types.SelectMany(a => a.Assembly.GetTypes()).Where(a => predicate?.Invoke(a) ?? true);
         }
-
 
         /// <summary>
         /// Checks whether all types in an enumerable are the same.
@@ -588,12 +578,10 @@ namespace Utility.Helpers.Reflection
         }
     }
 
-
     namespace Types
     {
         public static class InheritanceHelper
         {
-
             public static IEnumerable<Type> Ancestors(this Type type, bool includeInitial = true)
             {
                 if (type == null)
@@ -648,7 +636,6 @@ namespace Utility.Helpers.Reflection
 
                 return 1 + CountLevels(type.BaseType);
             }
-
         }
     }
 }

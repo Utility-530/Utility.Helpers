@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using System.Text;
-using Utility.Helpers.Generic;
 
 namespace Utility.Helpers
-{    
+{
     public class JsonHelper
     {
         private const string INDENT_STRING = "    ";
@@ -34,6 +33,7 @@ namespace Utility.Helpers
                             Enumerable.Range(0, ++indent).ForEach(item => sb.Append(INDENT_STRING));
                         }
                         break;
+
                     case '}':
                     case ']':
                         if (!quoted)
@@ -43,6 +43,7 @@ namespace Utility.Helpers
                         }
                         sb.Append(ch);
                         break;
+
                     case '"':
                         sb.Append(ch);
                         bool escaped = false;
@@ -52,6 +53,7 @@ namespace Utility.Helpers
                         if (!escaped)
                             quoted = !quoted;
                         break;
+
                     case ',':
                         sb.Append(ch);
                         if (!quoted)
@@ -60,11 +62,13 @@ namespace Utility.Helpers
                             Enumerable.Range(0, indent).ForEach(item => sb.Append(INDENT_STRING));
                         }
                         break;
+
                     case ':':
                         sb.Append(ch);
                         if (!quoted)
                             sb.Append(" ");
                         break;
+
                     default:
                         sb.Append(ch);
                         break;
@@ -73,5 +77,4 @@ namespace Utility.Helpers
             return sb.ToString();
         }
     }
-
 }

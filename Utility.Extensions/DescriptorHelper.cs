@@ -25,7 +25,6 @@ namespace Utility.Extensions
                     }
                 }, e =>
                 {
-
                 });
         }
 
@@ -45,7 +44,6 @@ namespace Utility.Extensions
                     }
                 }, e =>
                 {
-
                 });
         }
     }

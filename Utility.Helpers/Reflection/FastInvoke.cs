@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace Utility.Helpers.Reflection
 {
@@ -39,7 +37,7 @@ namespace Utility.Helpers.Reflection
         }
 
         public static Action<TInstance, object> ToSetter<TInstance>(this MemberInfo memberInfo)
-        {         
+        {
             return ToSetter<TInstance, object>(memberInfo);
         }
 
@@ -76,12 +74,16 @@ namespace Utility.Helpers.Reflection
             {
                 case MemberTypes.Event:
                     return ((EventInfo)member).EventHandlerType;
+
                 case MemberTypes.Field:
                     return ((FieldInfo)member).FieldType;
+
                 case MemberTypes.Method:
                     return ((MethodInfo)member).ReturnType;
+
                 case MemberTypes.Property:
                     return ((PropertyInfo)member).PropertyType;
+
                 default:
                     throw new ArgumentException
                     (
@@ -91,7 +93,7 @@ namespace Utility.Helpers.Reflection
         }
 
         // Create an fill objects fast from DataReader
-        // http://flurfunk.sdx-ag.de/2012/05/c-performance-bei-der-befullungmapping.html 
+        // http://flurfunk.sdx-ag.de/2012/05/c-performance-bei-der-befullungmapping.html
         public static IEnumerable<T> CreateObjectFromReader<T>(IDataReader reader, Func<IDataReader, List<string>> getFieldNames)
             where T : new()
         {
@@ -100,7 +102,7 @@ namespace Utility.Helpers.Reflection
             List<Action<T, object>> setterList = [];
             List<T> result = new();
 
-            // Create Property-Setter and store it in an array 
+            // Create Property-Setter and store it in an array
             foreach (var field in fieldNames)
             {
                 var propertyInfo = typeof(T).GetProperty(field);

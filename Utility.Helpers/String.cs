@@ -532,7 +532,6 @@ namespace Utility.Helpers
             return trimmed;
         }
 
-
         public static string Nullify(this string thisString)
         {
             return thisString.Nullify(true);

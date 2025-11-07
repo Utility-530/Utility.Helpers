@@ -122,7 +122,5 @@ namespace Utility.Helpers
                 exceptionString = string.Empty;
             return result;
         }
-
-
     }
 }

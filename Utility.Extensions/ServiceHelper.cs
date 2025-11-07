@@ -21,7 +21,7 @@ namespace Utility.Extensions
             serviceResolver.Observe<TParam>(tModel.WhenReceivedFrom(a => (a as IGetValue).Value, includeInitialValue: includeInitial, includeNulls: false));
         }
 
-        static void reactTo<TParam, TInput, TOutput>(this IServiceResolver serviceResolver, INodeViewModel tModel, Func<TInput, TOutput>? transformation = null, Action<TInput>? setAction = null) where TParam : IParameter
+        private static void reactTo<TParam, TInput, TOutput>(this IServiceResolver serviceResolver, INodeViewModel tModel, Func<TInput, TOutput>? transformation = null, Action<TInput>? setAction = null) where TParam : IParameter
         {
             setAction ??= new Action<TInput>(a =>
             {
@@ -65,12 +65,16 @@ namespace Utility.Extensions
 
         public static void Observe<TParam>(this INodeViewModel tModel, Guid? guid = default, bool includeInitial = true) where TParam : IParameter =>
             resolve(guid).Observe<TParam>(tModel, includeInitial: includeInitial);
+
         public static void Observe<TParam, TObs>(this IObservable<TObs> observable, Guid? guid = default) where TParam : IParameter =>
             resolve(guid).Observe<TParam>(observable.Select(a => (object)a));
+
         public static void ReactTo<TParam>(this INodeViewModel tModel, Action<object>? setAction = null, Guid? guid = default) where TParam : IParameter =>
             reactTo<TParam, object, object>(resolve(guid), tModel, a => a, setAction);
+
         public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Action<TInputOutput>? setAction = null, Guid? guid = default) where TParam : IParameter =>
             reactTo<TParam, TInputOutput, TInputOutput>(resolve(guid), tModel, a => a, setAction);
+
         public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Func<TInput, TOutput>? transformation = null, Action<TInput>? setAction = null, Guid? guid = default) where TParam : IParameter =>
             reactTo<TParam, TInput, TOutput>(resolve(guid), tModel, transformation, setAction);
 
@@ -79,6 +83,7 @@ namespace Utility.Extensions
         private class EqualityComparer : IEqualityComparer<object>
         {
             public new bool Equals(object? x, object? y) => x == y;
+
             public int GetHashCode([DisallowNull] object obj) => obj.GetHashCode();
         }
     }

@@ -11,7 +11,6 @@ using Utility.Helpers.Reflection;
 
 namespace Utility.Helpers.Reflection
 {
-
     public static class PropertyHelper
     {
         public static bool IsReadOnly(this PropertyInfo prop)
@@ -20,7 +19,6 @@ namespace Utility.Helpers.Reflection
             bool ro = !prop.CanWrite || attrib != null && attrib.IsReadOnly;
             return ro;
         }
-
 
         public static ICollection<PropertyInfo> PublicInstanceProperties(this Type type, HashSet<Type>? types = null, HashSet<PropertyInfo>? propertyInfos = null)
         {
@@ -35,7 +33,6 @@ namespace Utility.Helpers.Reflection
                 }
             }
 
-
             foreach (var property in type.GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance))
             {
                 propertyInfos.Add(property);
@@ -46,14 +43,11 @@ namespace Utility.Helpers.Reflection
 
         public static IEnumerable<PropertyInfo> TopLevelPublicInstanceProperties(this Type type)
         {
-
             foreach (var property in type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
             {
                 yield return property;
             }
-
         }
-
 
         public static T? GetPropertyValue<T>(this object obj, string name, Type? type = null) where T : struct => obj.GetPropertyValue<T>((type ?? obj.GetType()).GetProperty(name));
 
@@ -383,6 +377,7 @@ namespace Utility.Helpers.Reflection
 
             return response;
         }
+
         public static Type[] ValueTypes = new[]{
              typeof(decimal),
         typeof(double),
@@ -671,8 +666,8 @@ namespace Utility.Helpers.Reflection
         /// <param name="myObject"></param>
         /// <returns></returns>
         public static IEnumerable<PropertyInfo> GetPropertiesByPredicate<T, R>(R myObject, Predicate<T> predicate) => GetPropertiesByPredicate(myObject, predicate, from property in typeof(R).GetProperties()
-                                                                                                                                                                          where property.PropertyType == typeof(T)
-                                                                                                                                                                          select property);
+                                                                                                                                                                    where property.PropertyType == typeof(T)
+                                                                                                                                                                    select property);
 
         public static bool IsTrue<T, R>(R myObject, Predicate<T> predicate) => GetPropertiesByPredicate(myObject, predicate).Any();
 

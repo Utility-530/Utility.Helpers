@@ -7,8 +7,6 @@ namespace Utility.Helpers.NonGeneric
 {
     public static class Linq
     {
-
-
         public static IEnumerable ForEach(this IEnumerable collection, Action<object> action)
         {
             if (collection is IList list)
@@ -45,7 +43,6 @@ namespace Utility.Helpers.NonGeneric
                     action(item);
                 }
             }
-
         }
 
         public static void DynamicUsing(object resource, Action action)
@@ -59,8 +56,6 @@ namespace Utility.Helpers.NonGeneric
                 (resource as IDisposable)?.Dispose();
             }
         }
-
-
 
         public static object? ElementAt(this IEnumerable source, int index)
         {
@@ -98,7 +93,6 @@ namespace Utility.Helpers.NonGeneric
                 {
                     if (i == index)
                     {
-
                     }
                     else
                     {
@@ -108,7 +102,6 @@ namespace Utility.Helpers.NonGeneric
                 }
             });
             return arrayList;
-
         }
 
         public static void RemoveAt(this IEnumerable source, int index)
@@ -125,8 +118,6 @@ namespace Utility.Helpers.NonGeneric
         {
             source.RemoveWhere(x => x is T);
         }
-
-
 
         public static IEnumerable RemoveWhere(this IEnumerable collection, Predicate<object> predicate)
         {
@@ -211,7 +202,6 @@ namespace Utility.Helpers.NonGeneric
                     return true;
             return false;
         }
-
 
         public static object First(this IEnumerable enumerable, Predicate<object>? predicate = null)
         {

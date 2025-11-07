@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Utility.Helpers.Reflection
 {
@@ -39,5 +35,6 @@ namespace Utility.Helpers.Reflection
 namespace System.Runtime.CompilerServices
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    internal class IsExternalInit { }
+    internal class IsExternalInit
+    { }
 }

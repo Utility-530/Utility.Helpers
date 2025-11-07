@@ -10,7 +10,6 @@ namespace Utility.Helpers
     /// </summary>
     public static class PropertyHelper2
     {
-
         //public static PropertyDescriptor GetPropertyDescriptor(PropertyInfo PropertyInfo)
         //{
         //    return TypeDescriptor.GetProperties(PropertyInfo.DeclaringType).Item(PropertyInfo.Name);
@@ -88,7 +87,7 @@ namespace Utility.Helpers
 
         public static bool TryGetPrivateFieldValue(this object obj, string propName, out object? output)
         {
-            return TryGetPrivateFieldValue(obj, propName, out  output, out _); 
+            return TryGetPrivateFieldValue(obj, propName, out output, out _);
         }
 
         public static bool TryGetPrivateFieldValue(this object obj, string propName, out object? output, out FieldInfo? fieldInfo)
@@ -131,7 +130,6 @@ namespace Utility.Helpers
                            BindingFlags.Instance, null, obj, new object[] { val });
         }
 
-
         /// <summary>
         /// Set a private Field Value on a given Object. Uses Reflection.
         /// </summary>
@@ -163,5 +161,4 @@ namespace Utility.Helpers
             return false;
         }
     }
-
 }

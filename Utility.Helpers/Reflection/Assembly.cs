@@ -10,8 +10,8 @@ namespace Utility.Helpers.Reflection
     public static class AssemblyHelper
     {
         public static IEnumerable<Type> TypesInNamespace(this Assembly assembly, string nameSpace) => from t in assembly.GetTypes()
-                                                                                                         where string.Equals(t.Namespace, nameSpace, StringComparison.Ordinal)
-                                                                                                         select t;
+                                                                                                      where string.Equals(t.Namespace, nameSpace, StringComparison.Ordinal)
+                                                                                                      select t;
 
         public static IEnumerable<KeyValuePair<string, object>> CreateNonSystemTypesByInterface(params Type[] interfaceTypes) => CreateTypesByInterface(GetNonSystemAssemblies().ToArray(), interfaceTypes);
 
@@ -63,11 +63,11 @@ namespace Utility.Helpers.Reflection
 
         public static bool ManifestModuleCheck(string assemblyManifestModuleName) => assemblyManifestModuleName != "<In Memory Module>";
 
-
         public static Assembly ToAssembly(this string typeSerialised)
         {
             return Assembly.LoadFrom(Regex.Match(typeSerialised, TypeHelper.myRegex).Groups[2].Value);
         }
+
         public static IEnumerable<TypeInfo> AllTypes(this IEnumerable<Assembly> assembliesToScan)
         {
             return assembliesToScan
@@ -93,7 +93,6 @@ namespace Utility.Helpers.Reflection
              let x = t.GetCustomAttribute<TA>()
              where x != null
              orderby orderBy(x)
-             select (t,x);
-
+             select (t, x);
     }
 }

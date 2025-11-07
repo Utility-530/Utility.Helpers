@@ -128,6 +128,7 @@ namespace Utility.Helpers
                 .Select(e => new ValueDescription<T>(e.GetDescription(type) ?? e.ToString().Replace("_", " "), e))
                 .ToList();
         }
+
         public static T MatchByAttribute<T, TAttribute>(Predicate<TAttribute> predicate) where T : Enum where TAttribute : Attribute
         {
             return Enum
@@ -176,7 +177,7 @@ namespace Utility.Helpers
                    select enm;
         }
 
-        static bool IsCombination<T>(T value)
+        private static bool IsCombination<T>(T value)
         {
             // Count how many bits are set to 1
             ulong numericValue = Convert.ToUInt64(value);
@@ -191,7 +192,6 @@ namespace Utility.Helpers
                    where value.IsFlagSet(enm)
                    select enm;
         }
-
 
         public static T SetFlags<T>(this T value, T flags, bool on) where T : Enum
         {
@@ -212,14 +212,11 @@ namespace Utility.Helpers
 
         public static T ClearFlags<T>(this T value, T flags) where T : Enum => value.SetFlags(flags, false);
 
-
-
         public static T CombineFlags<T>() where T : struct, Enum
         {
             var x = Enum.GetValues(typeof(T)).Cast<T>().Select(a => Convert.ToInt64(a));
             return (T)x.CombineFlags(typeof(T));
         }
-
 
         public static T CombineFlags<T>(this IEnumerable<T> flags) where T : Enum
         {

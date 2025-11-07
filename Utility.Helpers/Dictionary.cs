@@ -37,7 +37,6 @@ namespace Utility.Helpers
             return func(value);
         }
 
-
         /// <summary>
         /// Get a the value for a key. If the key does not exist, creates a new one
         /// </summary>
@@ -61,7 +60,6 @@ namespace Utility.Helpers
                 ? result
                 : func(createValue.Invoke(key));
         }
-
 
         public static void AddRange<K, V>(this IDictionary<K, V> me, params IDictionary<K, V>[] others)
         {
@@ -150,6 +148,7 @@ namespace Utility.Helpers
         public static IEnumerable<(TKey key, TValue one, TValue two)> Differences<TKey, TValue>(
        this IDictionary<TKey, TValue> dictionary1,
        IDictionary<TKey, TValue> dictionary2) => Compare(dictionary1, dictionary2, false);
+
         public static IEnumerable<(TKey key, TValue one, TValue two)> Similarities<TKey, TValue>(
         this IDictionary<TKey, TValue> dictionary1,
         IDictionary<TKey, TValue> dictionary2) => Compare(dictionary1, dictionary2, true);

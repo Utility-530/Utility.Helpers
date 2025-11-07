@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Utility.Helpers.Reflection
 {
@@ -26,10 +24,7 @@ namespace Utility.Helpers.Reflection
             (fieldInfo ??= GetField(instance.GetType(), name)).SetValue(instance, value);
         }
 
-
-
         #region Obsolete
-
 
         [Obsolete]
         public static IEnumerable<(string, Func<object?>)> GetStaticMethods(this Type t, params object[] parameters)
@@ -38,8 +33,8 @@ namespace Utility.Helpers.Reflection
                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Select(m => (m.GetDescription(), new Func<object?>(() => m.Invoke(null, parameters))));
         }
-        
-        //[Obsolete]        
+
+        //[Obsolete]
         //public static IEnumerable<(string, MethodInfo)> StaticMethods(this Type t)
         //{
         //    return t
@@ -54,6 +49,7 @@ namespace Utility.Helpers.Reflection
                     .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                         .Select(m => (m.GetDescription(), new Func<object?>(() => m.Invoke(instance, parameters))));
         }
+
         [Obsolete]
         public static string GetDescription(this MethodInfo methodInfo)
         {
@@ -73,7 +69,7 @@ namespace Utility.Helpers.Reflection
             return methodInfo.Name;
         }
 
-        #endregion
+        #endregion Obsolete
 
         ///<summary>
         /// <a href="https://dotnetcoretutorials.com/2020/07/03/getting-assemblies-is-harder-than-you-think-in-c/"></a>
@@ -108,9 +104,5 @@ namespace Utility.Helpers.Reflection
                                 .Select(x => Assembly.Load(AssemblyName.GetAssemblyName(x)));
             return assemblies;
         }
-
-
-
-      
     }
 }

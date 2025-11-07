@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Utility.Helpers;
 
 namespace Utility.Helpers.Reflection
@@ -10,7 +9,6 @@ namespace Utility.Helpers.Reflection
     public class PropertyCache<R> where R : notnull
     {
         private readonly Dictionary<string, Func<R, object>> dictionary = new();
-
 
         public static IEnumerable RecursivePropertyValues(object e, string path)
         {

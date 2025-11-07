@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Text;
 
 namespace Utility.Helpers
@@ -53,12 +48,6 @@ namespace Utility.Helpers
             return sb.ToString();
         }
 
-
-
-
-
-
-
         public static string NormalizeGuidParameter(object parameter)
         {
             const string guidParameters = "DNBPX";
@@ -71,9 +60,6 @@ namespace Utility.Helpers
             char ch = guidParameters.FirstOrDefault(c => c == p[0]);
             return ch == 0 ? guidParameters[0].ToString(CultureInfo.InvariantCulture) : ch.ToString(CultureInfo.InvariantCulture);
         }
-
-
-
 
         //public static string ToHexa(byte[] bytes)
         //{
@@ -117,6 +103,5 @@ namespace Utility.Helpers
         //    }
         //    return sb.ToString();
         //}
-
     }
 }

@@ -1,18 +1,13 @@
-﻿using Microsoft.VisualBasic;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Utility.Helpers.NonGeneric;
 
 namespace Utility.Helpers.NonGeneric
 {
     public static class ListHelper
     {
         //public static object SingleOrAdd(this ICollection query, object x)
-        //{ 
+        //{
         //    var xd = query.SingleOrDefault(null);
         //    if (xd == null) query.Add(x);
 
@@ -53,6 +48,5 @@ namespace Utility.Helpers.NonGeneric
 
             return collection;
         }
-
     }
 }

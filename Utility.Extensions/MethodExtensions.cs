@@ -8,10 +8,10 @@ namespace Utility.Extensions
         {
             return method.MethodInfo.Invoke(method.Instance, [.. objects.OrderBy(kv => method.Parameters.Select(a => a.Name).ToList().IndexOf(kv.Key)).Select(a => a.Value)]);
         }
+
         public static object? ExecuteWithObjects(this IMethod method, object[] objects)
         {
             return method.MethodInfo.Invoke(method.Instance, objects);
         }
-
     }
 }

@@ -15,12 +15,14 @@ namespace Utility.Extensions
             }
         }
     }
+
     public static class RepositoryHelper
     {
         public static IEnumerable All(this IRepository repository)
         {
             return repository.FindManyBy(new AllQuery());
         }
+
         public static IEnumerable Clear(this IRepository repository)
         {
             return repository.RemoveManyBy(new AllQuery());

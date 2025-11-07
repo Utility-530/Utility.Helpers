@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Utility.Helpers.Reflection
 {
@@ -34,15 +32,16 @@ namespace Utility.Helpers.Reflection
                      })(a);
         }
 
-        static readonly ConcurrentDictionary<Type, Func<object, bool>> helpers =
+        private static readonly ConcurrentDictionary<Type, Func<object, bool>> helpers =
           new ConcurrentDictionary<Type, Func<object, bool>>();
 
-        static class StructHelpers<T> where T : struct
+        private static class StructHelpers<T> where T : struct
         {
             // ReSharper disable StaticMemberInGenericType
-            static readonly int ByteCount = Unsafe.SizeOf<T>();
-            static readonly int LongCount = ByteCount / 8;
-            static readonly int ByteRemainder = ByteCount % 8;
+            private static readonly int ByteCount = Unsafe.SizeOf<T>();
+
+            private static readonly int LongCount = ByteCount / 8;
+            private static readonly int ByteRemainder = ByteCount % 8;
             // ReSharper restore StaticMemberInGenericType
 
             public static bool IsDefaultValue(T a)

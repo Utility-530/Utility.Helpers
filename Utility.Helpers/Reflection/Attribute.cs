@@ -41,13 +41,14 @@ namespace Utility.Helpers.Reflection
 
             return attributes?.Length > 0 ? (true, attributes[0]) : (false, default)!;
         }
-        
+
         public static bool TryGetAttribute<T>(this MemberInfo value, out T? attribute) where T : Attribute
         {
             T[] attributes = (T[])value.GetCustomAttributes(typeof(T), false);
             attribute = attributes.FirstOrDefault();
             return attributes?.Length > 0;
         }
+
         public static bool HasAttribute<T>(this MemberInfo value) where T : Attribute
         {
             T[] attributes = (T[])value.GetCustomAttributes(typeof(T), false);
@@ -60,7 +61,6 @@ namespace Utility.Helpers.Reflection
 
             return attributes?.Length > 0 ? propertyFunc(attributes[0]) : default;
         }
-
 
         public static (bool success, object? attribute) GetAttributeSafe(this MemberInfo value, Type type)
         {
@@ -99,7 +99,7 @@ namespace Utility.Helpers.Reflection
         public static PropertyInfo[] FilterPropertiesByAttribute<TAttribute>(Type type)
             where TAttribute : Attribute => FilterPropertiesByAttribute(type, typeof(TAttribute));
 
-        public static PropertyInfo[] FilterPropertiesByAttribute(Type type, Type AttributeType)          
+        public static PropertyInfo[] FilterPropertiesByAttribute(Type type, Type AttributeType)
         {
             return [.. type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(prop => Attribute.IsDefined(prop, AttributeType))];
         }
@@ -168,6 +168,5 @@ namespace Utility.Helpers.Reflection
         {
             return (IEnumerable<T>)Attribute.GetCustomAttributes(element, typeof(T));
         }
-
     }
 }

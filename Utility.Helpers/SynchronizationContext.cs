@@ -20,6 +20,7 @@ namespace Utility.Helpers
         private static readonly SendOrPostCallback _postCallback = state => ((Action)state)();
 
         private readonly SynchronizationContext _context;
+
         public SynchronizationContextAwaiter(SynchronizationContext context)
         {
             _context = context;
@@ -29,7 +30,8 @@ namespace Utility.Helpers
 
         public void OnCompleted(Action continuation) => _context.Post(_postCallback, continuation);
 
-        public async void GetResult() {
+        public async void GetResult()
+        {
         }
     }
 }

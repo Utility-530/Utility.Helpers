@@ -168,7 +168,6 @@ params System.Collections.IEnumerable[] itemCollections)
             }
         }
 
-
         // From MoreLinq
         public static IEnumerable<TSource> MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey>? comparer = null)
         {
@@ -353,7 +352,6 @@ params System.Collections.IEnumerable[] itemCollections)
             return collection;
         }
 
-
         public static void RemoveWhere<T>(this ICollection<T> collection, Func<T, bool> predicate)
         {
             if (collection is IList<T> list)
@@ -378,7 +376,6 @@ params System.Collections.IEnumerable[] itemCollections)
                 }
             }
         }
-
     }
 
     public class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>

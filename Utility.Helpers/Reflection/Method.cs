@@ -12,7 +12,6 @@ namespace Utility.Helpers.Reflection
 
     public static class MethodHelpers
     {
-
         private static Dictionary<object, Delegate> _cache4GetExpressionValueAsMethodCallExpression = new Dictionary<object, Delegate>();
         private static Dictionary<object, Delegate> _cache4GetExpressionValueAsUnaryExpression = new Dictionary<object, Delegate>();
         private static Dictionary<Type, Dictionary<PropertyInfo, Delegate>> _cache4FastGetters = new Dictionary<Type, Dictionary<PropertyInfo, Delegate>>();
@@ -68,9 +67,7 @@ namespace Utility.Helpers.Reflection
             return instance
                     .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                     .Where(m => !m.IsSpecialName);
-
         }
-
 
         public static IEnumerable<(string, Func<object?>)> MethodValues(this object instance, params object[] parameters)
         {
@@ -79,7 +76,6 @@ namespace Utility.Helpers.Reflection
                     .Where(m => !m.IsSpecialName)
                         .Select(m => (m.GetDescription(), new Func<object?>(() => m.Invoke(instance, parameters))));
         }
-
 
         public static string Description(this MethodInfo methodInfo)
         {
@@ -98,7 +94,6 @@ namespace Utility.Helpers.Reflection
             }
             return methodInfo.Name;
         }
-
 
         /// <summary>
         /// Converts a MethodInfo to a string representation for lookup purposes
@@ -216,4 +211,3 @@ namespace Utility.Helpers.Reflection
         }
     }
 }
-

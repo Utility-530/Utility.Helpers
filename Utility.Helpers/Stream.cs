@@ -18,11 +18,10 @@ namespace Utility.Helpers
         public static void OverWriteFile(this Stream stream, string path)
         {
             Directory.GetParent(path).Create();
-            using FileStream fileStream = new (path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            using FileStream fileStream = new(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             fileStream.SetLength(0);
             stream.CopyTo(fileStream);
         }
-
 
         public static FileStream ToFileStream(this string path)
         {
@@ -37,8 +36,8 @@ namespace Utility.Helpers
             StreamReader reader = new StreamReader(stream);
             string text = reader.ReadToEnd();
             return text;
-        }     
-        
+        }
+
         public static string AsString(this Stream stream)
         {
             stream.Position = 0;

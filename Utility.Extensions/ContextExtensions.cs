@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Utility.Interfaces.NonGeneric;
+﻿using Utility.Interfaces.NonGeneric;
 
 namespace Utility.Extensions
 {
@@ -19,7 +14,6 @@ namespace Utility.Extensions
             {
                 context.UI.Post(a => action(), null);
             }
-
         }
     }
 }

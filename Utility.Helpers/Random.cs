@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Utility.Helpers
 {
@@ -10,7 +9,6 @@ namespace Utility.Helpers
         {
             return random.Next(100) + random.NextDouble();
         }
-
 
         public static bool NextBoolean(this Random source)
         {
