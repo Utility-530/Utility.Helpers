@@ -50,7 +50,7 @@ namespace Utility.Extensions
 
         public static void ReactTo<TParam, TInput>(this IServiceResolver serviceResolver, Action<TInput> setAction, object? reference = null) where TParam : IParameter
         {
-           
+
             var observer = new Reactives.Observer<TInput>(a =>
             {
                 Globals.UI.Send((_) =>
@@ -62,17 +62,17 @@ namespace Utility.Extensions
 
             serviceResolver.ReactTo<TParam, TInput>(observer);
         }
-    
+
         public static void Observe<TParam>(this INodeViewModel tModel, Guid? guid = default, bool includeInitial = true) where TParam : IParameter =>
             resolve(guid).Observe<TParam>(tModel, includeInitial: includeInitial);
 
-        public static void Observe<TParam, TObs>(this IObservable<TObs> observable, Guid? guid = default) where TParam : IParameter =>
+        public static void Observe<TParam, TObs>(this IObservable<TObs> observable, Guid? guid = default) where TParam : IParameter where TObs : class =>
             resolve(guid).Observe<TParam>(observable.Select(a => (object)a));
 
         public static void ReactTo<TParam>(this INodeViewModel tModel, Func<object, object>? transformation = null, Guid? guid = default) where TParam : IParameter =>
             ReactTo<TParam, object, object>(resolve(guid), tModel, transformation);
 
-        public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Func<TInputOutput, TInputOutput>? transformation = null, Guid ? guid = default) where TParam : IParameter =>
+        public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Func<TInputOutput, TInputOutput>? transformation = null, Guid? guid = default) where TParam : IParameter =>
             ReactTo<TParam, TInputOutput, TInputOutput>(resolve(guid), tModel, transformation);
 
         public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Func<TInput, TOutput>? transformation = null, Guid? guid = default) where TParam : IParameter =>
@@ -81,7 +81,7 @@ namespace Utility.Extensions
         public static void ReactTo<TParam>(this INodeViewModel tModel, Action<object> setAction, Guid? guid = default) where TParam : IParameter =>
             ReactTo<TParam, object>(resolve(guid), setAction, tModel);
 
-        public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Action<TInputOutput> setAction, Guid ? guid = default) where TParam : IParameter =>
+        public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Action<TInputOutput> setAction, Guid? guid = default) where TParam : IParameter =>
             ReactTo<TParam, TInputOutput>(resolve(guid), setAction, tModel);
 
         public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Action<TInput> setAction, Guid? guid = default) where TParam : IParameter =>
