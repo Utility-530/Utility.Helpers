@@ -6,14 +6,6 @@ namespace Utility.Helpers.NonGeneric
 {
     public static class ListHelper
     {
-        //public static object SingleOrAdd(this ICollection query, object x)
-        //{
-        //    var xd = query.SingleOrDefault(null);
-        //    if (xd == null) query.Add(x);
-
-        //    return xd;
-        //}
-
         public static IList AddRange(this IList collection, IEnumerable values)
         {
             values.ForEach((a) => collection.Add(a));

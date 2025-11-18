@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Utility.Helpers;
@@ -9,6 +10,13 @@ namespace Utility.Helpers.Generic
 {
     public static class CollectionExtension
     {
+
+        public static ICollection<T> AddRange<T>(this ICollection<T> collection, IEnumerable<T> values)
+        {
+            values.ForEach(collection.Add);
+            return collection;
+        }
+
         public static void Then<T>(this T caller, Action<T> action) => action?.Invoke(caller);
 
         public static bool Then(this bool condition, Action action)

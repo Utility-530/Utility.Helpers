@@ -6,6 +6,28 @@ namespace Utility.Helpers.Generic
 {
     public static class LinqEx
     {
+        public static int IndexOf<T>(this IEnumerable<T> source, Predicate<T> predicate)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            int index = 0;
+
+            foreach (var item in source)
+            {
+                if (predicate(item))
+                    return index;
+
+                index++;
+            }
+
+            return -1;
+        }
+
+        public static int IndexOf<T>(this IEnumerable<T> source, T searchItem) => IndexOf(source, item => EqualityComparer<T>.Default.Equals(item, searchItem));
+
         public static T FindLast<T>(IEnumerable<T> items, Func<T, DateTime> f, DateTime dt)
         {
             return items.Where(pss => f(pss) < dt).MaxBy(ps => f(ps)).First();
@@ -72,12 +94,6 @@ namespace Utility.Helpers.Generic
             if (xd == null) query.Add(x);
 
             return xd;
-        }
-
-        public static ICollection<T> AddRange<T>(this ICollection<T> collection, IEnumerable<T> values)
-        {
-            values.ForEach(collection.Add);
-            return collection;
         }
 
         public static ICollection<T> RemoveRange<T>(this ICollection<T> collection, IEnumerable<T> values)
