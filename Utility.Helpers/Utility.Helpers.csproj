@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Authors>Declan Taylor</Authors>
-
+		<LangVersion>latest</LangVersion>
 		<Company />
 		<Product />
 		<Description>

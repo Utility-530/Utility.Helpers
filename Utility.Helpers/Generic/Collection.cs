@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Utility.Helpers;
 using Utility.Helpers.Generic;
@@ -11,6 +12,10 @@ namespace Utility.Helpers.Generic
     public static class CollectionExtension
     {
 
+        public static ObservableCollection<T> ToObservableCollection<T>(this IEnumerable<T> collection)
+        {           
+            return new ObservableCollection<T>(collection);
+        }
         public static ICollection<T> AddRange<T>(this ICollection<T> collection, IEnumerable<T> values)
         {
             values.ForEach(collection.Add);
