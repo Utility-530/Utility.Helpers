@@ -66,7 +66,7 @@ namespace Utility.Extensions
         public static void Observe<TParam>(this INodeViewModel tModel, Guid? guid = default, bool includeInitial = true) where TParam : IParameter =>
             resolve(guid).Observe<TParam>(tModel, includeInitial: includeInitial);
 
-        public static void Observe<TParam, TObs>(this IObservable<TObs> observable, Guid? guid = default) where TParam : IParameter where TObs : class =>
+        public static void Observe<TParam, TObs>(this IObservable<TObs> observable, Guid? guid = default) where TParam : IParameter /*where TObs : class*/ =>
             resolve(guid).Observe<TParam>(observable.Select(a => (object)a));
 
         public static void ReactTo<TParam>(this INodeViewModel tModel, Func<object, object>? transformation = null, Guid? guid = default) where TParam : IParameter =>
