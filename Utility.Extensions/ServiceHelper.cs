@@ -69,13 +69,15 @@ namespace Utility.Extensions
         public static void Observe<TParam, TObs>(this IObservable<TObs> observable, Guid? guid = default) where TParam : IParameter /*where TObs : class*/ =>
             resolve(guid).Observe<TParam>(observable.Select(a => (object)a));
 
-        public static void ReactTo<TParam>(this INodeViewModel tModel, Func<object, object>? transformation = null, Guid? guid = default) where TParam : IParameter =>
+        // place the transformation after guid parameter to avoid ambiguity between 
+        // transformation Func and setAction Action
+        public static void ReactTo<TParam>(this INodeViewModel tModel, Guid? guid = default, Func<object, object>? transformation = null) where TParam : IParameter =>
             ReactTo<TParam, object, object>(resolve(guid), tModel, transformation);
 
-        public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Func<TInputOutput, TInputOutput>? transformation = null, Guid? guid = default) where TParam : IParameter =>
+        public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Guid? guid = default, Func<TInputOutput, TInputOutput>? transformation = null) where TParam : IParameter =>
             ReactTo<TParam, TInputOutput, TInputOutput>(resolve(guid), tModel, transformation);
 
-        public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Func<TInput, TOutput>? transformation = null, Guid? guid = default) where TParam : IParameter =>
+        public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Guid? guid = default, Func<TInput, TOutput>? transformation = null) where TParam : IParameter =>
             ReactTo<TParam, TInput, TOutput>(resolve(guid), tModel, transformation);
 
         public static void ReactTo<TParam>(this INodeViewModel tModel, Action<object> setAction, Guid? guid = default) where TParam : IParameter =>
