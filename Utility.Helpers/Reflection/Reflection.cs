@@ -7,6 +7,106 @@ using System.Reflection;
 
 namespace Utility.Helpers.Reflection
 {
+    public class PropertyInfoWrapper
+    {
+        public PropertyInfo _propertyInfo;
+        private object _targetObject;
+
+        public PropertyInfoWrapper(PropertyInfo propertyInfo, object targetObject)
+        {
+            _propertyInfo = propertyInfo ?? throw new ArgumentNullException(nameof(propertyInfo));
+            _targetObject = targetObject ?? throw new ArgumentNullException(nameof(targetObject));
+        }
+
+        // Method to retrieve the property value
+        public object GetValue()
+        {
+            return _propertyInfo.GetValue(_targetObject);
+        }
+        public void SetValue(object value)
+        {
+            _propertyInfo.SetValue(_targetObject, value);
+        }
+
+        // Additional properties or methods can be added as needed
+        public string Name => _propertyInfo.Name;
+        public Type Type => _propertyInfo.PropertyType;
+    }
+
+    public class ObjectWrapper
+    {
+        private readonly object _wrappedObject;
+        public readonly Dictionary<string, PropertyInfoWrapper> _propertyCache;
+
+        public ObjectWrapper(object obj)
+        {
+            _wrappedObject = obj ?? throw new ArgumentNullException(nameof(obj));
+            _propertyCache = new Dictionary<string, PropertyInfoWrapper>();
+
+            // Cache the properties for fast access
+            foreach (PropertyInfo property in _wrappedObject.GetType().GetProperties())
+            {
+                _propertyCache[property.Name] = new PropertyInfoWrapper(property, obj);
+            }
+        }
+
+        public object Object => _wrappedObject;
+
+        public object this[string propertyName]
+        {
+            get => Get(propertyName);
+            set => Set(propertyName, value);
+        }
+
+        public object Get(string propertyName)
+        {
+            if (_propertyCache.TryGetValue(propertyName, out var propertyInfo))
+            {
+                return propertyInfo.GetValue();
+            }
+
+            throw new ArgumentException($"Property '{propertyName}' does not exist.");
+        }
+
+        public T? Get<T>(string propertyName)
+        {
+            object value = Get(propertyName);  // Call the non-generic Get() method
+
+            if (value is T typedValue)
+            {
+                return typedValue;  // If the value can be cast to T, return it
+            }
+            if (value is null)
+            {
+                return default;  // If the value can be cast to T, return it
+            }
+
+            throw new InvalidCastException($"Cannot cast property '{propertyName}' to type '{typeof(T)}'.");
+        }
+
+        public void Set(string propertyName, object value)
+        {
+            if (_propertyCache.TryGetValue(propertyName, out var propertyInfo))
+            {
+                Type propertyType = propertyInfo.Type;
+                Type underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+
+                if (value == null || underlyingType.IsAssignableFrom(value.GetType()))
+                {
+                    propertyInfo.SetValue(value);
+                }
+                else
+                {
+                    throw new ArgumentException($"Invalid value type for property '{propertyName}'. Expected '{propertyInfo.Type}'.");
+                }
+            }
+            else
+            {
+                throw new ArgumentException($"Property '{propertyName}' does not exist.");
+            }
+        }
+    }
+
     public static class ReflectionHelper
     {
         public static FieldInfo GetField(this Type type, string name)

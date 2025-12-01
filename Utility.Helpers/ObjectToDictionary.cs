@@ -28,6 +28,22 @@ namespace Utility.Helpers
             }
         }
 
+        public static Dictionary<string, T> ToDictionary<T>(this Type source)
+        {
+            if (source == null)
+                ThrowExceptionWhenSourceArgumentIsNull();
+
+            var dictionary = new Dictionary<string, T>();
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(source))
+                AddPropertyToDictionary(property, source!, dictionary);
+            return dictionary;
+
+            static void ThrowExceptionWhenSourceArgumentIsNull()
+            {
+                throw new ArgumentNullException("source", "Unable to convert object to a dictionary. The source object is null.");
+            }
+        }
+
         private static void AddPropertyToDictionary<T>(PropertyDescriptor property, object source, Dictionary<string, T> dictionary)
         {
             object value = property.GetValue(source);
