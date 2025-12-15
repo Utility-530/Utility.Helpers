@@ -50,7 +50,6 @@ namespace Utility.Extensions
 
         public static void ReactTo<TParam, TInput>(this IServiceResolver serviceResolver, Action<TInput> setAction, object? reference = null) where TParam : IParameter
         {
-
             var observer = new Reactives.Observer<TInput>(a =>
             {
                 Globals.UI.Send((_) =>
