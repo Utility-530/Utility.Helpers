@@ -10,6 +10,23 @@ namespace Utility.Helpers
 
     public static class DateTimeHelper
     {
+        public static string ToString(DateTime date, DateTime? today = null)
+        {
+            today ??= DateTime.Now.Date;
+            DateTime targetDate = date.Date;
+
+            return (targetDate - today.Value).Days switch
+            {
+                -1 => "yesterday",
+                >= -7 and < 0 => $"last {targetDate.DayOfWeek}",
+                < -7 => targetDate.ToString("MMM dd, yyyy"),
+                0 => "today",
+                1 => "tomorrow",
+                <= 7 => $"next {targetDate.DayOfWeek}",
+                _ => targetDate.ToString("MMM dd, yyyy")
+            };
+        }
+
         public static bool IsYesterday(this DateTime dt) => (dt >= DateTime.Today.AddDays(-1) && dt < DateTime.Today);
 
         public static bool IsTomorrow(this DateTime dt) => (dt <= DateTime.Today.AddDays(1) && dt > DateTime.Today);
