@@ -30,7 +30,7 @@ namespace Utility.Extensions
         ICollection<object> Inputs { get; }
     }
 
-    public class PropertyReceiver<TInput> : IObserver<object>
+    public class PropertyReceiver<TInput> : IObserver<object>, IGetReference
     {
         private readonly INodeViewModel nodeViewModel;
 
@@ -38,6 +38,8 @@ namespace Utility.Extensions
         {
             this.nodeViewModel = nodeViewModel;
         }
+
+        public object Reference => typeof(TInput);
 
         public required string Name { get; set; }
 
@@ -108,7 +110,7 @@ namespace Utility.Extensions
             serviceResolver.ReactTo<TParam, TInput>(propertyReceiver);
         }
 
-        public static void ReactTo<TParam, TInput>(this IServiceResolver serviceResolver, Action<TInput> setAction, object? reference = null) where TParam : IParameter
+        public static void ReactTo<TParam, TInput>(this IServiceResolver serviceResolver, Action<TInput> setAction) where TParam : IParameter
         {
             var observer = new Reactives.Observer<object>(a =>
             {
@@ -117,7 +119,7 @@ namespace Utility.Extensions
                     setAction((TInput)a);
                 }, null);
             }, e => { throw e; }, () => { })
-            { Reference = reference };
+            { Reference = typeof(TInput) };
 
             serviceResolver.ReactTo<TParam, TInput>(observer);
         }
@@ -139,14 +141,14 @@ namespace Utility.Extensions
         public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Guid? guid = default, Func<TInput, TOutput>? transformation = null) where TParam : IParameter =>
             ReactTo<TParam, TInput, TOutput>(resolve(guid), tModel, transformation);
 
-        public static void ReactTo<TParam>(this INodeViewModel tModel, Action<object> setAction, Guid? guid = default) where TParam : IParameter =>
-            ReactTo<TParam, object>(resolve(guid), setAction, tModel);
+        public static void ReactTo<TParam>(Action<object> setAction, Guid? guid = default) where TParam : IParameter =>
+            ReactTo<TParam, object>(resolve(guid), setAction);
 
-        public static void ReactTo<TParam, TInputOutput>(this INodeViewModel tModel, Action<TInputOutput> setAction, Guid? guid = default) where TParam : IParameter =>
-            ReactTo<TParam, TInputOutput>(resolve(guid), setAction, tModel);
+        public static void ReactTo<TParam, TInputOutput>(Action<TInputOutput> setAction, Guid? guid = default) where TParam : IParameter =>
+            ReactTo<TParam, TInputOutput>(resolve(guid), setAction);
 
-        public static void ReactTo<TParam, TInput, TOutput>(this INodeViewModel tModel, Action<TInput> setAction, Guid? guid = default) where TParam : IParameter =>
-            ReactTo<TParam, TInput>(resolve(guid), setAction, tModel);
+        public static void ReactTo<TParam, TInput, TOutput>(Action<TInput> setAction, Guid? guid = default) where TParam : IParameter =>
+            ReactTo<TParam, TInput>(resolve(guid), setAction);
 
         private static IServiceResolver resolve(Guid? guid = default) => Globals.Resolver.Resolve<IServiceResolver>(guid?.ToString()) ?? throw new Exception("ServiceResolver not found");
 
