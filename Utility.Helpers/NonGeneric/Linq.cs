@@ -65,7 +65,7 @@ namespace Utility.Helpers.NonGeneric
             int i = 0;
             var e = source.GetEnumerator();
             object? element = null;
-
+        
             DynamicUsing(e, () =>
             {
                 while (e.MoveNext())
