@@ -17,13 +17,13 @@ namespace Utility.Helpers
 
             return (targetDate - today.Value).Days switch
             {
+                0 => "today",
                 -1 => "yesterday",
                 >= -7 and < 0 => $"last {targetDate.DayOfWeek}",
-                < -7 => targetDate.ToString("MMM dd, yyyy"),
-                0 => "today",
+                < -7 => "on " +targetDate.ToString("MMM dd, yyyy"),             
                 1 => "tomorrow",
                 <= 7 => $"next {targetDate.DayOfWeek}",
-                _ => targetDate.ToString("MMM dd, yyyy")
+                _ => "on " + targetDate.ToString("MMM dd, yyyy")
             };
         }
 
