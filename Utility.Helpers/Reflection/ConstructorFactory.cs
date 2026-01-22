@@ -8,7 +8,7 @@ namespace Utility.Helpers.Reflection
 {
     public static class ConstructorFactory
     {
-        public static Func<T> Create<T>() => () => (T?)Create(typeof(T)) ?? throw new Exception("VDS22sdsd");
+        public static object Create<T>() => (T?)Create(typeof(T)) ?? throw new Exception("VDS22sdsd");
 
         public static object? Create(Type type)
         {
