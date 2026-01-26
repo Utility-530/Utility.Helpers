@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
@@ -10,30 +11,29 @@ namespace Utility.Helpers.Reflection
     /// </summary>
     public class Comparison
     {
-        // Essentially unchanged from Eamon Nerbonne's version
-        public static bool IsDefaultValue(object? a)
-        {
-            if (a == null) return true;
+        private static readonly ConcurrentDictionary<Type, Func<object, bool>> defaultValueComparisons =
+  new ConcurrentDictionary<Type, Func<object, bool>>();
 
-            Type type = a.GetType();
+        // Essentially unchanged from Eamon Nerbonne's version
+        public static bool IsDefaultValue(object? value, bool isNullTreatedAsDefaultValue = true)
+        {
+            if (value == null) return isNullTreatedAsDefaultValue;
+
+            Type type = value.GetType();
 
             return type.IsValueType &&
-                   helpers.GetOrAdd(
+                   defaultValueComparisons.GetOrAdd(
                      type,
                      t =>
                      {
-                         var method = typeof(StructHelpers<>).MakeGenericType(t)
-                .GetMethod(nameof(StructHelpers<int>.IsDefaultValue));
+                         var method = typeof(StructHelpers<>)
+                                        .MakeGenericType(t)
+                                        .GetMethod(nameof(StructHelpers<int>.IsDefaultValue));
                          var objParam = Expression.Parameter(typeof(object), "obj");
-                         return Expression.Lambda<Func<object, bool>>(
-                   Expression.Call(method, Expression.Convert(objParam, t)),
-                   objParam)
-                .Compile();
-                     })(a);
+                         var call = Expression.Call(method, Expression.Convert(objParam, t));
+                         return Expression.Lambda<Func<object, bool>>(call, objParam).Compile();
+                     }).Invoke(value);
         }
-
-        private static readonly ConcurrentDictionary<Type, Func<object, bool>> helpers =
-          new ConcurrentDictionary<Type, Func<object, bool>>();
 
         private static class StructHelpers<T> where T : struct
         {
